@@ -1,4 +1,4 @@
-package dev.langchain4j.example;
+package fr.mazure.aitestcasegeneration;
 
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
