@@ -1,6 +1,5 @@
 package fr.mazure.aitestcasegeneration.provider.base;
 
-import java.net.URI;
 import java.net.URL;
 import java.util.Optional;
 
@@ -25,14 +24,14 @@ public class ModelParameters {
     }
 
     public String getModelName() {
-        return modelName;
+        return this.modelName;
     }
 
     public Optional<URL> getUrl() {
-        return url;
+        return this.url;
     }
 
     public String getApiKeyEnvironmentVariableName() {
-        return apiKeyEnvVar;
+        return this.apiKeyEnvVar;
     }
 }

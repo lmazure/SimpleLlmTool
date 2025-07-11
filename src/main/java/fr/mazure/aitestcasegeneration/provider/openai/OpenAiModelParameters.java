@@ -56,27 +56,27 @@ public class OpenAiModelParameters extends ModelParameters{
     }
 
     public Optional<String> getOrganizationId() {
-        return organizationId;
+        return this.organizationId;
     }
 
     public Optional<String> getProjectId() {
-        return projectId;
+        return this.projectId;
     }
 
     public Optional<Double> getTemperature() {
-        return temperature;
+        return this.temperature;
     }
 
     public Optional<Integer> getSeed() {
-        return seed;
+        return this.seed;
     }
 
     public Optional<Double> getTopP() {
-        return topP;
+        return this.topP;
     }
 
     public Optional<Integer> getMaxCompletionTokens() {
-        return maxCompletionTokens;
+        return this.maxCompletionTokens;
     }
     
     /**
@@ -100,19 +100,19 @@ public class OpenAiModelParameters extends ModelParameters{
 
             // Extract optional parameters
             final Optional<URL> url = parameterMap.getOptionalUrl("url");
-            
+
             final Optional<String> organizationId = parameterMap.getOptionalString("organizationId");
-            
+
             final Optional<String> projectId = parameterMap.getOptionalString("projectId");
-            
+
             final Optional<Double> temperature = parameterMap.getOptionalDouble("temperature");
-            
+
             final Optional<Integer> seed = parameterMap.getOptionalInteger("seed");
-            
+
             final Optional<Double> topP = parameterMap.getOptionalDouble("topP");
-            
+
             final Optional<Integer> maxCompletionTokens = parameterMap.getOptionalInteger("maxCompletionTokens");
-            
+
             return new OpenAiModelParameters(modelName,
                                              url,
                                              apiKeyEnvVar,

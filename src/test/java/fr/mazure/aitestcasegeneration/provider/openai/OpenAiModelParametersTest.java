@@ -31,12 +31,24 @@ public class OpenAiModelParametersTest {
      * @throws InvalidModelParameter if a parameter has an incorrect value
      */
     @Test
-    public void testLoadFromFileWithAllParameters() throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
+    public void testLoadFromFileWithAllParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
         // Given
-        final Path configPath = Paths.get("src/test/resources/valid-openai-config.yaml");
+        final String configContent = """
+                modelName: gpt-4
+                apiKeyEnvVar: OPENAI_API_KEY
+                url: https://api.openai.com/v1
+                organizationId: org-abcd1234
+                projectId: proj-5678efgh
+                temperature: 0.7
+                seed: 42
+                topP: 0.95
+                maxCompletionTokens: 2048
+                """;
+        final Path tempConfigPath = tempDir.resolve("valid-openai-config.yaml");
+        Files.writeString(tempConfigPath, configContent);
         
         // When
-        final OpenAiModelParameters parameters = OpenAiModelParameters.loadFromFile(configPath);
+        final OpenAiModelParameters parameters = OpenAiModelParameters.loadFromFile(tempConfigPath);
         
         // Then
         assertEquals("gpt-4", parameters.getModelName());
@@ -58,12 +70,17 @@ public class OpenAiModelParametersTest {
      * @throws InvalidModelParameter if a parameter has an incorrect value
      */
     @Test
-    public void testLoadFromFileWithMinimalParameters() throws IOException, MissingModelParameter, InvalidModelParameter {
+    public void testLoadFromFileWithMinimalParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter {
         // Given
-        final Path configPath = Paths.get("src/test/resources/minimal-openai-config.yaml");
+        final String configContent = """
+                modelName: gpt-3.5-turbo
+                apiKeyEnvVar: OPENAI_API_KEY
+                """;
+        final Path tempConfigPath = tempDir.resolve(("minimal-openai-config.yaml"));
+        Files.writeString(tempConfigPath, configContent);
         
         // When
-        final OpenAiModelParameters parameters = OpenAiModelParameters.loadFromFile(configPath);
+        final OpenAiModelParameters parameters = OpenAiModelParameters.loadFromFile(tempConfigPath);
         
         // Then
         assertEquals("gpt-3.5-turbo", parameters.getModelName());
@@ -99,10 +116,11 @@ public class OpenAiModelParametersTest {
     public void testLoadFromFileWithInvalidUrl(@TempDir final Path tempDir) throws IOException {
         // Given
         final Path invalidConfigPath = tempDir.resolve("invalid-url-config.yaml");
-        Files.writeString(invalidConfigPath, 
-                "modelName: gpt-4\n" +
-                "apiKeyEnvVar: OPENAI_API_KEY\n" +
-                "url: invalid-url");
+        Files.writeString(invalidConfigPath, """
+                modelName: gpt-4
+                apiKeyEnvVar: OPENAI_API_KEY
+                url: invalid-url
+                """);
         
         // When/Then
         assertThrows(InvalidModelParameter.class, () -> OpenAiModelParameters.loadFromFile(invalidConfigPath));
@@ -118,10 +136,11 @@ public class OpenAiModelParametersTest {
     public void testLoadFromFileWithInvalidNumericValues(@TempDir final Path tempDir) throws IOException {
         // Given
         final Path invalidConfigPath = tempDir.resolve("invalid-numeric-config.yaml");
-        Files.writeString(invalidConfigPath, 
-                "modelName: gpt-4\n" +
-                "apiKeyEnvVar: OPENAI_API_KEY\n" +
-                "temperature: not-a-number");
+        Files.writeString(invalidConfigPath, """
+                modelName: gpt-4
+                apiKeyEnvVar: OPENAI_API_KEY
+                temperature: not-a-number
+                """);
         
         // When/Then
         assertThrows(InvalidModelParameter.class, () -> OpenAiModelParameters.loadFromFile(invalidConfigPath));
