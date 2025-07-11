@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.Optional;
 
 import org.yaml.snakeyaml.Yaml;
@@ -91,37 +90,16 @@ public class OpenAiModelParameters extends ModelParameters{
     public static OpenAiModelParameters loadFromFile(final Path yamlFilePath) throws IOException, MissingModelParameter, InvalidModelParameter {
         try (final InputStream inputStream = new FileInputStream(yamlFilePath.toFile())) {
             final Yaml yaml = new Yaml();
-            final Map<String, Object> yamlData = yaml.load(inputStream);
-            final ParameterMap parameterMap = new ParameterMap(yamlData);
-            
-            // Extract required parameters
-            final String modelName = parameterMap.getString("modelName");
-            final String apiKeyEnvVar = parameterMap.getString("apiKeyEnvVar");
-
-            // Extract optional parameters
-            final Optional<URL> url = parameterMap.getOptionalUrl("url");
-
-            final Optional<String> organizationId = parameterMap.getOptionalString("organizationId");
-
-            final Optional<String> projectId = parameterMap.getOptionalString("projectId");
-
-            final Optional<Double> temperature = parameterMap.getOptionalDouble("temperature");
-
-            final Optional<Integer> seed = parameterMap.getOptionalInteger("seed");
-
-            final Optional<Double> topP = parameterMap.getOptionalDouble("topP");
-
-            final Optional<Integer> maxCompletionTokens = parameterMap.getOptionalInteger("maxCompletionTokens");
-
-            return new OpenAiModelParameters(modelName,
-                                             url,
-                                             apiKeyEnvVar,
-                                             organizationId,
-                                             projectId,
-                                             temperature,
-                                             seed,
-                                             topP,
-                                             maxCompletionTokens);
+            final ParameterMap parameterMap = new ParameterMap(yaml.load(inputStream));
+            return new OpenAiModelParameters(parameterMap.getString("modelName"),
+                                             parameterMap.getOptionalUrl("url"),
+                                             parameterMap.getString("apiKeyEnvVar"),
+                                             parameterMap.getOptionalString("organizationId"),
+                                             parameterMap.getOptionalString("projectId"),
+                                             parameterMap.getOptionalDouble("temperature"),
+                                             parameterMap.getOptionalInteger("seed"),
+                                             parameterMap.getOptionalDouble("topP"),
+                                             parameterMap.getOptionalInteger("maxCompletionTokens"));
         }
     }
 }
