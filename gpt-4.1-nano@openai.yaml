@@ -1,0 +1,2 @@
+modelName: gpt-4.1-nano
+apiKeyEnvVar: OPENAI_API_KEY
