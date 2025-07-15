@@ -5,7 +5,8 @@ import java.util.Arrays;
 public enum ProviderEnum {
 
     OPENAI("OpenAI"),
-    MISTRAL_AI("Mistral AI");
+    MISTRAL_AI("Mistral AI"),
+    CUSTOM("custom");
 
     private final String name;
 

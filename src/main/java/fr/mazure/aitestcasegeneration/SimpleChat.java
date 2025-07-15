@@ -13,6 +13,8 @@ import dev.langchain4j.service.AiServices;
 import fr.mazure.aitestcasegeneration.provider.base.InvalidModelParameter;
 import fr.mazure.aitestcasegeneration.provider.base.MissingEnvironmentVariable;
 import fr.mazure.aitestcasegeneration.provider.base.MissingModelParameter;
+import fr.mazure.aitestcasegeneration.provider.custom.CustomChatModelProvider;
+import fr.mazure.aitestcasegeneration.provider.custom.CustomModelParameters;
 import fr.mazure.aitestcasegeneration.provider.mistralai.MistralAiChatModelProvider;
 import fr.mazure.aitestcasegeneration.provider.mistralai.MistralAiModelParameters;
 import fr.mazure.aitestcasegeneration.provider.openai.OpenAiChatModelProvider;
@@ -49,8 +51,9 @@ public class SimpleChat {
         }
 
         final ChatModel model = switch (cli.provider()) {
-            case ProviderEnum.OPENAI -> OpenAiChatModelProvider.createChatModel(OpenAiModelParameters.loadFromFile(cli.modelFile()));
+            case ProviderEnum.OPENAI     -> OpenAiChatModelProvider.createChatModel(OpenAiModelParameters.loadFromFile(cli.modelFile()));
             case ProviderEnum.MISTRAL_AI -> MistralAiChatModelProvider.createChatModel(MistralAiModelParameters.loadFromFile(cli.modelFile()));
+            case ProviderEnum.CUSTOM     -> CustomChatModelProvider.createChatModel(CustomModelParameters.loadFromFile(cli.modelFile()));
         };
 
         final ChatMemory memory = MessageWindowChatMemory.withMaxMessages(2);

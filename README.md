@@ -25,7 +25,6 @@ It is indicated on the command line with the `--model-file <model_file>` paramet
 Its content depends on the provider.  
 The provider is indicated on the command line with the `--provider <provider>` parameter.
 
-
 ## OpenAI
 | parameter           | description                                              | compulsory   |
 | ------------------- | -------------------------------------------------------- | ------------ |
@@ -39,7 +38,6 @@ The provider is indicated on the command line with the `--provider <provider>` p
 | topP                | top P value of the model                                 | no           |
 | maxCompletionTokens | maximum number of tokens the model should generate       | no           |
 
-
 ## Mistral AI
 | parameter           | description                                              | compulsory   |
 | ------------------- | -------------------------------------------------------- | ------------ |
@@ -50,3 +48,10 @@ The provider is indicated on the command line with the `--provider <provider>` p
 | seed                | random seed of the model                                 | no           |
 | topP                | top P value of the model                                 | no           |
 | maxTokens           | maximum number of tokens the model should generate       | no           |
+
+## custom
+| parameter           | description                                              | compulsory   |
+| ------------------- | -------------------------------------------------------- | ------------ |
+| modelName           | name of the model                                        | yes          |
+| url                 | base URL of the provider                                 | yes          |
+| apiKeyEnvVar        | name of the environment variable containing the API key  | yes          |
