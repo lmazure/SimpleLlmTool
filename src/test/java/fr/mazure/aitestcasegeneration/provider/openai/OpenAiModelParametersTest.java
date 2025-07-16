@@ -36,7 +36,7 @@ public class OpenAiModelParametersTest {
         final String configContent = """
                 modelName: gpt-4
                 apiKeyEnvVar: OPENAI_API_KEY
-                url: https://api.openai.com/v1
+                baseUrl: https://api.openai.com/v1
                 organizationId: org-abcd1234
                 projectId: proj-5678efgh
                 temperature: 0.7
@@ -53,7 +53,7 @@ public class OpenAiModelParametersTest {
         // Then
         assertEquals("gpt-4", parameters.getModelName());
         assertEquals("OPENAI_API_KEY", parameters.getApiKeyEnvironmentVariableName());
-        assertEquals(new URI("https://api.openai.com/v1").toURL(), parameters.getUrl().get());
+        assertEquals(new URI("https://api.openai.com/v1").toURL(), parameters.getBaseUrl().get());
         assertEquals("org-abcd1234", parameters.getOrganizationId().get());
         assertEquals("proj-5678efgh", parameters.getProjectId().get());
         assertEquals(0.7, parameters.getTemperature().get());
@@ -85,7 +85,7 @@ public class OpenAiModelParametersTest {
         // Then
         assertEquals("gpt-3.5-turbo", parameters.getModelName());
         assertEquals("OPENAI_API_KEY", parameters.getApiKeyEnvironmentVariableName());
-        assertFalse(parameters.getUrl().isPresent());
+        assertFalse(parameters.getBaseUrl().isPresent());
         assertFalse(parameters.getOrganizationId().isPresent());
         assertFalse(parameters.getProjectId().isPresent());
         assertFalse(parameters.getTemperature().isPresent());
@@ -119,7 +119,7 @@ public class OpenAiModelParametersTest {
         Files.writeString(invalidConfigPath, """
                 modelName: gpt-4
                 apiKeyEnvVar: OPENAI_API_KEY
-                url: invalid-url
+                baseUrl: invalid-url
                 """);
         
         // When/Then

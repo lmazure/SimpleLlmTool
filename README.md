@@ -29,7 +29,7 @@ The provider is indicated on the command line with the `--provider <provider>` p
 | parameter           | description                                              | compulsory   |
 | ------------------- | -------------------------------------------------------- | ------------ |
 | modelName           | name of the model                                        | yes          |
-| url                 | base URL of the provider                                 | yes          |
+| baseUrl             | base URL of the provider                                 | no           |
 | apiKeyEnvVar        | name of the environment variable containing the API key  | yes          |
 | organizationId      | ID of the organization containing the model              | no           |
 | projectId           | ID of the project containing the model                   | no           |
@@ -42,7 +42,7 @@ The provider is indicated on the command line with the `--provider <provider>` p
 | parameter           | description                                              | compulsory   |
 | ------------------- | -------------------------------------------------------- | ------------ |
 | modelName           | name of the model                                        | yes          |
-| url                 | base URL of the provider                                 | yes          |
+| baseUrl             | base URL of the provider                                 | no           |
 | apiKeyEnvVar        | name of the environment variable containing the API key  | yes          |
 | temperature         | temperature of the model                                 | no           |
 | seed                | random seed of the model                                 | no           |
@@ -53,5 +53,5 @@ The provider is indicated on the command line with the `--provider <provider>` p
 | parameter           | description                                              | compulsory   |
 | ------------------- | -------------------------------------------------------- | ------------ |
 | modelName           | name of the model                                        | yes          |
-| url                 | base URL of the provider                                 | yes          |
+| url                 | URL of the provider                                      | yes          |
 | apiKeyEnvVar        | name of the environment variable containing the API key  | yes          |

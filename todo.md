@@ -1,2 +1,2 @@
-- [ ] for OpenAI and Mistral url should be renamed to baseUrl
-- [ ] for custom url should be compulsory (replace Optional<URL> by URL)
+- check that ChatHistory works (maybe by implementing a real chat mode)
+- analyse token count evaluation

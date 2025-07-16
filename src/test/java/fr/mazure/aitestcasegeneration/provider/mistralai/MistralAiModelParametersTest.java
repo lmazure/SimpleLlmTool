@@ -36,7 +36,7 @@ public class MistralAiModelParametersTest {
         final String configContent = """
                 modelName: mistral-large-latest
                 apiKeyEnvVar: MISTRALAI_API_KEY
-                url: https://api.mistral.ai/v1
+                baseUrl: https://api.mistral.ai/v1
                 temperature: 0.7
                 topP: 0.95
                 maxTokens: 2048
@@ -50,7 +50,7 @@ public class MistralAiModelParametersTest {
         // Then
         assertEquals("mistral-large-latest", parameters.getModelName());
         assertEquals("MISTRALAI_API_KEY", parameters.getApiKeyEnvironmentVariableName());
-        assertEquals(new URI("https://api.mistral.ai/v1").toURL(), parameters.getUrl().get());
+        assertEquals(new URI("https://api.mistral.ai/v1").toURL(), parameters.getBaseUrl().get());
         assertEquals(0.7, parameters.getTemperature().get());
         assertEquals(0.95, parameters.getTopP().get());
         assertEquals(2048, parameters.getMaxTokens().get());
@@ -79,7 +79,7 @@ public class MistralAiModelParametersTest {
         // Then
         assertEquals("mistral-small-latest", parameters.getModelName());
         assertEquals("MISTRAL_API_KEY", parameters.getApiKeyEnvironmentVariableName());
-        assertFalse(parameters.getUrl().isPresent());
+        assertFalse(parameters.getBaseUrl().isPresent());
         assertFalse(parameters.getTemperature().isPresent());
         assertFalse(parameters.getTopP().isPresent());
         assertFalse(parameters.getMaxTokens().isPresent());
@@ -110,7 +110,7 @@ public class MistralAiModelParametersTest {
         Files.writeString(invalidConfigPath, """
                 modelName: mistral-medium-latest
                 apiKeyEnvVar: MISTRAL_API_KEY
-                url: invalid-url
+                baseUrl: invalid-url
                 """);
         
         // When/Then

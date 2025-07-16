@@ -15,11 +15,20 @@ private final Map<String, Object> data;
         this.data = data;
     }
 
-    public String getString(final String parameterName) throws MissingModelParameter {
-        if (!data.containsKey(parameterName) || !(data.get(parameterName) instanceof String)) {
+    public String getString(final String parameterName) throws MissingModelParameter, InvalidModelParameter {
+        final Optional<String> string = getOptionalString(parameterName);
+        if (string.isEmpty()) {
             throw new MissingModelParameter(parameterName);
         }
-        return (String) data.get(parameterName);
+        return string.get();
+    }
+
+    public URL getUrl(final String parameterName) throws MissingModelParameter, InvalidModelParameter {
+        final Optional<URL> url = getOptionalUrl(parameterName);
+        if (url.isEmpty()) {
+            throw new MissingModelParameter(parameterName);
+        }
+        return url.get();
     }
 
     public Optional<URL> getOptionalUrl(final String parameterName) throws InvalidModelParameter {
@@ -34,6 +43,7 @@ private final Map<String, Object> data;
         }
         return Optional.of(url);
     }
+
 
     public Optional<String> getOptionalString(final String parameterName) throws InvalidModelParameter {
         if (!data.containsKey(parameterName)) {

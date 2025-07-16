@@ -18,7 +18,7 @@ import fr.mazure.aitestcasegeneration.provider.base.ParameterMap;
      * Parameters for the OpenAI model provider.
      * 
      * @param modelName           the name of the model
-     * @param url                 the base URL of the provider
+     * @param baseUrl             the base URL of the provider
      * @param apiKeyEnvVar        the name of the environment variable containing the API key
      * @param organizationId      the ID of the organization containing the model
      * @param projectId           the ID of the project containing the model
@@ -37,7 +37,7 @@ public class OpenAiModelParameters extends ModelParameters{
     private final Optional<Integer> maxCompletionTokens;
 
     public OpenAiModelParameters(final String modelName,
-                                 final Optional<URL> url,
+                                 final Optional<URL> baseUrl,
                                  final String apiKeyEnvVar,
                                  final Optional<String> organizationId,
                                  final Optional<String> projectId,
@@ -45,7 +45,7 @@ public class OpenAiModelParameters extends ModelParameters{
                                  final Optional<Integer> seed,
                                  final Optional<Double> topP,
                                  final Optional<Integer> maxCompletionTokens) {
-        super(modelName, url, apiKeyEnvVar);
+        super(modelName, baseUrl, apiKeyEnvVar);
         this.organizationId = organizationId;
         this.projectId = projectId;
         this.temperature = temperature;
@@ -92,7 +92,7 @@ public class OpenAiModelParameters extends ModelParameters{
             final Yaml yaml = new Yaml();
             final ParameterMap parameterMap = new ParameterMap(yaml.load(inputStream));
             return new OpenAiModelParameters(parameterMap.getString("modelName"),
-                                             parameterMap.getOptionalUrl("url"),
+                                             parameterMap.getOptionalUrl("baseUrl"),
                                              parameterMap.getString("apiKeyEnvVar"),
                                              parameterMap.getOptionalString("organizationId"),
                                              parameterMap.getOptionalString("projectId"),

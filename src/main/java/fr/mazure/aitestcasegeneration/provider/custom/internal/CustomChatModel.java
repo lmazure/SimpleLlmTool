@@ -1,4 +1,4 @@
-package fr.mazure.aitestcasegeneration.provider.custom;
+package fr.mazure.aitestcasegeneration.provider.custom.internal;
 
 import java.io.IOException;
 import java.time.Duration;

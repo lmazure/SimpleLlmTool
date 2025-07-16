@@ -16,8 +16,8 @@ public class OpenAiChatModelProvider implements ModelProvider {
                                                               .apiKey(apiKey)
                                                               .modelName(parameters.getModelName());
 
-        if (parameters.getUrl().isPresent()) {
-            builder.baseUrl(parameters.getUrl().get().toString());
+        if (parameters.getBaseUrl().isPresent()) {
+            builder.baseUrl(parameters.getBaseUrl().get().toString());
         }
 
         if (parameters.getOrganizationId().isPresent()) {

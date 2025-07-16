@@ -18,15 +18,15 @@ import fr.mazure.aitestcasegeneration.provider.base.ParameterMap;
  * Parameters for the custom model provider.
  * 
  * @param modelName           the name of the model
- * @param url                 the base URL of the provider
+ * @param url                 the URL of the provider
  * @param apiKeyEnvVar        the name of the environment variable containing the API key
  */
 public class CustomModelParameters extends ModelParameters {
-    
+
     public CustomModelParameters(final String modelName,
-                                 final Optional<URL> url,
+                                 final URL url,
                                  final String apiKeyEnvVar) {
-        super(modelName, url, apiKeyEnvVar);
+        super(modelName, Optional.of(url), apiKeyEnvVar);
     }
 
     /**
@@ -43,7 +43,7 @@ public class CustomModelParameters extends ModelParameters {
             final Yaml yaml = new Yaml();
             final ParameterMap parameterMap = new ParameterMap(yaml.load(inputStream));
             return new CustomModelParameters(parameterMap.getString("modelName"),
-                                             parameterMap.getOptionalUrl("url"),
+                                             parameterMap.getUrl("url"),
                                              parameterMap.getString("apiKeyEnvVar"));
         }
     }

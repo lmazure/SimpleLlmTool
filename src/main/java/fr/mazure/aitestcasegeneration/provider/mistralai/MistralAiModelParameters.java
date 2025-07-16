@@ -18,7 +18,7 @@ import fr.mazure.aitestcasegeneration.provider.base.ParameterMap;
  * Parameters for the Mistral AI model provider.
  * 
  * @param modelName           the name of the model
- * @param url                 the base URL of the provider
+ * @param baseUrl             the base URL of the provider
  * @param apiKeyEnvVar        the name of the environment variable containing the API key
  * @param temperature         the temperature of the model
  * @param topP                the top P value of the model
@@ -31,12 +31,12 @@ public class MistralAiModelParameters extends ModelParameters {
     private final Optional<Integer> maxTokens;
 
     public MistralAiModelParameters(final String modelName,
-                                    final Optional<URL> url,
+                                    final Optional<URL> baseUrl,
                                     final String apiKeyEnvVar,
                                     final Optional<Double> temperature,
                                     final Optional<Double> topP,
                                     final Optional<Integer> maxTokens) {
-        super(modelName, url, apiKeyEnvVar);
+        super(modelName, baseUrl, apiKeyEnvVar);
         this.temperature = temperature;
         this.topP = topP;
         this.maxTokens = maxTokens;
@@ -68,7 +68,7 @@ public class MistralAiModelParameters extends ModelParameters {
             final Yaml yaml = new Yaml();
             final ParameterMap parameterMap = new ParameterMap(yaml.load(inputStream));
             return new MistralAiModelParameters(parameterMap.getString("modelName"),
-                                                parameterMap.getOptionalUrl("url"),
+                                                parameterMap.getOptionalUrl("baseUrl"),
                                                 parameterMap.getString("apiKeyEnvVar"),
                                                 parameterMap.getOptionalDouble("temperature"),
                                                 parameterMap.getOptionalDouble("topP"),

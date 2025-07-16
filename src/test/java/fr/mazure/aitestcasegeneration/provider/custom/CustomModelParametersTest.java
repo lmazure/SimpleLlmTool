@@ -47,7 +47,7 @@ public class CustomModelParametersTest {
         // Then
         assertEquals("custom-large-latest", parameters.getModelName());
         assertEquals("CUSTOM_API_KEY", parameters.getApiKeyEnvironmentVariableName());
-        assertEquals(new URI("https://api.custom.ai/v1").toURL(), parameters.getUrl().get());
+        assertEquals(new URI("https://api.custom.ai/v1").toURL(), parameters.getBaseUrl().get());
     }
 
     /**
@@ -58,11 +58,12 @@ public class CustomModelParametersTest {
      * @throws InvalidModelParameter if a parameter has an incorrect value
      */
     @Test
-    public void testLoadFromFileWithMinimalParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter {
+    public void testLoadFromFileWithMinimalParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
         // Given
         final String configContent = """
                 modelName: custom-small-latest
                 apiKeyEnvVar: CUSTOM_API_KEY
+                url: https://api.custom.ai/v1
                 """;
         final Path tempConfigPath = tempDir.resolve(("minimal-custom-config.yaml"));
         Files.writeString(tempConfigPath, configContent);
@@ -73,7 +74,7 @@ public class CustomModelParametersTest {
         // Then
         assertEquals("custom-small-latest", parameters.getModelName());
         assertEquals("CUSTOM_API_KEY", parameters.getApiKeyEnvironmentVariableName());
-        assertFalse(parameters.getUrl().isPresent());
+        assertEquals(new URI("https://api.custom.ai/v1").toURL(), parameters.getBaseUrl().get());
     }
 
     /**
