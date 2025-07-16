@@ -12,11 +12,12 @@ import java.util.stream.Collectors;
 public class CommandLine {
     
     public record Parameters(Optional<String> sysPrompt,
-                             String userPrompt,
+                             Optional<String> userPrompt,
                              Optional<Path> outputFile,
                              Optional<Path> errorFile,
                              ProviderEnum provider,
-                             Path modelFile) {}
+                             Path modelFile,
+                             boolean chatMode) {}
 
     public static Parameters parseCommandLine(final String[] args) {
         String sysPrompt = null;
@@ -25,6 +26,7 @@ public class CommandLine {
         Path errorFile = null;
         ProviderEnum provider = null;
         Path modelFile = null;
+        boolean chatMode = false;
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("--system-prompt-string")) {
                 if ((i + 1 ) >= args.length) {
@@ -119,6 +121,10 @@ public class CommandLine {
                 i++;
                 continue;
             }
+            if (args[i].equals("--chat-mode")) {
+                chatMode = true;
+                continue;
+            }
             if (args[i].equals("--help")) {
                 System.exit(ExitCode.SUCCESS.getCode());
             }
@@ -137,12 +143,28 @@ public class CommandLine {
             System.err.println("Missing model file");
             displayHelpAndExit(ExitCode.INVALID_COMMAND_LINE.getCode());
         }
+        if (chatMode) {
+            if (outputFile != null) {
+                System.err.println("Output file is not allowed in chat mode");
+                displayHelpAndExit(ExitCode.INVALID_COMMAND_LINE.getCode());
+            }
+            if (errorFile != null) {
+                System.err.println("Error file is not allowed in chat mode");
+                displayHelpAndExit(ExitCode.INVALID_COMMAND_LINE.getCode());
+            }
+        } else {
+            if (userPrompt == null) {
+                System.err.println("User prompt is required (except in chat mode where it is optional)");
+                displayHelpAndExit(ExitCode.INVALID_COMMAND_LINE.getCode());
+            }
+        }
         return new Parameters(Optional.ofNullable(sysPrompt),
-                              userPrompt,
+                              Optional.ofNullable(userPrompt),
                               Optional.ofNullable(outputFile),
                               Optional.ofNullable(errorFile),
                               provider,
-                              modelFile);
+                              modelFile,
+                              chatMode);
     }
 
     private static void displayHelpAndExit(final int exitCode) {
@@ -151,7 +173,7 @@ public class CommandLine {
                            executableName +
                            " {--user-prompt-string <user-prompt-string>|--user-prompt-file <user-prompt-file>}\n" +
                            "    [--system-prompt-string <system-prompt-string>]  [--system-prompt-file <system-prompt-file>]\n" +
-                           "    [--provider <provider>] [--model-file <model-file>] [--help]");
+                           "    [--provider <provider>] [--model-file <model-file>] [--chat-mode] [--help]");
         System.err.println(
             """
             --system-prompt-string <system-prompt-string> system prompt as a string
@@ -162,7 +184,8 @@ public class CommandLine {
             --error-file error-file>                      error file (stderr by default)
             --provider <provider>                         provider
             --model-file <model-file>                     file defining the model and its parameters
-            --help
+            --chat-mode                                   trigger chat mode
+            --help                                        display help and exit
             """
         );
         System.err.println("Available providers: " + Arrays.stream(ProviderEnum.values()).map(Enum::toString).collect(Collectors.joining(", ")));

@@ -14,6 +14,7 @@ java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar -
 | `--output-file <output-file>`                   | output file (stdout by default)            |
 | `--error-file error-file>`                      | error file (stderr by default)             |
 | `--provider <provider>`                         | provider                                   |
+| `--chat-mode`                                   | chat mode                                  |
 | `--model-file <model_file>`                     | file defining the model and its parameters |
 | `--help`                                        | display help and exit                      |
 

@@ -4,6 +4,12 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.Optional;
+
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
 
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.memory.ChatMemory;
@@ -63,18 +69,84 @@ public class SimpleChat {
             memory.add(systemPrompt);
         }
 
+        if (cli.chatMode()) {
+            assert output == System.out;
+            assert error == System.err;
+            handleChatMode(model, cli.userPrompt(), cli.sysPrompt());
+            return;
+        } else {
+            assert cli.userPrompt().isPresent();
+            handleBatchMode(output, error, model, cli.userPrompt().get(), cli.sysPrompt());
+        }
+    }
+
+    private static void handleChatMode(final ChatModel model,
+                                       final Optional<String> userPrompt,
+                                       final Optional<String> sysPrompt) throws IOException {
+        System.out.println("Type '/exit' to exit");
+
+        final ChatMemory memory = MessageWindowChatMemory.withMaxMessages(10);
+
+        if (sysPrompt.isPresent()) {
+            final SystemMessage systemPrompt = new SystemMessage(sysPrompt.get());
+            memory.add(systemPrompt);
+            System.out.println("System prompt: " + sysPrompt.get());
+        }
         final Assistant assistant = AiServices.builder(Assistant.class)
                                               .chatModel(model)
                                               .chatMemory(memory)
                                               .build();
+        final Terminal terminal = TerminalBuilder.builder()
+                                                 .system(true)
+                                                 .build();
+
+        final LineReader reader = LineReaderBuilder.builder()
+                                                   .terminal(terminal)
+                                                   .build();
+
+        String prefilledText = userPrompt.orElse("");
+
+        while (true) {
+            final String input = reader.readLine("Enter text: ", null, prefilledText);
+            if (input.isEmpty()) {
+                continue;
+            }
+            if (input.equals("/exit")) {
+                terminal.close();
+                System.exit(ExitCode.SUCCESS.getCode());
+            }
+            final String answer = assistant.chat(input);
+            System.out.println(answer);
+            prefilledText = "";
+        }
+    }
+
+    private static void handleBatchMode(final PrintStream output,
+                                        final PrintStream error,
+                                        final ChatModel model,
+                                        final String userPrompt,
+                                        final Optional<String> sysPrompt) {
+        final ChatMemory memory = MessageWindowChatMemory.withMaxMessages(2);
+
+        if (sysPrompt.isPresent()) {
+            final SystemMessage systemPrompt = new SystemMessage(sysPrompt.get());
+            memory.add(systemPrompt);
+        }
+
+        final Assistant assistant = AiServices.builder(Assistant.class)
+                                              .chatMemory(memory)
+                                              .chatModel(model)
+                                              .build();
 
         try {
-            final String answer = assistant.chat(cli.userPrompt());
+            final String answer = assistant.chat(userPrompt);
             output.println(answer);
         } catch (final RuntimeException e) {
             error.println("Model failure");
             e.printStackTrace(error);
             System.exit(ExitCode.MODEL_ERROR.getCode());
         }
+
+        System.exit(ExitCode.SUCCESS.getCode());
     }
 }

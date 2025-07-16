@@ -1,2 +1,1 @@
-- check that ChatHistory works (maybe by implementing a real chat mode)
 - analyse token count evaluation
