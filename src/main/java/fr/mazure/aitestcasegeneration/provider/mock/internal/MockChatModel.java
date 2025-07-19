@@ -22,19 +22,15 @@ public class MockChatModel implements ChatModel {
         final List<ChatMessage> messages = chatRequest.messages();
 
         final StringBuilder mockAnswerBuilder = new StringBuilder();
-
-        for (int i = 0; i < messages.size(); i++) {
-            final ChatMessage message = messages.get(i);
-            mockAnswerBuilder.append(String.format("%03d ", i));
-            mockAnswerBuilder.append(
-                switch (message) {
-                    case UserMessage userMessage -> "USER " + userMessage.singleText();
-                    case AiMessage aiMessage -> "MODEL " + aiMessage.text();
-                    case SystemMessage systemMessage -> "SYSTEM " + systemMessage.text();
-                    default -> throw new IllegalArgumentException("Unsupported message type: " + message.getClass()); // TODO: we will have to support tools and 
-                });
-            mockAnswerBuilder.append("\n");
-        }
+        mockAnswerBuilder.append(String.format("%03d ", messages.size()));
+        final ChatMessage lastMessage = messages.get(messages.size() - 1);
+        mockAnswerBuilder.append(
+            switch (lastMessage) {
+                case UserMessage userMessage -> "USER " + userMessage.singleText();
+                case AiMessage aiMessage -> "MODEL " + aiMessage.text();
+                case SystemMessage systemMessage -> "SYSTEM " + systemMessage.text();
+                default -> throw new IllegalArgumentException("Unsupported message type: " + lastMessage.getClass()); // TODO: we will have to support tools and 
+            });
 
         return ChatResponse.builder()
                            .aiMessage(AiMessage.from(mockAnswerBuilder.toString()))
