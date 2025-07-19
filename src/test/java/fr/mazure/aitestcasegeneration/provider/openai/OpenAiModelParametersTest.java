@@ -1,9 +1,5 @@
 package fr.mazure.aitestcasegeneration.provider.openai;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -11,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -24,7 +21,7 @@ public class OpenAiModelParametersTest {
 
     /**
      * Test loading a valid configuration file with all parameters.
-     * 
+     *
      * @throws IOException if there is an error reading the file
      * @throws URISyntaxException if the exepcted URL is invalid (i.e. you screwed up the test itself)
      * @throws MissingModelParameter if a compulsory parameter is missing
@@ -46,25 +43,25 @@ public class OpenAiModelParametersTest {
                 """;
         final Path tempConfigPath = tempDir.resolve("valid-openai-config.yaml");
         Files.writeString(tempConfigPath, configContent);
-        
+
         // When
         final OpenAiModelParameters parameters = OpenAiModelParameters.loadFromFile(tempConfigPath);
-        
+
         // Then
-        assertEquals("gpt-4", parameters.getModelName());
-        assertEquals("OPENAI_API_KEY", parameters.getApiKeyEnvironmentVariableName());
-        assertEquals(new URI("https://api.openai.com/v1").toURL(), parameters.getBaseUrl().get());
-        assertEquals("org-abcd1234", parameters.getOrganizationId().get());
-        assertEquals("proj-5678efgh", parameters.getProjectId().get());
-        assertEquals(0.7, parameters.getTemperature().get());
-        assertEquals(42, parameters.getSeed().get());
-        assertEquals(0.95, parameters.getTopP().get());
-        assertEquals(2048, parameters.getMaxCompletionTokens().get());
+        Assertions.assertEquals("gpt-4", parameters.getModelName());
+        Assertions.assertEquals("OPENAI_API_KEY", parameters.getApiKeyEnvironmentVariableName());
+        Assertions.assertEquals(new URI("https://api.openai.com/v1").toURL(), parameters.getBaseUrl().get());
+        Assertions.assertEquals("org-abcd1234", parameters.getOrganizationId().get());
+        Assertions.assertEquals("proj-5678efgh", parameters.getProjectId().get());
+        Assertions.assertEquals(0.7, parameters.getTemperature().get());
+        Assertions.assertEquals(42, parameters.getSeed().get());
+        Assertions.assertEquals(0.95, parameters.getTopP().get());
+        Assertions.assertEquals(2048, parameters.getMaxCompletionTokens().get());
     }
-    
+
     /**
      * Test loading a minimal configuration file with only required parameters.
-     * 
+     *
      * @throws IOException if there is an error reading the file
      * @throws MissingModelParameter if a compulsory parameter is missing
      * @throws InvalidModelParameter if a parameter has an incorrect value
@@ -78,22 +75,22 @@ public class OpenAiModelParametersTest {
                 """;
         final Path tempConfigPath = tempDir.resolve(("minimal-openai-config.yaml"));
         Files.writeString(tempConfigPath, configContent);
-        
+
         // When
         final OpenAiModelParameters parameters = OpenAiModelParameters.loadFromFile(tempConfigPath);
-        
+
         // Then
-        assertEquals("gpt-3.5-turbo", parameters.getModelName());
-        assertEquals("OPENAI_API_KEY", parameters.getApiKeyEnvironmentVariableName());
-        assertFalse(parameters.getBaseUrl().isPresent());
-        assertFalse(parameters.getOrganizationId().isPresent());
-        assertFalse(parameters.getProjectId().isPresent());
-        assertFalse(parameters.getTemperature().isPresent());
-        assertFalse(parameters.getSeed().isPresent());
-        assertFalse(parameters.getTopP().isPresent());
-        assertFalse(parameters.getMaxCompletionTokens().isPresent());
+        Assertions.assertEquals("gpt-3.5-turbo", parameters.getModelName());
+        Assertions.assertEquals("OPENAI_API_KEY", parameters.getApiKeyEnvironmentVariableName());
+        Assertions.assertFalse(parameters.getBaseUrl().isPresent());
+        Assertions.assertFalse(parameters.getOrganizationId().isPresent());
+        Assertions.assertFalse(parameters.getProjectId().isPresent());
+        Assertions.assertFalse(parameters.getTemperature().isPresent());
+        Assertions.assertFalse(parameters.getSeed().isPresent());
+        Assertions.assertFalse(parameters.getTopP().isPresent());
+        Assertions.assertFalse(parameters.getMaxCompletionTokens().isPresent());
     }
-    
+
     /**
      * Test loading a non-existent file.
      */
@@ -101,14 +98,14 @@ public class OpenAiModelParametersTest {
     public void testLoadFromNonExistentFile() {
         // Given
         final Path nonExistentPath = Paths.get("non-existent-file.yaml");
-        
+
         // When/Then
-        assertThrows(IOException.class, () -> OpenAiModelParameters.loadFromFile(nonExistentPath));
+        Assertions.assertThrows(IOException.class, () -> OpenAiModelParameters.loadFromFile(nonExistentPath));
     }
-    
+
     /**
      * Test loading a file with invalid URL.
-     * 
+     *
      * @param tempDir temporary directory for test files
      * @throws IOException if there is an error creating or writing to the file
      */
@@ -121,14 +118,14 @@ public class OpenAiModelParametersTest {
                 apiKeyEnvVar: OPENAI_API_KEY
                 baseUrl: invalid-url
                 """);
-        
+
         // When/Then
-        assertThrows(InvalidModelParameter.class, () -> OpenAiModelParameters.loadFromFile(invalidConfigPath));
+        Assertions.assertThrows(InvalidModelParameter.class, () -> OpenAiModelParameters.loadFromFile(invalidConfigPath));
     }
-    
+
     /**
      * Test loading a file with invalid numeric values.
-     * 
+     *
      * @param tempDir temporary directory for test files
      * @throws IOException if there is an error creating or writing to the file
      */
@@ -141,8 +138,8 @@ public class OpenAiModelParametersTest {
                 apiKeyEnvVar: OPENAI_API_KEY
                 temperature: not-a-number
                 """);
-        
+
         // When/Then
-        assertThrows(InvalidModelParameter.class, () -> OpenAiModelParameters.loadFromFile(invalidConfigPath));
+        Assertions.assertThrows(InvalidModelParameter.class, () -> OpenAiModelParameters.loadFromFile(invalidConfigPath));
     }
 }

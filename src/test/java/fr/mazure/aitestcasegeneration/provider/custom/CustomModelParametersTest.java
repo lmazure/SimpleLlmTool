@@ -1,8 +1,5 @@
 package fr.mazure.aitestcasegeneration.provider.custom;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -10,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -44,9 +42,9 @@ public class CustomModelParametersTest {
         final CustomModelParameters parameters = CustomModelParameters.loadFromFile(tempConfigPath);
 
         // Then
-        assertEquals("custom-large-latest", parameters.getModelName());
-        assertEquals("CUSTOM_API_KEY", parameters.getApiKeyEnvironmentVariableName());
-        assertEquals(new URI("https://api.custom.ai/v1").toURL(), parameters.getBaseUrl().get());
+        Assertions.assertEquals("custom-large-latest", parameters.getModelName());
+        Assertions.assertEquals("CUSTOM_API_KEY", parameters.getApiKeyEnvironmentVariableName());
+        Assertions.assertEquals(new URI("https://api.custom.ai/v1").toURL(), parameters.getBaseUrl().get());
     }
 
     /**
@@ -71,9 +69,9 @@ public class CustomModelParametersTest {
         final CustomModelParameters parameters = CustomModelParameters.loadFromFile(tempConfigPath);
 
         // Then
-        assertEquals("custom-small-latest", parameters.getModelName());
-        assertEquals("CUSTOM_API_KEY", parameters.getApiKeyEnvironmentVariableName());
-        assertEquals(new URI("https://api.custom.ai/v1").toURL(), parameters.getBaseUrl().get());
+        Assertions.assertEquals("custom-small-latest", parameters.getModelName());
+        Assertions.assertEquals("CUSTOM_API_KEY", parameters.getApiKeyEnvironmentVariableName());
+        Assertions.assertEquals(new URI("https://api.custom.ai/v1").toURL(), parameters.getBaseUrl().get());
     }
 
     /**
@@ -85,7 +83,7 @@ public class CustomModelParametersTest {
         final Path nonExistentPath = Paths.get("non-existent-file.yaml");
 
         // When/Then
-        assertThrows(IOException.class, () -> CustomModelParameters.loadFromFile(nonExistentPath));
+        Assertions.assertThrows(IOException.class, () -> CustomModelParameters.loadFromFile(nonExistentPath));
     }
 
     /**
@@ -105,7 +103,7 @@ public class CustomModelParametersTest {
                 """);
 
         // When/Then
-        assertThrows(InvalidModelParameter.class, () -> CustomModelParameters.loadFromFile(invalidConfigPath));
+        Assertions.assertThrows(InvalidModelParameter.class, () -> CustomModelParameters.loadFromFile(invalidConfigPath));
     }
 
 }

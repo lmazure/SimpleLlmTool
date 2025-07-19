@@ -1,3 +1,7 @@
+- Mustache
+  - lancer une exception BadParamaterValue quand le template est incorrect
+  - mettre des double quotes autour des valeurs
+
 - generic provider
     - recycle JSON path
 
