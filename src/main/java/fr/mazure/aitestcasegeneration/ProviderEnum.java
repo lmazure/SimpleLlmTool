@@ -6,7 +6,8 @@ public enum ProviderEnum {
 
     OPENAI("OpenAI"),
     MISTRAL_AI("Mistral AI"),
-    CUSTOM("custom");
+    CUSTOM("custom"),
+    MOCK("mock");
 
     private final String name;
 

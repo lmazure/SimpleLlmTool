@@ -56,3 +56,7 @@ The provider is indicated on the command line with the `--provider <provider>` p
 | modelName           | name of the model                                        | yes          |
 | url                 | URL of the provider                                      | yes          |
 | apiKeyEnvVar        | name of the environment variable containing the API key  | yes          |
+
+## mock
+
+A mock provider used for testing.

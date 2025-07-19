@@ -23,6 +23,8 @@ import fr.mazure.aitestcasegeneration.provider.custom.CustomChatModelProvider;
 import fr.mazure.aitestcasegeneration.provider.custom.CustomModelParameters;
 import fr.mazure.aitestcasegeneration.provider.mistralai.MistralAiChatModelProvider;
 import fr.mazure.aitestcasegeneration.provider.mistralai.MistralAiModelParameters;
+import fr.mazure.aitestcasegeneration.provider.mock.MockChatModelProvider;
+import fr.mazure.aitestcasegeneration.provider.mock.MockModelParameters;
 import fr.mazure.aitestcasegeneration.provider.openai.OpenAiChatModelProvider;
 import fr.mazure.aitestcasegeneration.provider.openai.OpenAiModelParameters;
 
@@ -60,6 +62,7 @@ public class SimpleChat {
             case ProviderEnum.OPENAI     -> OpenAiChatModelProvider.createChatModel(OpenAiModelParameters.loadFromFile(cli.modelFile()));
             case ProviderEnum.MISTRAL_AI -> MistralAiChatModelProvider.createChatModel(MistralAiModelParameters.loadFromFile(cli.modelFile()));
             case ProviderEnum.CUSTOM     -> CustomChatModelProvider.createChatModel(CustomModelParameters.loadFromFile(cli.modelFile()));
+            case ProviderEnum.MOCK       -> MockChatModelProvider.createChatModel(new MockModelParameters());
         };
 
         final ChatMemory memory = MessageWindowChatMemory.withMaxMessages(2);
