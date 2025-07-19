@@ -10,6 +10,8 @@ import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
+import org.jline.utils.AttributedString;
+import org.jline.utils.AttributedStyle;
 
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.memory.ChatMemory;
@@ -86,19 +88,8 @@ public class SimpleChat {
     private static void handleChatMode(final ChatModel model,
                                        final Optional<String> userPrompt,
                                        final Optional<String> sysPrompt) throws IOException {
-        System.out.println("Type '/exit' to exit");
 
-        final ChatMemory memory = MessageWindowChatMemory.withMaxMessages(10);
-
-        if (sysPrompt.isPresent()) {
-            final SystemMessage systemPrompt = new SystemMessage(sysPrompt.get());
-            memory.add(systemPrompt);
-            System.out.println("System prompt: " + sysPrompt.get());
-        }
-        final Assistant assistant = AiServices.builder(Assistant.class)
-                                              .chatModel(model)
-                                              .chatMemory(memory)
-                                              .build();
+        // setup terminal
         final Terminal terminal = TerminalBuilder.builder()
                                                  .system(true)
                                                  .build();
@@ -106,11 +97,35 @@ public class SimpleChat {
         final LineReader reader = LineReaderBuilder.builder()
                                                    .terminal(terminal)
                                                    .build();
+        final AttributedString prompt = new AttributedString("Enter text: ", 
+                                                             AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
+
+        // print help message
+        final String helpMessage = "Type '/exit' to exit";
+        final AttributedString help = new AttributedString(helpMessage,
+                                                           AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
+        terminal.writer().println(help.toAnsi());
+
+        // handle chat
+        final ChatMemory memory = MessageWindowChatMemory.withMaxMessages(10);
+
+        if (sysPrompt.isPresent()) {
+            final SystemMessage systemPrompt = new SystemMessage(sysPrompt.get());
+            memory.add(systemPrompt);
+            final AttributedString systemPromptString = new AttributedString("System prompt: ",
+                                                                            AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
+            terminal.writer().print(systemPromptString.toAnsi());
+            terminal.writer().println(sysPrompt.get());
+        }
+        final Assistant assistant = AiServices.builder(Assistant.class)
+                                              .chatModel(model)
+                                              .chatMemory(memory)
+                                              .build();
 
         String prefilledText = userPrompt.orElse("");
 
         while (true) {
-            final String input = reader.readLine("Enter text: ", null, prefilledText);
+            final String input = reader.readLine(prompt.toAnsi(), null, prefilledText);
             if (input.isEmpty()) {
                 continue;
             }
@@ -119,7 +134,8 @@ public class SimpleChat {
                 System.exit(ExitCode.SUCCESS.getCode());
             }
             final String answer = assistant.chat(input);
-            System.out.println(answer);
+            final AttributedString displayedAnswer = new AttributedString(answer, AttributedStyle.DEFAULT.foreground(AttributedStyle.BLUE));
+            terminal.writer().println(displayedAnswer.toAnsi());
             prefilledText = "";
         }
     }
