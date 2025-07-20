@@ -162,9 +162,9 @@ public class CustomChatModel implements ChatModel {
 
     private MessageRound convertMessage(final ChatMessage message) {
         return switch (message) {
-            case UserMessage userMessage -> new MessageRound(MessageActor.USER, userMessage.singleText());
-            case AiMessage aiMessage -> new MessageRound(MessageActor.MODEL, aiMessage.text());
-            case SystemMessage systemMessage -> new MessageRound(MessageActor.SYSTEM, systemMessage.text());
+            case UserMessage userMessage -> new MessageRound(Role.USER, userMessage.singleText());
+            case AiMessage aiMessage -> new MessageRound(Role.MODEL, aiMessage.text());
+            case SystemMessage systemMessage -> new MessageRound(Role.SYSTEM, systemMessage.text());
             default -> throw new IllegalArgumentException("Unsupported message type: " + message.getClass()); // TODO: we will have to support tools and 
         };
     }

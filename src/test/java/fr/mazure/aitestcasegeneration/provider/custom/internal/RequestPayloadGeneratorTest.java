@@ -18,8 +18,8 @@ class RequestPayloadGeneratorTest {
             {
               "messages": [
                 {{#each messages}}{
-                  "role": "{{#if (isSystem messageActor)}}system{{/if}}{{#if (isUser messageActor)}}user{{/if}}{{#if (isModel messageActor)}}assistant{{/if}}",
-                  "content": "{{message}}"
+                  "role": "{{#if (isSystem role)}}system{{/if}}{{#if (isUser role)}}user{{/if}}{{#if (isModel role)}}assistant{{/if}}",
+                  "content": "{{content}}"
                 }{{#unless @last}},
                 {{/unless}}{{/each}}
               ]
@@ -27,9 +27,9 @@ class RequestPayloadGeneratorTest {
             """;
 
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(MessageActor.SYSTEM, "You are a helpful assistant"),
-            new MessageRound(MessageActor.USER, "What is the weather?"),
-            new MessageRound(MessageActor.MODEL, "I don't have access to weather data")
+            new MessageRound(Role.SYSTEM, "You are a helpful assistant"),
+            new MessageRound(Role.USER, "What is the weather?"),
+            new MessageRound(Role.MODEL, "I don't have access to weather data")
         );
 
         // When
@@ -61,7 +61,7 @@ class RequestPayloadGeneratorTest {
     @DisplayName("Should handle empty messages list")
     void testGenerateEmptyMessages() {
         // Given
-        final String template = "Messages: {{#messages}}{{message}}{{/messages}}";
+        final String template = "Messages: {{#messages}}{{content}}{{/messages}}";
         final List<MessageRound> messages = Collections.emptyList();
 
         // When
@@ -77,7 +77,7 @@ class RequestPayloadGeneratorTest {
         // Given
         final String template = "This is a static template without placeholders";
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(MessageActor.USER, "Hello")
+            new MessageRound(Role.USER, "Hello")
         );
 
         // When
@@ -91,9 +91,9 @@ class RequestPayloadGeneratorTest {
     @DisplayName("Should handle special characters in messages")
     void testGenerateWithSpecialCharacters() {
         // Given
-        final String template = "Message: {{#messages}}{{message}}{{/messages}}";
+        final String template = "Message: {{#messages}}{{content}}{{/messages}}";
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(MessageActor.USER, "Hello \"world\" with 'quotes' and \n newlines")
+            new MessageRound(Role.USER, "Hello \"world\" with 'quotes' and \n newlines")
         );
 
         // When
@@ -107,9 +107,9 @@ class RequestPayloadGeneratorTest {
     @DisplayName("Should throw runtime exception for invalid template syntax")
     void testGenerateInvalidTemplate() {
         // Given
-        final String template = "Hello {{#messages}}{{messageActor}"; // Missing closing tag
+        final String template = "Hello {{#messages}}{{role}"; // Missing closing tag
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(MessageActor.USER, "Hello")
+            new MessageRound(Role.USER, "Hello")
         );
 
         // When & Then
@@ -126,7 +126,7 @@ class RequestPayloadGeneratorTest {
         // Given
         final String template = "";
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(MessageActor.USER, "Hello")
+            new MessageRound(Role.USER, "Hello")
         );
 
         // When

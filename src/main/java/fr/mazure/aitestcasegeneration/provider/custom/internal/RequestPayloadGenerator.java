@@ -26,24 +26,24 @@ public class RequestPayloadGenerator {
             final Handlebars handlebars = new Handlebars();
 
             // Register boolean helpers for each role
-            handlebars.registerHelper("isSystem", new Helper<MessageActor>() {
+            handlebars.registerHelper("isSystem", new Helper<Role>() {
                 @Override
-                public Boolean apply(MessageActor role, Options options) {
-                    return MessageActor.SYSTEM.equals(role);
+                public Boolean apply(Role role, Options options) {
+                    return Role.SYSTEM.equals(role);
                 }
             });
 
-            handlebars.registerHelper("isUser", new Helper<MessageActor>() {
+            handlebars.registerHelper("isUser", new Helper<Role>() {
                 @Override
-                public Boolean apply(MessageActor role, Options options) {
-                    return MessageActor.USER.equals(role);
+                public Boolean apply(Role role, Options options) {
+                    return Role.USER.equals(role);
                 }
             });
 
-            handlebars.registerHelper("isModel", new Helper<MessageActor>() {
+            handlebars.registerHelper("isModel", new Helper<Role>() {
                 @Override
-                public Boolean apply(MessageActor role, Options options) {
-                    return MessageActor.MODEL.equals(role);
+                public Boolean apply(Role role, Options options) {
+                    return Role.MODEL.equals(role);
                 }
             });
 
