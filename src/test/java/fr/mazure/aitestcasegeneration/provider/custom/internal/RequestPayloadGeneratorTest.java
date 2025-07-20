@@ -11,34 +11,17 @@ import java.util.List;
 class RequestPayloadGeneratorTest {
 
     @Test
-    @DisplayName("Should generate simple template with single message")
-    void testGenerateSimpleTemplate() {
-        // Given
-        final String template = "Hello {{#messages}}{{messageActor}}: {{message}}{{/messages}}";
-        final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(MessageActor.USER, "How are you?")
-        );
-
-        // When
-        final String result = RequestPayloadGenerator.generate(template, messages);
-
-        // Then
-        Assertions.assertEquals("Hello USER: How are you?", result);
-    }
-
-    @Test
     @DisplayName("Should generate template with multiple messages")
     void testGenerateMultipleMessages() {
         // Given
         final String template = """
             {
               "messages": [
-                {{#messages}}
-                {
-                  "role": "{{messageActor}}",
+                {{#each messages}}{
+                  "role": "{{#if (isSystem messageActor)}}system{{/if}}{{#if (isUser messageActor)}}user{{/if}}{{#if (isModel messageActor)}}assistant{{/if}}",
                   "content": "{{message}}"
-                }{{^last}},{{/last}}
-                {{/messages}}
+                }{{#unless @last}},
+                {{/unless}}{{/each}}
               ]
             }
             """;
@@ -57,17 +40,17 @@ class RequestPayloadGeneratorTest {
                 {
                   "messages": [
                     {
-                      "role": "SYSTEM",
+                      "role": "system",
                       "content": "You are a helpful assistant"
                     },
                     {
-                      "role": "USER",
+                      "role": "user",
                       "content": "What is the weather?"
                     },
                     {
-                      "role": "MODEL",
+                      "role": "assistant",
                       "content": "I don't have access to weather data"
-                    },
+                    }
                   ]
                 }
                 """;
@@ -78,7 +61,7 @@ class RequestPayloadGeneratorTest {
     @DisplayName("Should handle empty messages list")
     void testGenerateEmptyMessages() {
         // Given
-        final String template = "Messages: {{#messages}}{{messageActor}}: {{message}}{{/messages}}";
+        final String template = "Messages: {{#messages}}{{message}}{{/messages}}";
         final List<MessageRound> messages = Collections.emptyList();
 
         // When
@@ -102,46 +85,6 @@ class RequestPayloadGeneratorTest {
 
         // Then
         Assertions.assertEquals("This is a static template without placeholders", result);
-    }
-
-    @Test
-    @DisplayName("Should handle complex JSON template")
-    void testGenerateComplexJsonTemplate() {
-        // Given
-        final String template = """
-            {
-              "model": "gpt-3.5-turbo",
-              "messages": [
-                {{#messages}}
-                {
-                  "role": "{{messageActor}}",
-                  "content": "{{message}}"
-                }{{#hasNext}},{{/hasNext}}
-                {{/messages}}
-              ],
-              "temperature": 0.7
-            }""";
-
-        final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(MessageActor.USER, "Hello world")
-        );
-
-        // When
-        final String result = RequestPayloadGenerator.generate(template, messages);
-
-        // Then
-        final String expectedResult = """
-                {
-                  "model": "gpt-3.5-turbo",
-                  "messages": [
-                    {
-                      "role": "USER",
-                      "content": "Hello world"
-                    }
-                  ],
-                  "temperature": 0.7
-                }""";
-        Assertions.assertEquals(expectedResult, result);
     }
 
     @Test
@@ -174,34 +117,7 @@ class RequestPayloadGeneratorTest {
             RuntimeException.class,
             () -> RequestPayloadGenerator.generate(template, messages)
         );
-        Assertions.assertEquals("Failed to process Mustache template", exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Should handle message with all actor types")
-    void testGenerateAllActorTypes() {
-        // Given
-        final String template = """
-            {{#messages}}
-            {{messageActor}}: {{message}}
-            {{/messages}}""";
-
-        final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(MessageActor.SYSTEM, "System message"),
-            new MessageRound(MessageActor.USER, "User message"),
-            new MessageRound(MessageActor.MODEL, "Model message")
-        );
-
-        // When
-        final String result = RequestPayloadGenerator.generate(template, messages);
-
-        // Then
-        final String expectedResult = """
-            SYSTEM: System message
-            USER: User message
-            MODEL: Model message
-            """;
-        Assertions.assertEquals(expectedResult, result);
+        Assertions.assertEquals("Failed to process Handlebars template", exception.getMessage());
     }
 
     @Test

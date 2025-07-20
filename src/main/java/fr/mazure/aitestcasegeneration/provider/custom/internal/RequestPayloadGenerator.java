@@ -1,13 +1,11 @@
 package fr.mazure.aitestcasegeneration.provider.custom.internal;
 
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Helper;
+import com.github.jknack.handlebars.Options;
+import com.github.jknack.handlebars.Template;
+import com.github.jknack.handlebars.EscapingStrategy;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,39 +14,55 @@ import java.util.function.Function;
 public class RequestPayloadGenerator {
 
     /**
-     * Generates a payload by evaluating a Mustache template with the provided messages.
+     * Generates a payload by evaluating a Handlebars template with the provided messages.
      *
-     * @param mustacheTemplate the Mustache template string to evaluate
+     * @param handlebarsTemplate the Handlebars template string to evaluate
      * @param messages the list of message rounds to use as template data
      * @return the evaluated template as a string
      */
-    public static String generate(final String mustacheTemplate,
+    public static String generate(final String handlebarsTemplate,
                                   final List<MessageRound> messages) {
-
         try {
-            final MustacheFactory mf = new DefaultMustacheFactory() {
-                @Override
-                public void encode(final String value, final Writer writer) {
-                    try {
-                        writer.write(jsonEscaper.apply(value));
-                    } catch (final IOException e) {
-                        e.printStackTrace();
-                        System.exit(-1);
-                    }
-                }
-            };
-            final Mustache mustache = mf.compile(new StringReader(mustacheTemplate), "template");
+            final Handlebars handlebars = new Handlebars();
 
-            // Create the context map for the template
+            // Register boolean helpers for each role
+            handlebars.registerHelper("isSystem", new Helper<MessageActor>() {
+                @Override
+                public Boolean apply(MessageActor role, Options options) {
+                    return MessageActor.SYSTEM.equals(role);
+                }
+            });
+
+            handlebars.registerHelper("isUser", new Helper<MessageActor>() {
+                @Override
+                public Boolean apply(MessageActor role, Options options) {
+                    return MessageActor.USER.equals(role);
+                }
+            });
+
+            handlebars.registerHelper("isModel", new Helper<MessageActor>() {
+                @Override
+                public Boolean apply(MessageActor role, Options options) {
+                    return MessageActor.MODEL.equals(role);
+                }
+            });
+
+            // Auto-escape JSON
+            handlebars.with(new EscapingStrategy() {
+                @Override
+                public String escape(CharSequence value) {
+                    return jsonEscaper.apply(value.toString());
+                }
+            });
+
+            final Template template = handlebars.compileInline(handlebarsTemplate);
+
             final Map<String, Object> context = new HashMap<>();
             context.put("messages", messages);
 
-            final StringWriter writer = new StringWriter();
-            mustache.execute(writer, context);
-
-            return writer.toString();
+            return template.apply(context);
         } catch (final Exception e) {
-            throw new RuntimeException("Failed to process Mustache template", e);
+            throw new RuntimeException("Failed to process Handlebars template", e);
         }
     }
 
