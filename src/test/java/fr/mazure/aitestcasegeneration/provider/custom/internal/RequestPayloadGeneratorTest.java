@@ -8,36 +8,48 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Tests for the RequestPayloadGenerator class.
+ *
+ * This class contains tests for the methods of the RequestPayloadGenerator class.
+ */
 class RequestPayloadGeneratorTest {
 
     @Test
-    @DisplayName("Should generate template with multiple messages")
-    void testGenerateMultipleMessages() {
+    @DisplayName("Should generate OpenAI payload with multiple messages")
+    void testGenerateMultipleMessagesForOpenAi() {
         // Given
         final String template = """
             {
+              "model": "gpt-4.1",
               "messages": [
                 {{#each messages}}{
                   "role": "{{#if (isSystem role)}}system{{/if}}{{#if (isUser role)}}user{{/if}}{{#if (isModel role)}}assistant{{/if}}",
                   "content": "{{content}}"
                 }{{#unless @last}},
                 {{/unless}}{{/each}}
-              ]
+              ],
+              "temperature": 0.7,
+              "seed": 42
             }
             """;
 
         final List<MessageRound> messages = Arrays.asList(
             new MessageRound(Role.SYSTEM, "You are a helpful assistant"),
             new MessageRound(Role.USER, "What is the weather?"),
-            new MessageRound(Role.MODEL, "I don't have access to weather data")
+            new MessageRound(Role.MODEL, "I don't have access to weather data"),
+            new MessageRound(Role.USER, "What day is it?"),
+            new MessageRound(Role.MODEL, "April fools' day"),
+            new MessageRound(Role.USER, "So, tell me a joke!")
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages);
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-secret-API-key");
 
         // Then
         final String expectedResult = """
                 {
+                  "model": "gpt-4.1",
                   "messages": [
                     {
                       "role": "system",
@@ -50,11 +62,164 @@ class RequestPayloadGeneratorTest {
                     {
                       "role": "assistant",
                       "content": "I don't have access to weather data"
+                    },
+                    {
+                      "role": "user",
+                      "content": "What day is it?"
+                    },
+                    {
+                      "role": "assistant",
+                      "content": "April fools' day"
+                    },
+                    {
+                      "role": "user",
+                      "content": "So, tell me a joke!"
                     }
-                  ]
+                  ],
+                  "temperature": 0.7,
+                  "seed": 42
                 }
                 """;
         Assertions.assertEquals(expectedResult, result);
+    }
+
+    @Test
+    @DisplayName("Should generate Google's Gemini payload with multiple messages")
+    void testGenerateMultipleMessagesForGoogleGemini() {
+        // Given
+        final String template = """
+                {
+                  {{#each messages}}{{#if (isSystem role)}}"system_instruction": {
+                    "parts": [
+                      {
+                        "text": "You are a helpful assistant"
+                      }
+                    ]
+                  },{{/if}}{{/each}}
+                  "contents": [
+                    {{#each messages}}{{#if (isUser role)}}{
+                      "role": "user",
+                      "parts": [
+                        {
+                          "text": "{{content}}"
+                        }
+                      ]
+                    }{{#unless @last}},
+                    {{/unless}}{{/if}}{{#if (isModel role)}}{
+                      "role": "model",
+                      "parts": [
+                        {
+                          "text": "{{content}}"
+                        }
+                      ]
+                    }{{#unless @last}},
+                    {{/unless}}{{/if}}{{/each}}
+                  ],
+                  "generationConfig": {
+                    "stopSequences": [
+                      "Title"
+                    ],
+                    "temperature": 1.0,
+                    "topP": 0.8,
+                    "topK": 10
+                  }
+                }
+                """;
+
+        final List<MessageRound> messages = Arrays.asList(
+            new MessageRound(Role.SYSTEM, "You are a helpful assistant"),
+            new MessageRound(Role.USER, "What is the weather?"),
+            new MessageRound(Role.MODEL, "I don't have access to weather data"),
+            new MessageRound(Role.USER, "What day is it?"),
+            new MessageRound(Role.MODEL, "April fools' day"),
+            new MessageRound(Role.USER, "So, tell me a joke!")
+        );
+
+        // When
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-secret-API-key");
+
+        // Then
+        final String expectedResult = """
+                {
+                  "system_instruction": {
+                    "parts": [
+                      {
+                        "text": "You are a helpful assistant"
+                      }
+                    ]
+                  },
+                  "contents": [
+                    {
+                      "role": "user",
+                      "parts": [
+                        {
+                          "text": "What is the weather?"
+                        }
+                      ]
+                    },
+                    {
+                      "role": "model",
+                      "parts": [
+                        {
+                          "text": "I don't have access to weather data"
+                        }
+                      ]
+                    },
+                    {
+                      "role": "user",
+                      "parts": [
+                        {
+                          "text": "What day is it?"
+                        }
+                      ]
+                    },
+                    {
+                      "role": "model",
+                      "parts": [
+                        {
+                          "text": "April fools' day"
+                        }
+                      ]
+                    },
+                    {
+                      "role": "user",
+                      "parts": [
+                        {
+                          "text": "So, tell me a joke!"
+                        }
+                      ]
+                    }
+                  ],
+                  "generationConfig": {
+                    "stopSequences": [
+                      "Title"
+                    ],
+                    "temperature": 1.0,
+                    "topP": 0.8,
+                    "topK": 10
+                  }
+                }
+                """;
+        Assertions.assertEquals(expectedResult, result);
+    }
+
+    @Test
+    @DisplayName("Should handle empty messages list")
+    void testGenerateApiKet() {
+        // Given
+        final String template = "Bearer: {{apiKey}}";
+
+        final List<MessageRound> messages = Arrays.asList(
+            new MessageRound(Role.SYSTEM, "You are a helpful assistant"),
+            new MessageRound(Role.USER, "What is the weather?"),
+            new MessageRound(Role.MODEL, "I don't have access to weather data")
+        );
+
+        // When
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-secret-API-key");
+
+        // Then
+        Assertions.assertEquals("Bearer: my-secret-API-key", result);
     }
 
     @Test
@@ -65,7 +230,7 @@ class RequestPayloadGeneratorTest {
         final List<MessageRound> messages = Collections.emptyList();
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages);
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-secret-API-key");
 
         // Then
         Assertions.assertEquals("Messages: ", result);
@@ -81,7 +246,7 @@ class RequestPayloadGeneratorTest {
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages);
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-secret-API-key");
 
         // Then
         Assertions.assertEquals("This is a static template without placeholders", result);
@@ -97,7 +262,7 @@ class RequestPayloadGeneratorTest {
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages);
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-secret-API-key");
 
         // Then
         Assertions.assertEquals("Message: Hello \\\"world\\\" with 'quotes' and \\n newlines", result);
@@ -115,7 +280,7 @@ class RequestPayloadGeneratorTest {
         // When & Then
         RuntimeException exception = Assertions.assertThrows(
             RuntimeException.class,
-            () -> RequestPayloadGenerator.generate(template, messages)
+            () -> RequestPayloadGenerator.generate(template, messages, "my-secret-API-key")
         );
         Assertions.assertEquals("Failed to process Handlebars template", exception.getMessage());
     }
@@ -130,7 +295,7 @@ class RequestPayloadGeneratorTest {
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages);
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-secret-API-key");
 
         // Then
         Assertions.assertEquals("", result);

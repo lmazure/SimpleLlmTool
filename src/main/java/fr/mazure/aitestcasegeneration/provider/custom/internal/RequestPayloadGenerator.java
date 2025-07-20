@@ -21,7 +21,8 @@ public class RequestPayloadGenerator {
      * @return the evaluated template as a string
      */
     public static String generate(final String handlebarsTemplate,
-                                  final List<MessageRound> messages) {
+                                  final List<MessageRound> messages,
+                                  final String apiKey) {
         try {
             final Handlebars handlebars = new Handlebars();
 
@@ -59,6 +60,7 @@ public class RequestPayloadGenerator {
 
             final Map<String, Object> context = new HashMap<>();
             context.put("messages", messages);
+            context.put("apiKey", apiKey);
 
             return template.apply(context);
         } catch (final Exception e) {
