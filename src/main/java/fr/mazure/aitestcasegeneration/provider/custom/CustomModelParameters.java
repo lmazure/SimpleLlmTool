@@ -20,13 +20,62 @@ import fr.mazure.aitestcasegeneration.provider.base.ParameterMap;
  * @param modelName           the name of the model
  * @param url                 the URL of the provider
  * @param apiKeyEnvVar        the name of the environment variable containing the API key
+ * @param payloadTemplate     the payload template for the API calls
+ * @param answerPath          the path to the answer in the API response
+ * @param inputTokenPath      the path to the input token count in the API response
+ * @param outputTokenPath     the path to the output token count in the API response
+ * @param logRequests         whether to log the requests
+ * @param logResponses        whether to log the responses
  */
 public class CustomModelParameters extends ModelParameters {
 
+    private final String payloadTemplate;
+    private final String answerPath;
+    private final String inputTokenPath;
+    private final String outputTokenPath;
+    private final Optional<Boolean> logRequests;
+    private final Optional<Boolean> logResponses;
+
     public CustomModelParameters(final String modelName,
                                  final URL url,
-                                 final String apiKeyEnvVar) {
+                                 final String apiKeyEnvVar,
+                                 final String payloadTemplate,
+                                 final String answerPath,
+                                 final String inputTokenPath,
+                                 final String outputTokenPath,
+                                 final Optional<Boolean> logRequests,
+                                 final Optional<Boolean> logResponses) {
         super(modelName, Optional.of(url), apiKeyEnvVar);
+        this.payloadTemplate = payloadTemplate;
+        this.answerPath = answerPath;
+        this.inputTokenPath = inputTokenPath;
+        this.outputTokenPath = outputTokenPath;
+        this.logRequests = logRequests;
+        this.logResponses = logResponses;
+    }
+
+    public String getPayloadTemplate() {
+        return payloadTemplate;
+    }
+
+    public String getAnswerPath() {
+        return answerPath;
+    }
+
+    public String getInputTokenPath() {
+        return inputTokenPath;
+    }
+
+    public String getOutputTokenPath() {
+        return outputTokenPath;
+    }
+
+    public Optional<Boolean> getLogRequests() {
+        return logRequests;
+    }
+
+    public Optional<Boolean> getLogResponses() {
+        return logResponses;
     }
 
     /**
@@ -44,7 +93,13 @@ public class CustomModelParameters extends ModelParameters {
             final ParameterMap parameterMap = new ParameterMap(yaml.load(inputStream));
             return new CustomModelParameters(parameterMap.getString("modelName"),
                                              parameterMap.getUrl("url"),
-                                             parameterMap.getString("apiKeyEnvVar"));
+                                             parameterMap.getString("apiKeyEnvVar"),
+                                             parameterMap.getString("payloadTemplate"),
+                                             parameterMap.getString("answerPath"),
+                                             parameterMap.getString("inputTokenPath"),
+                                             parameterMap.getString("outputTokenPath"),
+                                             parameterMap.getOptionalBoolean("logRequests"),
+                                             parameterMap.getOptionalBoolean("logResponses"));
         }
     }
 }

@@ -15,7 +15,18 @@ public class CustomChatModelProvider implements ModelProvider {
         final CustomChatModelBuilder builder = CustomChatModel.builder()
                                                               .apiKey(apiKey)
                                                               .baseUrl(parameters.getBaseUrl().get().toString())
-                                                              .modelName(parameters.getModelName());
+                                                              .payloadTemplate(parameters.getPayloadTemplate())
+                                                              .answerPath(parameters.getAnswerPath())
+                                                              .inputTokenPath(parameters.getInputTokenPath())
+                                                              .outputTokenPath(parameters.getOutputTokenPath());
+
+        if (parameters.getLogRequests().isPresent()) {
+            builder.logRequests(parameters.getLogRequests().get());
+        }
+
+        if (parameters.getLogResponses().isPresent()) {
+            builder.logResponses(parameters.getLogResponses().get());
+        }
 
         return builder.build();
     }

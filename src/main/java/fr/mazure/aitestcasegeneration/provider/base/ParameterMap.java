@@ -77,4 +77,15 @@ private final Map<String, Object> data;
         }
         return Optional.of((Integer) value);
     }
+
+    public Optional<Boolean> getOptionalBoolean(final String parameterName) throws InvalidModelParameter {
+        if (!data.containsKey(parameterName)) {
+            return Optional.empty();
+        }
+        final Object value = data.get(parameterName);
+        if (!(value instanceof Boolean)) {
+            throw new InvalidModelParameter(parameterName, "Boolean", data.get(parameterName).toString());
+        }
+        return Optional.of((Boolean) value);
+    }
 }

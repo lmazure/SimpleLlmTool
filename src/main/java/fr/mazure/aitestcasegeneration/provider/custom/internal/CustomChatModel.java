@@ -18,7 +18,6 @@ import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.ChatResponse;
-import dev.langchain4j.model.output.TokenUsage;
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -30,10 +29,13 @@ public class CustomChatModel implements ChatModel {
 
     private final String apiKey;
     private final String url;
-    private final String modelName;
     private final Duration timeout;
     private final Duration connectTimeout;
     private final Map<String, Object> additionalParameters;
+    private final String payloadTemplate;
+    private final String answerPath;
+    private final String inputTokenPath;
+    private final String outputTokenPath;
     private final boolean logRequests;
     private final boolean logResponses;
 
@@ -44,10 +46,13 @@ public class CustomChatModel implements ChatModel {
     public CustomChatModel(final CustomChatModelBuilder builder) {
         this.apiKey = builder.getApiKey();
         this.url = builder.getBaseUrl();
-        this.modelName = builder.getModelName();
         this.timeout = builder.getTimeout();
         this.connectTimeout = builder.getConnectTimeout();
         this.additionalParameters = builder.getAdditionalParameters();
+        this.payloadTemplate = builder.getPayloadTemplate();
+        this.answerPath = builder.getAnswerPath();
+        this.inputTokenPath = builder.getInputTokenPath();
+        this.outputTokenPath = builder.getOutputTokenPath();
         this.logRequests = builder.isLogRequests();
         this.logResponses = builder.isLogResponses();
 
@@ -99,7 +104,7 @@ public class CustomChatModel implements ChatModel {
 
     private RequestBody buildRequestBody(final ChatRequest chatRequest) throws IOException {
         final Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("model", modelName);
+        requestMap.put("model", "gpt-4.1-nano");
         requestMap.put("messages", convertMessages(chatRequest.messages()));
 
         // Add any additional parameters

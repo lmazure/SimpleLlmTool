@@ -34,6 +34,12 @@ public class CustomModelParametersTest {
                 modelName: custom-large-latest
                 apiKeyEnvVar: CUSTOM_API_KEY
                 url: https://api.custom.ai/v1
+                payloadTemplate: the_template
+                answerPath: path_to_answer
+                inputTokenPath: path_to_number_of_input_tokens
+                outputTokenPath: path_to_number_of_output_tokens
+                logRequests: true
+                logResponses: true
                 """;
         final Path tempConfigPath = tempDir.resolve("valid-custom-config.yaml");
         Files.writeString(tempConfigPath, configContent);
@@ -45,6 +51,12 @@ public class CustomModelParametersTest {
         Assertions.assertEquals("custom-large-latest", parameters.getModelName());
         Assertions.assertEquals("CUSTOM_API_KEY", parameters.getApiKeyEnvironmentVariableName());
         Assertions.assertEquals(new URI("https://api.custom.ai/v1").toURL(), parameters.getBaseUrl().get());
+        Assertions.assertEquals("the_template", parameters.getPayloadTemplate());
+        Assertions.assertEquals("path_to_answer", parameters.getAnswerPath());
+        Assertions.assertEquals("path_to_number_of_input_tokens", parameters.getInputTokenPath());
+        Assertions.assertEquals("path_to_number_of_output_tokens", parameters.getOutputTokenPath());
+        Assertions.assertTrue(parameters.getLogRequests().get());
+        Assertions.assertTrue(parameters.getLogResponses().get());
     }
 
     /**
@@ -61,6 +73,10 @@ public class CustomModelParametersTest {
                 modelName: custom-small-latest
                 apiKeyEnvVar: CUSTOM_API_KEY
                 url: https://api.custom.ai/v1
+                payloadTemplate: the_template
+                answerPath: path_to_answer
+                inputTokenPath: path_to_number_of_input_tokens
+                outputTokenPath: path_to_number_of_output_tokens
                 """;
         final Path tempConfigPath = tempDir.resolve(("minimal-custom-config.yaml"));
         Files.writeString(tempConfigPath, configContent);
@@ -72,6 +88,12 @@ public class CustomModelParametersTest {
         Assertions.assertEquals("custom-small-latest", parameters.getModelName());
         Assertions.assertEquals("CUSTOM_API_KEY", parameters.getApiKeyEnvironmentVariableName());
         Assertions.assertEquals(new URI("https://api.custom.ai/v1").toURL(), parameters.getBaseUrl().get());
+        Assertions.assertEquals("the_template", parameters.getPayloadTemplate());
+        Assertions.assertEquals("path_to_answer", parameters.getAnswerPath());
+        Assertions.assertEquals("path_to_number_of_input_tokens", parameters.getInputTokenPath());
+        Assertions.assertEquals("path_to_number_of_output_tokens", parameters.getOutputTokenPath());
+        Assertions.assertFalse(parameters.getLogRequests().isPresent());
+        Assertions.assertFalse(parameters.getLogResponses().isPresent());
     }
 
     /**
@@ -100,6 +122,10 @@ public class CustomModelParametersTest {
                 modelName: custom-medium-latest
                 apiKeyEnvVar: CUSTOM_API_KEY
                 url: invalid-url
+                payloadTemplate: the_template
+                answerPath: path_to_answer
+                inputTokenPath: path_to_number_of_input_tokens
+                outputTokenPath: path_to_number_of_output_tokens
                 """);
 
         // When/Then

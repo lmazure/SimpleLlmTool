@@ -8,7 +8,10 @@ public class CustomChatModelBuilder {
 
     private String apiKey;
     private String baseUrl;
-    private String modelName;
+    private String payloadTemplate;
+    private String answerPath;
+    private String inputTokenPath;
+    private String outputTokenPath;
     private Duration timeout = Duration.ofSeconds(60);
     private Duration connectTimeout = Duration.ofSeconds(30);
     private Map<String, Object> additionalParameters = new HashMap<>();
@@ -36,10 +39,34 @@ public class CustomChatModelBuilder {
     }
 
     /**
-     * Sets the model name to use
+     * Sets the payload template for the API calls
      */
-    public CustomChatModelBuilder modelName(final String modelName) {
-        this.modelName = modelName;
+    public CustomChatModelBuilder payloadTemplate(final String payloadTemplate) {
+        this.payloadTemplate = payloadTemplate;
+        return this;
+    }
+
+    /**
+     * Sets the JSON path to the field containing the answer
+     */
+    public CustomChatModelBuilder answerPath(final String answerPath) {
+        this.answerPath = answerPath;
+        return this;
+    }
+
+    /**
+     * Sets the JSON path to the field containing the number of input tokens
+     */
+    public CustomChatModelBuilder inputTokenPath(final String inputTokenPath) {
+        this.inputTokenPath = inputTokenPath;
+        return this;
+    }
+
+    /**
+     * Sets the JSON path to the field containing the number of output tokens
+     */
+    public CustomChatModelBuilder outputTokenPath(final String outputTokenPath) {
+        this.outputTokenPath = outputTokenPath;
         return this;
     }
 
@@ -110,8 +137,17 @@ public class CustomChatModelBuilder {
         if (baseUrl == null || baseUrl.trim().isEmpty()) {
             throw new IllegalArgumentException("Base URL is required");
         }
-        if (modelName == null || modelName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Model name is required");
+        if (payloadTemplate == null || payloadTemplate.trim().isEmpty()) {
+            throw new IllegalArgumentException("Payload template is required");
+        }
+        if (answerPath == null || answerPath.trim().isEmpty()) {
+            throw new IllegalArgumentException("Answer path is required");
+        }
+        if (inputTokenPath == null || inputTokenPath.trim().isEmpty()) {
+            throw new IllegalArgumentException("Input token path is required");
+        }
+        if (outputTokenPath == null || outputTokenPath.trim().isEmpty()) {
+            throw new IllegalArgumentException("Output token path is required");
         }
         if (timeout != null && timeout.isNegative()) {
             throw new IllegalArgumentException("Timeout must be positive");
@@ -124,7 +160,10 @@ public class CustomChatModelBuilder {
     // Getters for the CustomChatModel constructor
     String getApiKey() { return apiKey; }
     String getBaseUrl() { return baseUrl; }
-    String getModelName() { return modelName; }
+    String getPayloadTemplate() { return payloadTemplate; }
+    String getAnswerPath() { return answerPath; }
+    String getInputTokenPath() { return inputTokenPath; }
+    String getOutputTokenPath() { return outputTokenPath; }
     Duration getTimeout() { return timeout; }
     Duration getConnectTimeout() { return connectTimeout; }
     Map<String, Object> getAdditionalParameters() { return new HashMap<>(additionalParameters); }
