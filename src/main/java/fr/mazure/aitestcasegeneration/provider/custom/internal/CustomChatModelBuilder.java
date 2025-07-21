@@ -12,8 +12,6 @@ public class CustomChatModelBuilder {
     private String answerPath;
     private String inputTokenPath;
     private String outputTokenPath;
-    private Duration timeout = Duration.ofSeconds(60);
-    private Duration connectTimeout = Duration.ofSeconds(30);
     private Map<String, Object> additionalParameters = new HashMap<>();
     private boolean logRequests = false;
     private boolean logResponses = false;
@@ -67,22 +65,6 @@ public class CustomChatModelBuilder {
      */
     public CustomChatModelBuilder outputTokenPath(final String outputTokenPath) {
         this.outputTokenPath = outputTokenPath;
-        return this;
-    }
-
-    /**
-     * Sets the timeout for API calls
-     */
-    public CustomChatModelBuilder timeout(final Duration timeout) {
-        this.timeout = timeout;
-        return this;
-    }
-
-    /**
-     * Sets the connection timeout
-     */
-    public CustomChatModelBuilder connectTimeout(final Duration connectTimeout) {
-        this.connectTimeout = connectTimeout;
         return this;
     }
 
@@ -149,12 +131,6 @@ public class CustomChatModelBuilder {
         if (outputTokenPath == null || outputTokenPath.trim().isEmpty()) {
             throw new IllegalArgumentException("Output token path is required");
         }
-        if (timeout != null && timeout.isNegative()) {
-            throw new IllegalArgumentException("Timeout must be positive");
-        }
-        if (connectTimeout != null && connectTimeout.isNegative()) {
-            throw new IllegalArgumentException("Connect timeout must be positive");
-        }
     }
 
     // Getters for the CustomChatModel constructor
@@ -164,8 +140,6 @@ public class CustomChatModelBuilder {
     String getAnswerPath() { return answerPath; }
     String getInputTokenPath() { return inputTokenPath; }
     String getOutputTokenPath() { return outputTokenPath; }
-    Duration getTimeout() { return timeout; }
-    Duration getConnectTimeout() { return connectTimeout; }
     Map<String, Object> getAdditionalParameters() { return new HashMap<>(additionalParameters); }
     boolean isLogRequests() { return logRequests; }
     boolean isLogResponses() { return logResponses; }

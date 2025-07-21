@@ -15,7 +15,7 @@ payloadTemplate: |
               "seed": 42
             }
 answerPath: choices[0].message.content
-inputTokenPath: usage.input_tokens
-outputTokenPath: usage.output_tokens
+inputTokenPath: usage.prompt_tokens
+outputTokenPath: usage.completion_tokens
 logRequests: true
 logResponses: true
