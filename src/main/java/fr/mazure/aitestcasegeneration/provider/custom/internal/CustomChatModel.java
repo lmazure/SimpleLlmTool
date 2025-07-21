@@ -27,7 +27,7 @@ public class CustomChatModel implements ChatModel {
     private final String url;
     private static final Duration timeout = Duration.ofSeconds(60);
     private static final Duration connectTimeout = Duration.ofSeconds(30);
-    private final Map<String, Object> additionalParameters;
+    private final Map<String, String> httpHeaders;
     private final String payloadTemplate;
     private final String answerPath;
     private final String inputTokenPath;
@@ -41,8 +41,8 @@ public class CustomChatModel implements ChatModel {
     public CustomChatModel(final CustomChatModelBuilder builder) {
         this.apiKey = builder.getApiKey();
         this.url = builder.getBaseUrl();
-        this.additionalParameters = builder.getAdditionalParameters();
         this.payloadTemplate = builder.getPayloadTemplate();
+        this.httpHeaders = builder.getHttpHeaders();
         this.answerPath = builder.getAnswerPath();
         this.inputTokenPath = builder.getInputTokenPath();
         this.outputTokenPath = builder.getOutputTokenPath();
@@ -74,7 +74,7 @@ public class CustomChatModel implements ChatModel {
         } catch (final IOException e) {
             throw new RuntimeException("Failed to build request body: " + e.getMessage());
         }
-        final Request request = buildRequest(requestBody);
+        final Request request = buildRequest(chatRequest, requestBody);
 
         try (final okhttp3.Response response = httpClient.newCall(request).execute()) {
             if (logResponses) {
@@ -99,13 +99,20 @@ public class CustomChatModel implements ChatModel {
         return RequestBody.create(json, MediaType.get("application/json"));
     }
 
-    private Request buildRequest(final RequestBody requestBody) {
+    private Request buildRequest(final ChatRequest chatRequest,
+                                 final RequestBody requestBody) {
         final Request.Builder builder = new Request.Builder()
                                                    .url(url)
-                                                   .header("Authorization", "Bearer " + apiKey)
                                                    .header("Content-Type", "application/json")
                                                    .post(requestBody);
-
+        for (final Map.Entry<String, String> entry : httpHeaders.entrySet()) {
+            final String valueTemplate = entry.getValue();
+            final String value = RequestPayloadGenerator.generate(valueTemplate, convertMessages(chatRequest.messages()), apiKey);
+            builder.header(entry.getKey(), value);
+            if (logRequests) {
+                System.out.println("Header: " + entry.getKey() + ": " + value);
+            }
+        }
         return builder.build();
     }
 

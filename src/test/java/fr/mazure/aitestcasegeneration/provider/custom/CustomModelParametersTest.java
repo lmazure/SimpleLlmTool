@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,8 @@ public class CustomModelParametersTest {
                 apiKeyEnvVar: CUSTOM_API_KEY
                 url: https://api.custom.ai/v1
                 payloadTemplate: the_template
+                httpHeaders:
+                  Authorization: Bearer {{apiKey}}
                 answerPath: path_to_answer
                 inputTokenPath: path_to_number_of_input_tokens
                 outputTokenPath: path_to_number_of_output_tokens
@@ -52,6 +55,7 @@ public class CustomModelParametersTest {
         Assertions.assertEquals("CUSTOM_API_KEY", parameters.getApiKeyEnvironmentVariableName());
         Assertions.assertEquals(new URI("https://api.custom.ai/v1").toURL(), parameters.getBaseUrl().get());
         Assertions.assertEquals("the_template", parameters.getPayloadTemplate());
+        Assertions.assertEquals(Map.of("Authorization", "Bearer {{apiKey}}"), parameters.getHttpHeaders());
         Assertions.assertEquals("path_to_answer", parameters.getAnswerPath());
         Assertions.assertEquals("path_to_number_of_input_tokens", parameters.getInputTokenPath());
         Assertions.assertEquals("path_to_number_of_output_tokens", parameters.getOutputTokenPath());
@@ -74,6 +78,8 @@ public class CustomModelParametersTest {
                 apiKeyEnvVar: CUSTOM_API_KEY
                 url: https://api.custom.ai/v1
                 payloadTemplate: the_template
+                httpHeaders:
+                  Authorization: Bearer {{apiKey}}
                 answerPath: path_to_answer
                 inputTokenPath: path_to_number_of_input_tokens
                 outputTokenPath: path_to_number_of_output_tokens
@@ -89,6 +95,7 @@ public class CustomModelParametersTest {
         Assertions.assertEquals("CUSTOM_API_KEY", parameters.getApiKeyEnvironmentVariableName());
         Assertions.assertEquals(new URI("https://api.custom.ai/v1").toURL(), parameters.getBaseUrl().get());
         Assertions.assertEquals("the_template", parameters.getPayloadTemplate());
+        Assertions.assertEquals(Map.of("Authorization", "Bearer {{apiKey}}"), parameters.getHttpHeaders());
         Assertions.assertEquals("path_to_answer", parameters.getAnswerPath());
         Assertions.assertEquals("path_to_number_of_input_tokens", parameters.getInputTokenPath());
         Assertions.assertEquals("path_to_number_of_output_tokens", parameters.getOutputTokenPath());

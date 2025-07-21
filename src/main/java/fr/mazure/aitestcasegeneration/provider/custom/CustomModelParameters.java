@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Optional;
 
 import org.yaml.snakeyaml.Yaml;
@@ -21,6 +22,7 @@ import fr.mazure.aitestcasegeneration.provider.base.ParameterMap;
  * @param url                 the URL of the provider
  * @param apiKeyEnvVar        the name of the environment variable containing the API key
  * @param payloadTemplate     the payload template for the API calls
+ * @param httpHeaders         the HTTP headers to be sent with the API requests
  * @param answerPath          the path to the answer in the API response
  * @param inputTokenPath      the path to the input token count in the API response
  * @param outputTokenPath     the path to the output token count in the API response
@@ -30,6 +32,7 @@ import fr.mazure.aitestcasegeneration.provider.base.ParameterMap;
 public class CustomModelParameters extends ModelParameters {
 
     private final String payloadTemplate;
+    private final Map<String, String> httpHeaders;
     private final String answerPath;
     private final String inputTokenPath;
     private final String outputTokenPath;
@@ -40,6 +43,7 @@ public class CustomModelParameters extends ModelParameters {
                                  final URL url,
                                  final String apiKeyEnvVar,
                                  final String payloadTemplate,
+                                 final Map<String, String> httpHeaders,
                                  final String answerPath,
                                  final String inputTokenPath,
                                  final String outputTokenPath,
@@ -47,6 +51,7 @@ public class CustomModelParameters extends ModelParameters {
                                  final Optional<Boolean> logResponses) {
         super(modelName, Optional.of(url), apiKeyEnvVar);
         this.payloadTemplate = payloadTemplate;
+        this.httpHeaders = httpHeaders;
         this.answerPath = answerPath;
         this.inputTokenPath = inputTokenPath;
         this.outputTokenPath = outputTokenPath;
@@ -56,6 +61,10 @@ public class CustomModelParameters extends ModelParameters {
 
     public String getPayloadTemplate() {
         return payloadTemplate;
+    }
+
+    public Map<String, String> getHttpHeaders() {
+        return httpHeaders;
     }
 
     public String getAnswerPath() {
@@ -95,6 +104,7 @@ public class CustomModelParameters extends ModelParameters {
                                              parameterMap.getUrl("url"),
                                              parameterMap.getString("apiKeyEnvVar"),
                                              parameterMap.getString("payloadTemplate"),
+                                             parameterMap.getMap("httpHeaders"),
                                              parameterMap.getString("answerPath"),
                                              parameterMap.getString("inputTokenPath"),
                                              parameterMap.getString("outputTokenPath"),

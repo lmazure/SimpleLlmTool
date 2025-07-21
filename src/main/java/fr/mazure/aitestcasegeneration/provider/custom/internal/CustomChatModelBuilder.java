@@ -1,6 +1,5 @@
 package fr.mazure.aitestcasegeneration.provider.custom.internal;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class CustomChatModelBuilder {
@@ -8,10 +7,10 @@ public class CustomChatModelBuilder {
     private String apiKey;
     private String baseUrl;
     private String payloadTemplate;
+    private Map<String, String> httpHeaders;
     private String answerPath;
     private String inputTokenPath;
     private String outputTokenPath;
-    private Map<String, Object> additionalParameters = new HashMap<>();
     private boolean logRequests = false;
     private boolean logResponses = false;
 
@@ -43,6 +42,10 @@ public class CustomChatModelBuilder {
         return this;
     }
 
+    public CustomChatModelBuilder httpHeaders(final Map<String, String> httpHeaders) {
+        this.httpHeaders = httpHeaders;
+        return this;
+    }
     /**
      * Sets the JSON path to the field containing the answer
      */
@@ -87,16 +90,16 @@ public class CustomChatModelBuilder {
      * Adds additional parameters to be sent with API requests
      */
     public CustomChatModelBuilder additionalParameter(final String key,
-                                                      final Object value) {
-        this.additionalParameters.put(key, value);
+                                                      final String value) {
+        this.httpHeaders.put(key, value);
         return this;
     }
 
     /**
      * Adds multiple additional parameters
      */
-    public CustomChatModelBuilder additionalParameters(final Map<String, Object> parameters) {
-        this.additionalParameters.putAll(parameters);
+    public CustomChatModelBuilder additionalParameters(final Map<String, String> parameters) {
+        this.httpHeaders.putAll(parameters);
         return this;
     }
 
@@ -121,6 +124,9 @@ public class CustomChatModelBuilder {
         if (payloadTemplate == null || payloadTemplate.trim().isEmpty()) {
             throw new IllegalArgumentException("Payload template is required");
         }
+        if (httpHeaders == null || httpHeaders.isEmpty()) {
+            throw new IllegalArgumentException("HTTP headers are required");
+        }
         if (answerPath == null || answerPath.trim().isEmpty()) {
             throw new IllegalArgumentException("Answer path is required");
         }
@@ -137,9 +143,9 @@ public class CustomChatModelBuilder {
     String getBaseUrl() { return baseUrl; }
     String getPayloadTemplate() { return payloadTemplate; }
     String getAnswerPath() { return answerPath; }
+    Map<String, String> getHttpHeaders() { return httpHeaders; }
     String getInputTokenPath() { return inputTokenPath; }
     String getOutputTokenPath() { return outputTokenPath; }
-    Map<String, Object> getAdditionalParameters() { return new HashMap<>(additionalParameters); }
     boolean isLogRequests() { return logRequests; }
     boolean isLogResponses() { return logResponses; }
 }

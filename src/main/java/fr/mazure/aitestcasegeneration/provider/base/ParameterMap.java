@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public class ParameterMap {
     
-private final Map<String, Object> data;
+    private final Map<String, Object> data;
 
     public ParameterMap(Map<String, Object> data) {
         this.data = data;
@@ -31,6 +31,14 @@ private final Map<String, Object> data;
         return url.get();
     }
 
+    public Map<String, String> getMap(final String parameterName) throws MissingModelParameter, InvalidModelParameter {
+        final Optional<Map<String, String>> map = getOptionalMap(parameterName);
+        if (map.isEmpty()) {
+            throw new MissingModelParameter(parameterName);
+        }
+        return map.get();
+    }
+
     public Optional<URL> getOptionalUrl(final String parameterName) throws InvalidModelParameter {
         if (!data.containsKey(parameterName)) {
             return Optional.empty();
@@ -44,6 +52,16 @@ private final Map<String, Object> data;
         return Optional.of(url);
     }
 
+    public Optional<Map<String, String>> getOptionalMap(final String parameterName) throws InvalidModelParameter {
+        if (!data.containsKey(parameterName)) {
+            return Optional.empty();
+        }
+        final Object value = data.get(parameterName);
+        if (!(value instanceof Map)) {
+            throw new InvalidModelParameter(parameterName, "Map", data.get(parameterName).toString());
+        }
+        return Optional.of((Map<String, String>) value);
+    }
 
     public Optional<String> getOptionalString(final String parameterName) throws InvalidModelParameter {
         if (!data.containsKey(parameterName)) {

@@ -17,6 +17,7 @@ public class CustomChatModelProvider implements ModelProvider {
                                                               .baseUrl(parameters.getBaseUrl().get().toString())
                                                               .payloadTemplate(parameters.getPayloadTemplate())
                                                               .answerPath(parameters.getAnswerPath())
+                                                              .httpHeaders(parameters.getHttpHeaders())
                                                               .inputTokenPath(parameters.getInputTokenPath())
                                                               .outputTokenPath(parameters.getOutputTokenPath());
 
