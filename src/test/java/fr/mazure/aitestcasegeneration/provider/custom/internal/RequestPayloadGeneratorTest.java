@@ -92,7 +92,7 @@ class RequestPayloadGeneratorTest {
                   {{#each messages}}{{#if (isSystem role)}}"system_instruction": {
                     "parts": [
                       {
-                        "text": "You are a helpful assistant"
+                        "text": "{{content}}"
                       }
                     ]
                   },{{/if}}{{/each}}
