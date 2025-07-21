@@ -11,10 +11,6 @@ public class CustomChatModelBuilder {
     private String modelName;
     private Duration timeout = Duration.ofSeconds(60);
     private Duration connectTimeout = Duration.ofSeconds(30);
-    private Integer maxRetries = 3;
-    private Double temperature;
-    private Integer maxTokens;
-    private String organizationId;
     private Map<String, Object> additionalParameters = new HashMap<>();
     private boolean logRequests = false;
     private boolean logResponses = false;
@@ -60,38 +56,6 @@ public class CustomChatModelBuilder {
      */
     public CustomChatModelBuilder connectTimeout(final Duration connectTimeout) {
         this.connectTimeout = connectTimeout;
-        return this;
-    }
-
-    /**
-     * Sets the maximum number of retry attempts
-     */
-    public CustomChatModelBuilder maxRetries(final Integer maxRetries) {
-        this.maxRetries = maxRetries;
-        return this;
-    }
-
-    /**
-     * Sets the temperature for response generation (0.0 to 2.0)
-     */
-    public CustomChatModelBuilder temperature(final Double temperature) {
-        this.temperature = temperature;
-        return this;
-    }
-
-    /**
-     * Sets the maximum number of tokens to generate
-     */
-    public CustomChatModelBuilder maxTokens(final Integer maxTokens) {
-        this.maxTokens = maxTokens;
-        return this;
-    }
-
-    /**
-     * Sets the organization ID (if applicable)
-     */
-    public CustomChatModelBuilder organizationId(final String organizationId) {
-        this.organizationId = organizationId;
         return this;
     }
 
@@ -155,15 +119,6 @@ public class CustomChatModelBuilder {
         if (connectTimeout != null && connectTimeout.isNegative()) {
             throw new IllegalArgumentException("Connect timeout must be positive");
         }
-        if (maxRetries != null && maxRetries < 0) {
-            throw new IllegalArgumentException("Max retries must be non-negative");
-        }
-        if (temperature != null && (temperature < 0.0 || temperature > 2.0)) {
-            throw new IllegalArgumentException("Temperature must be between 0.0 and 2.0");
-        }
-        if (maxTokens != null && maxTokens <= 0) {
-            throw new IllegalArgumentException("Max tokens must be positive");
-        }
     }
 
     // Getters for the CustomChatModel constructor
@@ -172,10 +127,6 @@ public class CustomChatModelBuilder {
     String getModelName() { return modelName; }
     Duration getTimeout() { return timeout; }
     Duration getConnectTimeout() { return connectTimeout; }
-    Integer getMaxRetries() { return maxRetries; }
-    Double getTemperature() { return temperature; }
-    Integer getMaxTokens() { return maxTokens; }
-    String getOrganizationId() { return organizationId; }
     Map<String, Object> getAdditionalParameters() { return new HashMap<>(additionalParameters); }
     boolean isLogRequests() { return logRequests; }
     boolean isLogResponses() { return logResponses; }

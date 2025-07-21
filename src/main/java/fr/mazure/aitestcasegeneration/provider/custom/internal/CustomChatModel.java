@@ -33,10 +33,6 @@ public class CustomChatModel implements ChatModel {
     private final String modelName;
     private final Duration timeout;
     private final Duration connectTimeout;
-    private final Integer maxRetries;
-    private final Double temperature;
-    private final Integer maxTokens;
-    private final String organizationId;
     private final Map<String, Object> additionalParameters;
     private final boolean logRequests;
     private final boolean logResponses;
@@ -51,10 +47,6 @@ public class CustomChatModel implements ChatModel {
         this.modelName = builder.getModelName();
         this.timeout = builder.getTimeout();
         this.connectTimeout = builder.getConnectTimeout();
-        this.maxRetries = builder.getMaxRetries();
-        this.temperature = builder.getTemperature();
-        this.maxTokens = builder.getMaxTokens();
-        this.organizationId = builder.getOrganizationId();
         this.additionalParameters = builder.getAdditionalParameters();
         this.logRequests = builder.isLogRequests();
         this.logResponses = builder.isLogResponses();
@@ -85,38 +77,23 @@ public class CustomChatModel implements ChatModel {
 
     @Override
     public ChatResponse doChat(final ChatRequest chatRequest) {
-        Exception lastException = null;
-
-        for (int attempt = 1; attempt <= maxRetries; attempt++) {
-            try {
-                return attemptGenerate(chatRequest);
-            } catch (final Exception e) {
-                lastException = e;
-                if (attempt < maxRetries) {
-                    try {
-                        Thread.sleep(calculateBackoffDelay(attempt));
-                    } catch (final InterruptedException ie) {
-                        Thread.currentThread().interrupt();
-                        throw new RuntimeException("Interrupted during retry", ie);
-                    }
-                }
-            }
+        RequestBody requestBody;
+        try {
+            requestBody = buildRequestBody(chatRequest);
+        } catch (final IOException e) {
+            throw new RuntimeException("Failed to build request body: " + e.getMessage());
         }
+        final Request request = buildRequest(requestBody);
 
-        throw new RuntimeException("Failed to generate response after " + maxRetries + " attempts", lastException);
-    }
-
-    private ChatResponse attemptGenerate(ChatRequest chatRequest) throws IOException {
-        RequestBody requestBody = buildRequestBody(chatRequest);
-        Request request = buildRequest(requestBody);
-
-        try (okhttp3.Response response = httpClient.newCall(request).execute()) {
+        try (final okhttp3.Response response = httpClient.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 throw new RuntimeException("API call failed: " + response.code() + " " + response.message());
             }
 
-            String responseBody = response.body().string();
+            final String responseBody = response.body().string();
             return parseApiResponse(responseBody);
+        } catch (final IOException e) {
+            throw new RuntimeException("Failed to parse answer: " + e.getMessage());
         }
     }
 
@@ -124,14 +101,6 @@ public class CustomChatModel implements ChatModel {
         final Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("model", modelName);
         requestMap.put("messages", convertMessages(chatRequest.messages()));
-
-        // Add optional parameters
-        if (temperature != null) {
-            requestMap.put("temperature", temperature);
-        }
-        if (maxTokens != null) {
-            requestMap.put("max_tokens", maxTokens);
-        }
 
         // Add any additional parameters
         requestMap.putAll(additionalParameters);
@@ -142,18 +111,15 @@ public class CustomChatModel implements ChatModel {
 
     private Request buildRequest(final RequestBody requestBody) {
         final Request.Builder builder = new Request.Builder()
-                                                   .url(url + "/chat/completions")
+                                                   .url(url)
                                                    .header("Authorization", "Bearer " + apiKey)
                                                    .header("Content-Type", "application/json")
                                                    .post(requestBody);
 
-        if (organizationId != null) {
-            builder.header("OpenAI-Organization", organizationId);
-        }
-
         return builder.build();
     }
 
+    /*
     private List<MessageRound> convertMessages(final List<ChatMessage> messages) {
         return messages.stream()
                        .map(this::convertMessage)
@@ -168,6 +134,30 @@ public class CustomChatModel implements ChatModel {
             default -> throw new IllegalArgumentException("Unsupported message type: " + message.getClass()); // TODO: we will have to support tools and 
         };
     }
+    */
+
+    private List<Map<String, String>> convertMessages(final List<ChatMessage> messages) {
+        return messages.stream()
+            .map(this::convertMessage)
+            .collect(Collectors.toList());
+    }
+
+    private Map<String, String> convertMessage(final ChatMessage message) {
+        final Map<String, String> messageMap = new HashMap<>();
+
+        if (message instanceof UserMessage) {
+            messageMap.put("role", "user");
+            messageMap.put("content", ((UserMessage) message).singleText());
+        } else if (message instanceof AiMessage) {
+            messageMap.put("role", "assistant");
+            messageMap.put("content", ((AiMessage) message).text());
+        } else if (message instanceof SystemMessage) {
+            messageMap.put("role", "system");
+            messageMap.put("content", ((SystemMessage) message).text());
+        }
+
+        return messageMap;
+    }
 
     private ChatResponse parseApiResponse(final String responseBody) throws IOException {
         final JsonNode jsonResponse = objectMapper.readTree(responseBody);
@@ -180,6 +170,7 @@ public class CustomChatModel implements ChatModel {
 
         final AiMessage aiMessage = AiMessage.from(generatedText);
 
+        /* TODO this is specific to OpenAI, I'll have to define two JsonPathes to retrive these two values
         TokenUsage tokenUsage = null;
         if (jsonResponse.has("usage")) {
             JsonNode usage = jsonResponse.path("usage");
@@ -188,15 +179,12 @@ public class CustomChatModel implements ChatModel {
                 usage.path("completion_tokens").asInt()
             );
         }
+        */
 
         return ChatResponse.builder()
                            .aiMessage(aiMessage)
-                           .tokenUsage(tokenUsage)
+                           //.tokenUsage(tokenUsage) → see previous TODO
                            .build();
-    }
-
-    private long calculateBackoffDelay(int attempt) {
-        return Math.min(1000 * (1L << attempt), 30000); // Exponential backoff with max 30 seconds
     }
 
     // Simple logging interceptor
