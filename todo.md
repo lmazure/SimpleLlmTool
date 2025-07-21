@@ -1,4 +1,3 @@
-- virer timeout et connectTimeout
 - corriger mauvaise gestion du modelName
 
 - Mustache

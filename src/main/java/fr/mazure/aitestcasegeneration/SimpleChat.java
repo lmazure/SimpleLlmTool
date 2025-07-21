@@ -13,11 +13,15 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 
+import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.SystemMessage;
+import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
-import dev.langchain4j.service.AiServices;
+import dev.langchain4j.model.chat.request.ChatRequest;
+import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.model.output.TokenUsage;
 import fr.mazure.aitestcasegeneration.provider.base.InvalidModelParameter;
 import fr.mazure.aitestcasegeneration.provider.base.MissingEnvironmentVariable;
 import fr.mazure.aitestcasegeneration.provider.base.MissingModelParameter;
@@ -93,7 +97,6 @@ public class SimpleChat {
         final Terminal terminal = TerminalBuilder.builder()
                                                  .system(true)
                                                  .build();
-
         final LineReader reader = LineReaderBuilder.builder()
                                                    .terminal(terminal)
                                                    .build();
@@ -113,17 +116,12 @@ public class SimpleChat {
             final SystemMessage systemPrompt = new SystemMessage(sysPrompt.get());
             memory.add(systemPrompt);
             final AttributedString systemPromptString = new AttributedString("System prompt: ",
-                                                                            AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
+                                                                             AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
             terminal.writer().print(systemPromptString.toAnsi());
             terminal.writer().println(sysPrompt.get());
         }
-        final Assistant assistant = AiServices.builder(Assistant.class)
-                                              .chatModel(model)
-                                              .chatMemory(memory)
-                                              .build();
 
         String prefilledText = userPrompt.orElse("");
-
         while (true) {
             final String input = reader.readLine(prompt.toAnsi(), null, prefilledText);
             if (input.isEmpty()) {
@@ -133,9 +131,24 @@ public class SimpleChat {
                 terminal.close();
                 System.exit(ExitCode.SUCCESS.getCode());
             }
-            final String answer = assistant.chat(input);
+
+            memory.add(UserMessage.from(input));
+            final ChatRequest chatRequest = ChatRequest.builder().messages(memory.messages()).build();
+            final ChatResponse response = model.doChat(chatRequest);
+            final String answer = response.aiMessage().text();
+            memory.add(AiMessage.from(answer));
             final AttributedString displayedAnswer = new AttributedString(answer, AttributedStyle.DEFAULT.foreground(AttributedStyle.BLUE));
             terminal.writer().println(displayedAnswer.toAnsi());
+            final TokenUsage tokenUsage = response.tokenUsage();
+            if (tokenUsage != null) {
+                final Integer inputTokens = tokenUsage.inputTokenCount();
+                final Integer outputTokens = tokenUsage.outputTokenCount();
+                final Integer totalTokens = tokenUsage.totalTokenCount();
+                
+                System.out.println("Input tokens: " + inputTokens);
+                System.out.println("Output tokens: " + outputTokens);
+                System.out.println("Total tokens: " + totalTokens);
+            }
             prefilledText = "";
         }
     }
@@ -152,13 +165,10 @@ public class SimpleChat {
             memory.add(systemPrompt);
         }
 
-        final Assistant assistant = AiServices.builder(Assistant.class)
-                                              .chatMemory(memory)
-                                              .chatModel(model)
-                                              .build();
-
         try {
-            final String answer = assistant.chat(userPrompt);
+            final ChatRequest chatRequest = ChatRequest.builder().messages(memory.messages()).build();
+            final ChatResponse response = model.doChat(chatRequest);
+            final String answer = response.aiMessage().text();
             output.println(answer);
         } catch (final RuntimeException e) {
             error.println("Model failure");
