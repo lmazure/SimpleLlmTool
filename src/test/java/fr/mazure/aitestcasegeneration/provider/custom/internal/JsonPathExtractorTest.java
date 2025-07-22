@@ -98,7 +98,7 @@ class JsonPathExtractorTest {
         Assertions.assertEquals("jj",
                                 JsonPathExtractor.extract("[ { \"aa\": \"bb\", \"cc\": \"dd\", \"ee\": \"ff\" }, { \"gg\": \"hh\", \"ii\": \"jj\", \"kk\": \"ll\" } ]",
                                                           "[1].ii"));
-        
+
     }
 
     @Test
@@ -106,7 +106,7 @@ class JsonPathExtractorTest {
         Assertions.assertEquals("ff",
                                 JsonPathExtractor.extract("{ \"aa\": \"bb\", \"cc\": [ \"dd\", \"ee\", \"ff\" ], \"gg\": \"hh\" }",
                                                           "cc[2]"));
-        
+
     }
 
     @Test

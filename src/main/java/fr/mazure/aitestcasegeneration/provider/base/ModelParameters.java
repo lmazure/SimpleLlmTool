@@ -5,7 +5,7 @@ import java.util.Optional;
 
     /**
      * Parameters for model providers.
-     * 
+     *
      * @param modelName      the name of the model
      * @param baseUrl        the base URL of the provider
      * @param apiKeyEnvVar   the name of the environment variable that contains the API key

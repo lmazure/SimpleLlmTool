@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class ParameterMap {
-    
+
     private final Map<String, Object> data;
 
     public ParameterMap(Map<String, Object> data) {

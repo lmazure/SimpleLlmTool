@@ -7,7 +7,7 @@ import fr.mazure.aitestcasegeneration.provider.base.MissingEnvironmentVariable;
 import fr.mazure.aitestcasegeneration.provider.base.ModelProvider;
 
 public class OpenAiChatModelProvider implements ModelProvider {
-    
+
     public static ChatModel createChatModel(final OpenAiModelParameters parameters) throws MissingEnvironmentVariable {
 
         final String apiKey = ModelProvider.getApiKeyFromEnvironmentVariable(parameters.getApiKeyEnvironmentVariableName(), "OpenAI");

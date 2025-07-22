@@ -19,7 +19,7 @@ public enum ProviderEnum {
     public String toString() {
         return this.name;
     }
-    
+
     public static ProviderEnum fromString(final String text) {
         return Arrays.stream(ProviderEnum.values())
                      .filter(p -> p.name.equals(text))

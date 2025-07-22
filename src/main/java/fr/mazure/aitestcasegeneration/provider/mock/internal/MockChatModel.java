@@ -29,7 +29,7 @@ public class MockChatModel implements ChatModel {
                 case UserMessage userMessage -> "USER " + userMessage.singleText();
                 case AiMessage aiMessage -> "MODEL " + aiMessage.text();
                 case SystemMessage systemMessage -> "SYSTEM " + systemMessage.text();
-                default -> throw new IllegalArgumentException("Unsupported message type: " + lastMessage.getClass()); // TODO: we will have to support tools and 
+                default -> throw new IllegalArgumentException("Unsupported message type: " + lastMessage.getClass()); // TODO: we will have to support tools and
             });
 
         return ChatResponse.builder()

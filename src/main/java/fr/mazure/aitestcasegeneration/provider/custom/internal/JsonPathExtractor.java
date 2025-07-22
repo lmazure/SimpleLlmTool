@@ -43,7 +43,7 @@ public class JsonPathExtractor {
             return extract(node.get(part), pathParts, startIndex + 1);
         }
     }
-    
+
     private static List<String> split(final String str) {
         final Matcher m = Pattern.compile("\\[\\d+]|\\w+").matcher(str);
         final List<String> matches = new ArrayList<>();

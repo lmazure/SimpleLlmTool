@@ -17,7 +17,7 @@ import fr.mazure.aitestcasegeneration.provider.base.ParameterMap;
 
 /**
  * Parameters for the custom model provider.
- * 
+ *
  * @param modelName           the name of the model
  * @param url                 the URL of the provider
  * @param apiKeyEnvVar        the name of the environment variable containing the API key
@@ -89,7 +89,7 @@ public class CustomModelParameters extends ModelParameters {
 
     /**
      * Load parameters from a YAML file and create a new CustomModelParameters instance.
-     * 
+     *
      * @param yamlFilePath the path to the YAML file containing the parameters
      * @return a new CustomModelParameters instance with the parameters from the YAML file
      * @throws IOException if there is an error reading the file

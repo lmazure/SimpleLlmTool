@@ -6,7 +6,7 @@ public interface ModelProvider {
 
     /**
      * Creates a chat model instance based on the provided parameters.
-     * 
+     *
      * @param parameters The parameters for creating the chat model.
      * @return A chat model instance.
      */
@@ -16,7 +16,7 @@ public interface ModelProvider {
 
     /**
      * Retrieves an API key from the environment variable.
-     * 
+     *
      * @param apiKeyEnvironmentVariableName The name of the environment variable containing the API key.
      * @param providerName The name of the provider.
      * @return The API key.

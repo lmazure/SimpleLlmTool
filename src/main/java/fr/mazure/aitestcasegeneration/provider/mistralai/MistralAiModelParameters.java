@@ -16,7 +16,7 @@ import fr.mazure.aitestcasegeneration.provider.base.ParameterMap;
 
 /**
  * Parameters for the Mistral AI model provider.
- * 
+ *
  * @param modelName           the name of the model
  * @param baseUrl             the base URL of the provider
  * @param apiKeyEnvVar        the name of the environment variable containing the API key
@@ -25,7 +25,7 @@ import fr.mazure.aitestcasegeneration.provider.base.ParameterMap;
  * @param maxTokens           the maximum number of tokens the model should generate
  */
 public class MistralAiModelParameters extends ModelParameters {
-    
+
     private final Optional<Double> temperature;
     private final Optional<Double> topP;
     private final Optional<Integer> maxTokens;
@@ -53,10 +53,10 @@ public class MistralAiModelParameters extends ModelParameters {
     public Optional<Integer> getMaxTokens() {
         return this.maxTokens;
     }
-    
+
     /**
      * Load parameters from a YAML file and create a new MistralAiModelParameters instance.
-     * 
+     *
      * @param yamlFilePath the path to the YAML file containing the parameters
      * @return a new MistralAiModelParameters instance with the parameters from the YAML file
      * @throws IOException if there is an error reading the file

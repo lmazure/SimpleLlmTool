@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class CommandLine {
-    
+
     public record Parameters(Optional<String> sysPrompt,
                              Optional<String> userPrompt,
                              Optional<Path> outputFile,

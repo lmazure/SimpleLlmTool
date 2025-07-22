@@ -7,7 +7,7 @@ import fr.mazure.aitestcasegeneration.provider.base.MissingEnvironmentVariable;
 import fr.mazure.aitestcasegeneration.provider.base.ModelProvider;
 
 public class MistralAiChatModelProvider implements ModelProvider {
-    
+
     public static ChatModel createChatModel(final MistralAiModelParameters parameters) throws MissingEnvironmentVariable {
 
         final String apiKey = ModelProvider.getApiKeyFromEnvironmentVariable(parameters.getApiKeyEnvironmentVariableName(), "Mistral AI");

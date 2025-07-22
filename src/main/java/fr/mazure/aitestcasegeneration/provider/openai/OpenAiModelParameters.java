@@ -16,7 +16,7 @@ import fr.mazure.aitestcasegeneration.provider.base.ParameterMap;
 
     /**
      * Parameters for the OpenAI model provider.
-     * 
+     *
      * @param modelName           the name of the model
      * @param baseUrl             the base URL of the provider
      * @param apiKeyEnvVar        the name of the environment variable containing the API key
@@ -28,7 +28,7 @@ import fr.mazure.aitestcasegeneration.provider.base.ParameterMap;
      * @param maxCompletionTokens the maximum number of tokens the model should generate
      */
 public class OpenAiModelParameters extends ModelParameters{
-    
+
     private final Optional<String> organizationId;
     private final Optional<String> projectId;
     private final Optional<Double> temperature;
@@ -77,10 +77,10 @@ public class OpenAiModelParameters extends ModelParameters{
     public Optional<Integer> getMaxCompletionTokens() {
         return this.maxCompletionTokens;
     }
-    
+
     /**
      * Load parameters from a YAML file and create a new OpenAiModelParameters instance.
-     * 
+     *
      * @param yamlFilePath the path to the YAML file containing the parameters
      * @return a new OpenAiModelParameters instance with the parameters from the YAML file
      * @throws IOException if there is an error reading the file

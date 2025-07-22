@@ -100,7 +100,7 @@ public class SimpleChat {
         final LineReader reader = LineReaderBuilder.builder()
                                                    .terminal(terminal)
                                                    .build();
-        final AttributedString prompt = new AttributedString("Enter text: ", 
+        final AttributedString prompt = new AttributedString("Enter text: ",
                                                              AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
 
         // print help message
@@ -144,7 +144,7 @@ public class SimpleChat {
                 final Integer inputTokens = tokenUsage.inputTokenCount();
                 final Integer outputTokens = tokenUsage.outputTokenCount();
                 final Integer totalTokens = tokenUsage.totalTokenCount();
-                
+
                 System.out.println("Input tokens: " + inputTokens);
                 System.out.println("Output tokens: " + outputTokens);
                 System.out.println("Total tokens: " + totalTokens);
