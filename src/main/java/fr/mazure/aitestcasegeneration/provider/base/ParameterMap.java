@@ -43,11 +43,15 @@ public class ParameterMap {
         if (!data.containsKey(parameterName)) {
             return Optional.empty();
         }
+        final Object value = data.get(parameterName);
+        if (!(value instanceof String stringValue)) {
+            throw new InvalidModelParameter(parameterName, "URL", value.toString());
+        }
         URL url;
         try {
-            url = (new URI((String) data.get(parameterName))).toURL();
+            url = (new URI(stringValue)).toURL();
         } catch (final IllegalArgumentException | MalformedURLException | URISyntaxException e) {
-            throw new InvalidModelParameter(parameterName, "URL", data.get(parameterName).toString());
+            throw new InvalidModelParameter(parameterName, "URL", stringValue);
         }
         return Optional.of(url);
     }
@@ -57,10 +61,17 @@ public class ParameterMap {
             return Optional.empty();
         }
         final Object value = data.get(parameterName);
-        if (!(value instanceof Map)) {
-            throw new InvalidModelParameter(parameterName, "Map", data.get(parameterName).toString());
+        if (value instanceof Map<?, ?> mapValue) {
+            try {
+                @SuppressWarnings("unchecked")
+                final Map<String, String> typedMap = (Map<String, String>) mapValue;
+                return Optional.of(typedMap);
+            } catch (final ClassCastException e) {
+                throw new InvalidModelParameter(parameterName, "Map<String, String>", value.toString());
+            }
+        } else {
+            throw new InvalidModelParameter(parameterName, "Map<String, String>", value.toString());
         }
-        return Optional.of((Map<String, String>) value);
     }
 
     public Optional<String> getOptionalString(final String parameterName) throws InvalidModelParameter {
@@ -68,10 +79,10 @@ public class ParameterMap {
             return Optional.empty();
         }
         final Object value = data.get(parameterName);
-        if (!(value instanceof String)) {
-            throw new InvalidModelParameter(parameterName, "String", data.get(parameterName).toString());
+        if (value instanceof String stringValue) {
+            return Optional.of(stringValue);
         }
-        return Optional.of((String) value);
+        throw new InvalidModelParameter(parameterName, "String", value.toString());
     }
 
     public Optional<Double> getOptionalDouble(final String parameterName) throws InvalidModelParameter {
@@ -79,10 +90,10 @@ public class ParameterMap {
             return Optional.empty();
         }
         final Object value = data.get(parameterName);
-        if (!(value instanceof Double)) {
-            throw new InvalidModelParameter(parameterName, "Double", data.get(parameterName).toString());
+        if (value instanceof Double doubleValue) {
+            return Optional.of(doubleValue);
         }
-        return Optional.of((Double) value);
+        throw new InvalidModelParameter(parameterName, "Double", value.toString());
     }
 
     public Optional<Integer> getOptionalInteger(final String parameterName) throws InvalidModelParameter {
@@ -90,10 +101,10 @@ public class ParameterMap {
             return Optional.empty();
         }
         final Object value = data.get(parameterName);
-        if (!(value instanceof Integer)) {
-            throw new InvalidModelParameter(parameterName, "Integer", data.get(parameterName).toString());
+        if (value instanceof Integer integerValue) {
+            return Optional.of(integerValue);
         }
-        return Optional.of((Integer) value);
+        throw new InvalidModelParameter(parameterName, "Integer", value.toString());
     }
 
     public Optional<Boolean> getOptionalBoolean(final String parameterName) throws InvalidModelParameter {
@@ -101,9 +112,9 @@ public class ParameterMap {
             return Optional.empty();
         }
         final Object value = data.get(parameterName);
-        if (!(value instanceof Boolean)) {
-            throw new InvalidModelParameter(parameterName, "Boolean", data.get(parameterName).toString());
+        if (value instanceof Boolean booleanValue) {
+            return Optional.of(booleanValue);
         }
-        return Optional.of((Boolean) value);
+        throw new InvalidModelParameter(parameterName, "Boolean", value.toString());
     }
 }
