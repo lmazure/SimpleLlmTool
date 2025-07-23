@@ -49,7 +49,7 @@ public class RequestPayloadGenerator {
                 }
             });
 
-            handlebars.registerHelper("convertToJson", new Helper<String>() {
+            handlebars.registerHelper("convertToJsonString", new Helper<String>() {
                 @Override
                 public String apply(String text, Options options) {
                     return jsonConverter(text);

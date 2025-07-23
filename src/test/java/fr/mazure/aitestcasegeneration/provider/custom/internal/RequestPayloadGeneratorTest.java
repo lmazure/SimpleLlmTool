@@ -25,7 +25,7 @@ class RequestPayloadGeneratorTest {
               "messages": [
                 {{#each messages}}{
                   "role": "{{#if (isSystem role)}}system{{/if}}{{#if (isUser role)}}user{{/if}}{{#if (isModel role)}}assistant{{/if}}",
-                  "content": {{convertToJson content}}
+                  "content": {{convertToJsonString content}}
                 }{{#unless @last}},
                 {{/unless}}{{/each}}
               ],
@@ -92,7 +92,7 @@ class RequestPayloadGeneratorTest {
                   {{#each messages}}{{#if (isSystem role)}}"system_instruction": {
                     "parts": [
                       {
-                        "text": {{convertToJson content}}
+                        "text": {{convertToJsonString content}}
                       }
                     ]
                   },{{/if}}{{/each}}
@@ -101,7 +101,7 @@ class RequestPayloadGeneratorTest {
                       "role": "user",
                       "parts": [
                         {
-                          "text": {{convertToJson content}}
+                          "text": {{convertToJsonString content}}
                         }
                       ]
                     }{{#unless @last}},
@@ -109,7 +109,7 @@ class RequestPayloadGeneratorTest {
                       "role": "model",
                       "parts": [
                         {
-                          "text": {{convertToJson content}}
+                          "text": {{convertToJsonString content}}
                         }
                       ]
                     }{{#unless @last}},
@@ -245,7 +245,7 @@ class RequestPayloadGeneratorTest {
     @DisplayName("Should handle empty messages list")
     void testGenerateEmptyMessages() {
         // Given
-        final String template = "Messages: {{#messages}}{{convertToJson content}}{{/messages}}";
+        final String template = "Messages: {{#messages}}{{convertToJsonString content}}{{/messages}}";
         final List<MessageRound> messages = Collections.emptyList();
 
         // When
@@ -275,7 +275,7 @@ class RequestPayloadGeneratorTest {
     @DisplayName("Should handle special characters in messages")
     void testGenerateWithSpecialCharacters() {
         // Given
-        final String template = "Message: {{#messages}}{{convertToJson content}}{{/messages}}";
+        final String template = "Message: {{#messages}}{{convertToJsonString content}}{{/messages}}";
         final List<MessageRound> messages = Arrays.asList(
             new MessageRound(Role.USER, "Hello \"world\" with 'quotes' and \n newlines")
         );
