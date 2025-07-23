@@ -1,12 +1,12 @@
 package fr.mazure.aitestcasegeneration.provider.custom.internal;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for the RequestPayloadGenerator class.
@@ -25,7 +25,7 @@ class RequestPayloadGeneratorTest {
               "messages": [
                 {{#each messages}}{
                   "role": "{{#if (isSystem role)}}system{{/if}}{{#if (isUser role)}}user{{/if}}{{#if (isModel role)}}assistant{{/if}}",
-                  "content": "{{content}}"
+                  "content": {{convertToJson content}}
                 }{{#unless @last}},
                 {{/unless}}{{/each}}
               ],
@@ -92,7 +92,7 @@ class RequestPayloadGeneratorTest {
                   {{#each messages}}{{#if (isSystem role)}}"system_instruction": {
                     "parts": [
                       {
-                        "text": "{{content}}"
+                        "text": {{convertToJson content}}
                       }
                     ]
                   },{{/if}}{{/each}}
@@ -101,7 +101,7 @@ class RequestPayloadGeneratorTest {
                       "role": "user",
                       "parts": [
                         {
-                          "text": "{{content}}"
+                          "text": {{convertToJson content}}
                         }
                       ]
                     }{{#unless @last}},
@@ -109,7 +109,7 @@ class RequestPayloadGeneratorTest {
                       "role": "model",
                       "parts": [
                         {
-                          "text": "{{content}}"
+                          "text": {{convertToJson content}}
                         }
                       ]
                     }{{#unless @last}},
@@ -204,7 +204,7 @@ class RequestPayloadGeneratorTest {
     }
 
     @Test
-    @DisplayName("Should handle empty messages list")
+    @DisplayName("Should handle API key in HTTP headers")
     void testGenerateApiKet() {
         // Given
         final String template = "Bearer: {{apiKey}}";
@@ -223,10 +223,29 @@ class RequestPayloadGeneratorTest {
     }
 
     @Test
+    @DisplayName("Does not modify special characters in API key in HTTP headers")
+    void testGenerateAPiKeyWithoutChangingCharacters() {
+        // Given
+        final String template = "Bearer: {{apiKey}}";
+
+        final List<MessageRound> messages = Arrays.asList(
+            new MessageRound(Role.SYSTEM, "You are a helpful assistant"),
+            new MessageRound(Role.USER, "What is the weather?"),
+            new MessageRound(Role.MODEL, "I don't have access to weather data")
+        );
+
+        // When
+        final String result = RequestPayloadGenerator.generate(template, messages, "&é~\"#'{([-|è`_\\ç^à@)]");
+
+        // Then
+        Assertions.assertEquals("Bearer: &é~\"#'{([-|è`_\\ç^à@)]", result);
+    }
+
+    @Test
     @DisplayName("Should handle empty messages list")
     void testGenerateEmptyMessages() {
         // Given
-        final String template = "Messages: {{#messages}}{{content}}{{/messages}}";
+        final String template = "Messages: {{#messages}}{{convertToJson content}}{{/messages}}";
         final List<MessageRound> messages = Collections.emptyList();
 
         // When
@@ -256,7 +275,7 @@ class RequestPayloadGeneratorTest {
     @DisplayName("Should handle special characters in messages")
     void testGenerateWithSpecialCharacters() {
         // Given
-        final String template = "Message: {{#messages}}{{content}}{{/messages}}";
+        final String template = "Message: {{#messages}}{{convertToJson content}}{{/messages}}";
         final List<MessageRound> messages = Arrays.asList(
             new MessageRound(Role.USER, "Hello \"world\" with 'quotes' and \n newlines")
         );
@@ -265,7 +284,7 @@ class RequestPayloadGeneratorTest {
         final String result = RequestPayloadGenerator.generate(template, messages, "my-secret-API-key");
 
         // Then
-        Assertions.assertEquals("Message: Hello \\\"world\\\" with 'quotes' and \\n newlines", result);
+        Assertions.assertEquals("Message: \"Hello \\\"world\\\" with 'quotes' and \\n newlines\"", result);
     }
 
     @Test

@@ -1,15 +1,14 @@
 package fr.mazure.aitestcasegeneration.provider.custom.internal;
 
+import com.github.jknack.handlebars.EscapingStrategy;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.Template;
-import com.github.jknack.handlebars.EscapingStrategy;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 public class RequestPayloadGenerator {
 
@@ -25,6 +24,8 @@ public class RequestPayloadGenerator {
                                   final String apiKey) {
         try {
             final Handlebars handlebars = new Handlebars();
+
+            handlebars.with(EscapingStrategy.NOOP);
 
             // Register boolean helpers for each role
             handlebars.registerHelper("isSystem", new Helper<Role>() {
@@ -48,11 +49,10 @@ public class RequestPayloadGenerator {
                 }
             });
 
-            // Auto-escape JSON
-            handlebars.with(new EscapingStrategy() {
+            handlebars.registerHelper("convertToJson", new Helper<String>() {
                 @Override
-                public String escape(CharSequence value) {
-                    return jsonEscaper.apply(value.toString());
+                public String apply(String text, Options options) {
+                    return jsonConverter(text);
                 }
             });
 
@@ -69,19 +69,20 @@ public class RequestPayloadGenerator {
     }
 
     /**
-     * Escapes a string for JSON.
+     * Convert a string to a JSON string (including the quotes)
      *
-     * @param text the string to escape
-     * @return the escaped string
+     * @param text the string to convert
+     * @return the JSON string
      */
-    private static Function<String, String> jsonEscaper = (text) -> {
+    private static String jsonConverter(final String text) {
         if (text == null) return null;
-        return text.replace("\\", "\\\\")
-                   .replace("\"", "\\\"")
-                   .replace("\b", "\\b")
-                   .replace("\f", "\\f")
-                   .replace("\n", "\\n")
-                   .replace("\r", "\\r")
-                   .replace("\t", "\\t");
+        final String escapedText = text.replace("\\", "\\\\")
+                                       .replace("\"", "\\\"")
+                                       .replace("\b", "\\b")
+                                       .replace("\f", "\\f")
+                                       .replace("\n", "\\n")
+                                       .replace("\r", "\\r")
+                                       .replace("\t", "\\t");
+        return "\"" + escapedText + "\"";
     };
 }
