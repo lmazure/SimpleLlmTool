@@ -76,10 +76,10 @@ The following variables are available:
 - `apiKey`: the API key
 
 The following helpers are available:
-- `isSystem`: tests if this is a system message (a.k.a system prompt)
-- `isUser`: tests if this is a user message (a.k.a user prompt)
-- `isModel`: tests if this is a model message
-- `convertToJsonString`: converts a string to a JSON string (including the quotes)
+- `isSystem` (boolean): tests if this is a system message (a.k.a system prompt)
+- `isUser` (boolean): tests if this is a user message (a.k.a user prompt)
+- `isModel` (boolean): tests if this is a model message
+- `convertToJsonString` (string): converts a string to a JSON string (including the double quotes) by escaping the special characters
 
 ### Example
 
@@ -94,8 +94,8 @@ payloadTemplate: |
             }{{#unless @last}},
             {{/unless}}{{/each}}
         ],
-        "temperature": {{temperature}},
-        "seed": {{seed}}
+        "temperature": 0.7,
+        "seed": 42
     }
 httpHeaders:
   Authorization: Bearer {{apiKey}}

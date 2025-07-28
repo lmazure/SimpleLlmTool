@@ -11,3 +11,4 @@
 
 
 - analyse token count evaluation
+- rename project
