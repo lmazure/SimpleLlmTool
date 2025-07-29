@@ -1,0 +1,2 @@
+modelName: mistral-large-latest
+apiKeyEnvVar: MISTRALAI_API_KEY
