@@ -69,20 +69,55 @@ public class RequestPayloadGenerator {
     }
 
     /**
-     * Convert a string to a JSON string (including the quotes)
+     * Convert a string to a JSON string (including the enclosing quotes)
      *
      * @param text the string to convert
      * @return the JSON string
      */
-    private static String jsonConverter(final String text) {
-        if (text == null) return null;
-        final String escapedText = text.replace("\\", "\\\\")
-                                       .replace("\"", "\\\"")
-                                       .replace("\b", "\\b")
-                                       .replace("\f", "\\f")
-                                       .replace("\n", "\\n")
-                                       .replace("\r", "\\r")
-                                       .replace("\t", "\\t");
-        return "\"" + escapedText + "\"";
-    };
+    private static String jsonConverter(final String input) {
+        if (input == null) {
+            return null;
+        }
+
+        final StringBuilder escaped = new StringBuilder();
+
+        for (int i = 0; i < input.length(); i++) {
+            final char c = input.charAt(i);
+            
+            switch (c) {
+                case '"':
+                    escaped.append("\\\"");
+                    break;
+                case '\\':
+                    escaped.append("\\\\");
+                    break;
+                case '\b':
+                    escaped.append("\\b");
+                    break;
+                case '\f':
+                    escaped.append("\\f");
+                    break;
+                case '\n':
+                    escaped.append("\\n");
+                    break;
+                case '\r':
+                    escaped.append("\\r");
+                    break;
+                case '\t':
+                    escaped.append("\\t");
+                    break;
+                default:
+                    if (c < 0x20) {
+                        // Only escape control characters (0x00-0x1F)
+                        escaped.append(String.format("\\u%04x", (int) c));
+                    } else {
+                        // Preserve all other characters including emojis
+                        escaped.append(c);
+                    }
+                    break;
+            }
+        }
+
+        return "\"" + escaped.toString() + "\"";
+    }
 }
