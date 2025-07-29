@@ -1,7 +1,22 @@
 # Usage
+build the project
 ```bash
 mvn clean package
+```
+
+use OpenAI provider
+```bash
 java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider OpenAI --model-file gpt-4.1-nano@openai.yaml
+```
+
+use Mistral AI provider
+```bash
+java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider "Mistral AI" --model-file mistral-large-latest@mistralai.yaml
+```
+
+use custom provider
+```bash
+java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider custom --model-file gpt-4.1-nano@custom.yaml
 ```
 
 # CLI

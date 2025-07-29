@@ -108,10 +108,10 @@ public class CustomChatModel implements ChatModel {
         for (final Map.Entry<String, String> entry : httpHeaders.entrySet()) {
             final String valueTemplate = entry.getValue();
             final String value = RequestPayloadGenerator.generate(valueTemplate, convertMessages(chatRequest.messages()), apiKey);
-            builder.header(entry.getKey(), value);
             if (logRequests) {
                 System.out.println("Header: " + entry.getKey() + ": " + value);
             }
+            builder.header(entry.getKey(), value);
         }
         return builder.build();
     }

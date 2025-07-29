@@ -133,7 +133,10 @@ public class SimpleChat {
             }
 
             memory.add(UserMessage.from(input));
-            final ChatRequest chatRequest = ChatRequest.builder().messages(memory.messages()).build();
+            final ChatRequest chatRequest = ChatRequest.builder()
+                                                       .parameters(model.defaultRequestParameters())
+                                                       .messages(memory.messages())
+                                                       .build();
             final ChatResponse response = model.doChat(chatRequest);
             final String answer = response.aiMessage().text();
             memory.add(AiMessage.from(answer));
@@ -166,7 +169,10 @@ public class SimpleChat {
         }
 
         try {
-            final ChatRequest chatRequest = ChatRequest.builder().messages(memory.messages()).build();
+            final ChatRequest chatRequest = ChatRequest.builder()
+                                                       .parameters(model.defaultRequestParameters())
+                                                       .messages(memory.messages())
+                                                       .build();
             final ChatResponse response = model.doChat(chatRequest);
             final String answer = response.aiMessage().text();
             output.println(answer);
