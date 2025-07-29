@@ -5,6 +5,13 @@ import java.io.IOException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Test class for the {@link JsonPathExtractor} utility. This class contains multiple test cases
+ * to verify the functionality of the JsonPathExtractor. It includes tests for validating
+ * JSON paths and extracting values from JSON strings using those paths. The tests cover
+ * various scenarios, including valid and invalid JSON paths, extraction of scalar values,
+ * arrays, nested structures, and real-world JSON examples.
+ */
 class JsonPathExtractorTest {
 
     @Test

@@ -62,7 +62,7 @@ public class ChatMode {
             }
             if (input.equals("/exit")) {
                 terminal.close();
-                System.exit(ExitCode.SUCCESS.getCode());
+                return;
             }
     
             memory.add(UserMessage.from(input));

@@ -9,9 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests for the RequestPayloadGenerator class.
- *
- * This class contains tests for the methods of the RequestPayloadGenerator class.
+ * Tests for the {@link RequestPayloadGenerator} class.
  */
 class RequestPayloadGeneratorTest {
 

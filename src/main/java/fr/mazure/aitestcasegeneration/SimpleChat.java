@@ -70,7 +70,6 @@ public class SimpleChat {
                 assert output == System.out;
                 assert error == System.err;
                 ChatMode.handleChat(model, cli.sysPrompt(), cli.userPrompt());
-                return;
             } else {
                 assert cli.userPrompt().isPresent();
                 BatchMode.handleBatch(output, model, cli.sysPrompt(), cli.userPrompt().get());
@@ -80,5 +79,7 @@ public class SimpleChat {
             e.printStackTrace(error);
             System.exit(ExitCode.MODEL_ERROR.getCode());
         }
+
+        System.exit(ExitCode.SUCCESS.getCode());
     }
 }
