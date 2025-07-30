@@ -1,6 +1,7 @@
 package fr.mazure.aitestcasegeneration.provider.custom.internal;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ public class CustomChatModel implements ChatModel {
     private final String outputTokenPath;
     private final boolean logRequests;
     private final boolean logResponses;
+    private final PrintStream log;
 
     private final OkHttpClient httpClient;
 
@@ -48,6 +50,7 @@ public class CustomChatModel implements ChatModel {
         this.outputTokenPath = builder.getOutputTokenPath();
         this.logRequests = builder.isLogRequests();
         this.logResponses = builder.isLogResponses();
+        this.log = builder.getLog();
 
         this.httpClient = new OkHttpClient.Builder()
                                           .connectTimeout(connectTimeout.toMillis(), TimeUnit.MILLISECONDS)
@@ -68,8 +71,8 @@ public class CustomChatModel implements ChatModel {
         try {
             requestBody = buildRequestBody(chatRequest);
             if (logRequests) {
-                System.out.println("URL: " + url);
-                System.out.println("Request: " + bodyToString(requestBody));
+                this.log.println("URL: " + url);
+                this.log.println("Request: " + bodyToString(requestBody));
             }
         } catch (final IOException e) {
             throw new RuntimeException("Failed to build request body: " + e.getMessage());
@@ -78,7 +81,7 @@ public class CustomChatModel implements ChatModel {
 
         try (final okhttp3.Response response = httpClient.newCall(request).execute()) {
             if (logResponses) {
-                System.out.println("Response: " + response.code() + " " + response.message());
+                this.log.println("Response: " + response.code() + " " + response.message());
             }
             if (!response.isSuccessful()) {
                 throw new RuntimeException("API call failed: " + response.code() + " " + response.message());
@@ -86,7 +89,7 @@ public class CustomChatModel implements ChatModel {
 
             final String responseBody = response.body().string();
             if (logResponses) {
-                System.out.println("Response body: " + responseBody);
+                this.log.println("Response body: " + responseBody);
             }
             return parseApiResponse(responseBody);
         } catch (final IOException e) {
@@ -109,7 +112,7 @@ public class CustomChatModel implements ChatModel {
             final String valueTemplate = entry.getValue();
             final String value = RequestPayloadGenerator.generate(valueTemplate, convertMessages(chatRequest.messages()), apiKey);
             if (logRequests) {
-                System.out.println("Header: " + entry.getKey() + ": " + value);
+                this.log.println("Header: " + entry.getKey() + ": " + value);
             }
             builder.header(entry.getKey(), value);
         }

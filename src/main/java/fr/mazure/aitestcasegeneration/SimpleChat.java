@@ -34,9 +34,9 @@ public class SimpleChat {
         PrintStream output = System.out;
         if (cli.outputFile().isPresent()) {
             try {
-                output = new PrintStream(Files.newOutputStream(cli.outputFile().get(), StandardOpenOption.CREATE_NEW));
+                output = new PrintStream(Files.newOutputStream(cli.outputFile().get(), StandardOpenOption.CREATE, StandardOpenOption.APPEND));
             } catch (final IOException e) {
-                System.err.println("Error: Unable to write output file: " + cli.outputFile().get().toString());
+                System.err.println("Error: Unable to write output file: " + cli.outputFile().get().toString() + " (" + e.getMessage() + ")");
                 System.exit(ExitCode.FILE_ERROR.getCode());
             }
         }
@@ -44,9 +44,19 @@ public class SimpleChat {
         PrintStream error = System.err;
         if (cli.errorFile().isPresent()) {
             try {
-                error = new PrintStream(Files.newOutputStream(cli.errorFile().get(), StandardOpenOption.CREATE_NEW));
+                error = new PrintStream(Files.newOutputStream(cli.errorFile().get(), StandardOpenOption.CREATE, StandardOpenOption.APPEND));
             } catch (final IOException e) {
-                System.err.println("Error: Unable to write error file: " + cli.errorFile().get().toString());
+                System.err.println("Error: Unable to write error file: " + cli.errorFile().get().toString() + "(" + e.getMessage() + ")");
+                System.exit(ExitCode.FILE_ERROR.getCode());
+            }
+        }
+
+        PrintStream log = System.err;
+        if (cli.logFile().isPresent()) {
+            try {
+                log = new PrintStream(Files.newOutputStream(cli.logFile().get(), StandardOpenOption.CREATE, StandardOpenOption.APPEND));
+            } catch (final IOException e) {
+                System.err.println("Error: Unable to write log file: " + cli.logFile().get().toString() + " (" + e.getMessage() + ")");
                 System.exit(ExitCode.FILE_ERROR.getCode());
             }
         }
@@ -54,7 +64,7 @@ public class SimpleChat {
         final ChatModel model = switch (cli.provider()) {
             case ProviderEnum.OPENAI     -> OpenAiChatModelProvider.createChatModel(OpenAiModelParameters.loadFromFile(cli.modelFile()));
             case ProviderEnum.MISTRAL_AI -> MistralAiChatModelProvider.createChatModel(MistralAiModelParameters.loadFromFile(cli.modelFile()));
-            case ProviderEnum.CUSTOM     -> CustomChatModelProvider.createChatModel(CustomModelParameters.loadFromFile(cli.modelFile()));
+            case ProviderEnum.CUSTOM     -> CustomChatModelProvider.createChatModel(CustomModelParameters.loadFromFile(cli.modelFile()), log);
             case ProviderEnum.MOCK       -> MockChatModelProvider.createChatModel(new MockModelParameters());
         };
 
@@ -69,13 +79,13 @@ public class SimpleChat {
             if (cli.chatMode()) {
                 assert output == System.out;
                 assert error == System.err;
-                ChatMode.handleChat(model, cli.sysPrompt(), cli.userPrompt());
+                ChatMode.handleChat(model, cli.sysPrompt(), cli.userPrompt(), log);
             } else {
                 assert cli.userPrompt().isPresent();
-                BatchMode.handleBatch(output, model, cli.sysPrompt(), cli.userPrompt().get());
+                BatchMode.handleBatch(model, cli.sysPrompt(), cli.userPrompt().get(), output, log);
             }
         } catch (final RuntimeException e) {
-            error.println("Model failure");
+            error.println("Model failure (" + e.getMessage() + ")");
             e.printStackTrace(error);
             System.exit(ExitCode.MODEL_ERROR.getCode());
         }

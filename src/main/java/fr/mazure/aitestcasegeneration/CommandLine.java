@@ -15,6 +15,7 @@ public class CommandLine {
                              Optional<String> userPrompt,
                              Optional<Path> outputFile,
                              Optional<Path> errorFile,
+                             Optional<Path> logFile,
                              ProviderEnum provider,
                              Path modelFile,
                              boolean chatMode) {}
@@ -24,6 +25,7 @@ public class CommandLine {
         String userPrompt = null;
         Path outputFile = null;
         Path errorFile = null;
+        Path logFile = null;
         ProviderEnum provider = null;
         Path modelFile = null;
         boolean chatMode = false;
@@ -98,6 +100,15 @@ public class CommandLine {
                 i++;
                 continue;
             }
+            if (args[i].equals("--log-file")) {
+                if ((i + 1 ) >= args.length) {
+                    System.err.println("Missing argument for --log-file");
+                    System.exit(ExitCode.INVALID_COMMAND_LINE.getCode());
+                }
+                logFile = Paths.get(args[i + 1]);
+                i++;
+                continue;
+            }
             if (args[i].equals("--provider")) {
                 if ((i + 1 ) >= args.length) {
                     System.err.println("Missing argument for --provider");
@@ -162,6 +173,7 @@ public class CommandLine {
                               Optional.ofNullable(userPrompt),
                               Optional.ofNullable(outputFile),
                               Optional.ofNullable(errorFile),
+                              Optional.ofNullable(logFile),
                               provider,
                               modelFile,
                               chatMode);
@@ -182,6 +194,7 @@ public class CommandLine {
             --user-prompt-file <user-prompt-file>         user prompt as the content of a file
             --output-file output-file>                    output file (stdout by default)
             --error-file error-file>                      error file (stderr by default)
+            --log-file log-file>                          log file (stderr by default)
             --provider <provider>                         provider
             --model-file <model-file>                     file defining the model and its parameters
             --chat-mode                                   trigger chat mode

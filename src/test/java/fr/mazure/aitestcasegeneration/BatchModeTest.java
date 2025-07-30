@@ -33,8 +33,10 @@ public class BatchModeTest {
     @Tag("e2e")
     public void testBasicOpenAi() throws MissingEnvironmentVariable {
         // Given
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        final PrintStream output = new PrintStream(buffer);
+        final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
+        final PrintStream output = new PrintStream(outputBuffer);
+        final ByteArrayOutputStream logBuffer = new ByteArrayOutputStream();
+        final PrintStream log = new PrintStream(logBuffer);
         final OpenAiModelParameters parameters = new OpenAiModelParameters("gpt-4.1-nano",
                                                                            Optional.empty(),
                                                                            "OPENAI_API_KEY",
@@ -49,10 +51,10 @@ public class BatchModeTest {
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(output, model, sysPrompt, userPrompt);
+        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, log);
 
         // Then
-        Assertions.assertEquals("Paris", buffer.toString().trim());
+        Assertions.assertEquals("Paris", outputBuffer.toString().trim());
     }
 
     /**
@@ -63,8 +65,10 @@ public class BatchModeTest {
     @Tag("e2e")
     public void testBasicMistralAi() throws MissingEnvironmentVariable {
         // Given
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        final PrintStream output = new PrintStream(buffer);
+        final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
+        final PrintStream output = new PrintStream(outputBuffer);
+        final ByteArrayOutputStream logBuffer = new ByteArrayOutputStream();
+        final PrintStream log = new PrintStream(logBuffer);
         final MistralAiModelParameters parameters = new MistralAiModelParameters("mistral-large-latest",
                                                                                 Optional.empty(),
                                                                                 "MISTRALAI_API_KEY",
@@ -76,10 +80,10 @@ public class BatchModeTest {
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(output, model, sysPrompt, userPrompt);
+        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, log);
 
         // Then
-        Assertions.assertEquals("Paris", buffer.toString().trim());
+        Assertions.assertEquals("Paris", outputBuffer.toString().trim());
     }
 
     /**
@@ -92,8 +96,10 @@ public class BatchModeTest {
     @Tag("e2e")
     public void testBasicCustom() throws MalformedURLException, URISyntaxException, MissingEnvironmentVariable {
         // Given
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        final PrintStream output = new PrintStream(buffer);
+        final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
+        final PrintStream output = new PrintStream(outputBuffer);
+        final ByteArrayOutputStream logBuffer = new ByteArrayOutputStream();
+        final PrintStream log = new PrintStream(logBuffer);
         final String payloadTemplate = """
                             {
                               "model": "gpt-4.1-nano",
@@ -118,14 +124,14 @@ public class BatchModeTest {
                                                                            "usage.completion_tokens",
                                                                            Optional.empty(),
                                                                            Optional.empty());
-        final ChatModel model = CustomChatModelProvider.createChatModel(parameters);
+        final ChatModel model = CustomChatModelProvider.createChatModel(parameters, log);
         final Optional<String> sysPrompt = Optional.of("You must answer in one word.");
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(output, model, sysPrompt, userPrompt);
+        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, log);
 
         // Then
-        Assertions.assertEquals("Paris", buffer.toString().trim());
+        Assertions.assertEquals("Paris", outputBuffer.toString().trim());
     }
 }

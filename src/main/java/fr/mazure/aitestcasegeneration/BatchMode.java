@@ -13,10 +13,11 @@ import dev.langchain4j.model.chat.response.ChatResponse;
 
 public class BatchMode {
 
-    static void handleBatch(final PrintStream output,
-                            final ChatModel model,
+    static void handleBatch(final ChatModel model,
                             final Optional<String> sysPrompt,
-                            final String userPrompt) {
+                            final String userPrompt,
+                            final PrintStream output,
+                            final PrintStream log ) {
         final ChatMemory memory = MessageWindowChatMemory.withMaxMessages(2);
     
         if (sysPrompt.isPresent()) {

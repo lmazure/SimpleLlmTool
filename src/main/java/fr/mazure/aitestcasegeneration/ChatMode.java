@@ -1,6 +1,7 @@
 package fr.mazure.aitestcasegeneration;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Optional;
 
 import org.jline.reader.LineReader;
@@ -24,7 +25,8 @@ public class ChatMode {
 
     static void handleChat(final ChatModel model,
                            final Optional<String> sysPrompt,
-                           final Optional<String> userPrompt) throws IOException {
+                           final Optional<String> userPrompt,
+                           final PrintStream log) throws IOException {
     
         // setup terminal
         final Terminal terminal = TerminalBuilder.builder()
@@ -80,10 +82,10 @@ public class ChatMode {
                 final Integer inputTokens = tokenUsage.inputTokenCount();
                 final Integer outputTokens = tokenUsage.outputTokenCount();
                 final Integer totalTokens = tokenUsage.totalTokenCount();
-    
-                System.out.println("Input tokens: " + inputTokens);
-                System.out.println("Output tokens: " + outputTokens);
-                System.out.println("Total tokens: " + totalTokens);
+
+                log.println("Input tokens: " + inputTokens);
+                log.println("Output tokens: " + outputTokens);
+                log.println("Total tokens: " + totalTokens);
             }
             prefilledText = "";
         }

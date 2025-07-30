@@ -27,11 +27,16 @@ java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar -
 | `--user-prompt-string <user-prompt-string>`     | user prompt as a string                    |
 | `--user-prompt-file <user-prompt-file>`         | user prompt as the content of a file       |
 | `--output-file <output-file>`                   | output file (stdout by default)            |
-| `--error-file error-file>`                      | error file (stderr by default)             |
+| `--error-file <error-file>`                     | error file (stderr by default)             |
+| `--log-file <log-file>`                         | log file (stderr by default)               |
 | `--provider <provider>`                         | provider                                   |
 | `--chat-mode`                                   | chat mode                                  |
 | `--model-file <model_file>`                     | file defining the model and its parameters |
 | `--help`                                        | display help and exit                      |
+
+If `<output-file>` already exists, the text is appended to it.  
+If `<error-file>` already exists, the text is appended to it.  
+If `<log-file>` already exists, the text is appended to it.
 
 # Parameters per provider
 
