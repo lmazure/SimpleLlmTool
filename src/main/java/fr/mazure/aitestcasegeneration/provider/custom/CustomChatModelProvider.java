@@ -16,6 +16,7 @@ public class CustomChatModelProvider implements ModelProvider {
         final String apiKey = ModelProvider.getApiKeyFromEnvironmentVariable(parameters.getApiKeyEnvironmentVariableName(), "custom");
 
         final CustomChatModelBuilder builder = CustomChatModel.builder()
+                                                              .modelName(parameters.getModelName())
                                                               .apiKey(apiKey)
                                                               .baseUrl(parameters.getBaseUrl().get().toString())
                                                               .payloadTemplate(parameters.getPayloadTemplate())

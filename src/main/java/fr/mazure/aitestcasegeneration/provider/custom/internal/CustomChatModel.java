@@ -24,6 +24,7 @@ import okio.Buffer;
 
 public class CustomChatModel implements ChatModel {
 
+    private final String modelName;
     private final String apiKey;
     private final String url;
     private static final Duration timeout = Duration.ofSeconds(60);
@@ -41,6 +42,7 @@ public class CustomChatModel implements ChatModel {
 
     // Constructor that takes the builder
     public CustomChatModel(final CustomChatModelBuilder builder) {
+        this.modelName = builder.getModelName();
         this.apiKey = builder.getApiKey();
         this.url = builder.getBaseUrl();
         this.payloadTemplate = builder.getPayloadTemplate();
@@ -98,7 +100,7 @@ public class CustomChatModel implements ChatModel {
     }
 
     private RequestBody buildRequestBody(final ChatRequest chatRequest) throws IOException {
-        final String json = RequestPayloadGenerator.generate(this.payloadTemplate, convertMessages(chatRequest.messages()), apiKey);
+        final String json = RequestPayloadGenerator.generate(this.payloadTemplate, convertMessages(chatRequest.messages()), modelName, apiKey);
         return RequestBody.create(json, MediaType.get("application/json"));
     }
 
@@ -110,7 +112,7 @@ public class CustomChatModel implements ChatModel {
                                                    .post(requestBody);
         for (final Map.Entry<String, String> entry : httpHeaders.entrySet()) {
             final String valueTemplate = entry.getValue();
-            final String value = RequestPayloadGenerator.generate(valueTemplate, convertMessages(chatRequest.messages()), apiKey);
+            final String value = RequestPayloadGenerator.generate(valueTemplate, convertMessages(chatRequest.messages()), modelName, apiKey);
             if (logRequests) {
                 this.log.println("Header: " + entry.getKey() + ": " + value);
             }

@@ -62,9 +62,9 @@ public class SimpleChat {
         }
 
         final ChatModel model = switch (cli.provider()) {
-            case ProviderEnum.OPENAI     -> OpenAiChatModelProvider.createChatModel(OpenAiModelParameters.loadFromFile(cli.modelFile()));
-            case ProviderEnum.MISTRAL_AI -> MistralAiChatModelProvider.createChatModel(MistralAiModelParameters.loadFromFile(cli.modelFile()));
-            case ProviderEnum.CUSTOM     -> CustomChatModelProvider.createChatModel(CustomModelParameters.loadFromFile(cli.modelFile()), log);
+            case ProviderEnum.OPENAI     -> OpenAiChatModelProvider.createChatModel(OpenAiModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));
+            case ProviderEnum.MISTRAL_AI -> MistralAiChatModelProvider.createChatModel(MistralAiModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));
+            case ProviderEnum.CUSTOM     -> CustomChatModelProvider.createChatModel(CustomModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()), log);
             case ProviderEnum.MOCK       -> MockChatModelProvider.createChatModel(new MockModelParameters());
         };
 

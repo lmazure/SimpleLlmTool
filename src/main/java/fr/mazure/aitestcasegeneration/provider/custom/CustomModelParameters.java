@@ -91,16 +91,18 @@ public class CustomModelParameters extends ModelParameters {
      * Load parameters from a YAML file and create a new CustomModelParameters instance.
      *
      * @param yamlFilePath the path to the YAML file containing the parameters
+     * @param overridingModelName the name of the model to override the one in the YAML file
      * @return a new CustomModelParameters instance with the parameters from the YAML file
      * @throws IOException if there is an error reading the file
      * @throws MissingModelParameter if a compulsory parameter is missing
      * @throws InvalidModelParameter if a parameter has an incorrect value
      */
-    public static CustomModelParameters loadFromFile(final Path yamlFilePath) throws IOException, MissingModelParameter, InvalidModelParameter {
+    public static CustomModelParameters loadFromFile(final Path yamlFilePath,
+                                                     final Optional<String> overridingModelName) throws IOException, MissingModelParameter, InvalidModelParameter {
         try (final InputStream inputStream = new FileInputStream(yamlFilePath.toFile())) {
             final Yaml yaml = new Yaml();
             final ParameterMap parameterMap = new ParameterMap(yaml.load(inputStream));
-            return new CustomModelParameters(parameterMap.getString("modelName"),
+            return new CustomModelParameters(overridingModelName.orElse(parameterMap.getString("modelName")),
                                              parameterMap.getUrl("url"),
                                              parameterMap.getString("apiKeyEnvVar"),
                                              parameterMap.getString("payloadTemplate"),

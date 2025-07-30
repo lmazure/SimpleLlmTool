@@ -114,7 +114,7 @@ public class BatchModeTest {
                               "seed": 42
                             }
                 """;
-        final CustomModelParameters parameters = new CustomModelParameters("",
+        final CustomModelParameters parameters = new CustomModelParameters("model_name_unused_in_template",
                                                                            (new URI("https://api.openai.com/v1/chat/completions")).toURL(),
                                                                            "OPENAI_API_KEY",
                                                                            payloadTemplate,

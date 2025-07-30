@@ -42,7 +42,7 @@ class RequestPayloadGeneratorTest {
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
 
         // Then
         final String expectedResult = """
@@ -134,7 +134,7 @@ class RequestPayloadGeneratorTest {
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
 
         // Then
         final String expectedResult = """
@@ -202,6 +202,74 @@ class RequestPayloadGeneratorTest {
     }
 
     @Test
+    @DisplayName("Should manage model name")
+    void testGenerateModelName() {
+        // Given
+        final String template = """
+            {
+              "model": "{{modelName}}",
+              "messages": [
+                {{#each messages}}{
+                  "role": "{{#if (isSystem role)}}system{{/if}}{{#if (isUser role)}}user{{/if}}{{#if (isModel role)}}assistant{{/if}}",
+                  "content": {{convertToJsonString content}}
+                }{{#unless @last}},
+                {{/unless}}{{/each}}
+              ],
+              "temperature": 0.7,
+              "seed": 42
+            }
+            """;
+
+        final List<MessageRound> messages = Arrays.asList(
+            new MessageRound(Role.SYSTEM, "You are a helpful assistant"),
+            new MessageRound(Role.USER, "What is the weather?"),
+            new MessageRound(Role.MODEL, "I don't have access to weather data"),
+            new MessageRound(Role.USER, "What day is it?"),
+            new MessageRound(Role.MODEL, "April fools' day"),
+            new MessageRound(Role.USER, "So, tell me a joke!")
+        );
+
+        // When
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
+
+        // Then
+        final String expectedResult = """
+                {
+                  "model": "my-model-name",
+                  "messages": [
+                    {
+                      "role": "system",
+                      "content": "You are a helpful assistant"
+                    },
+                    {
+                      "role": "user",
+                      "content": "What is the weather?"
+                    },
+                    {
+                      "role": "assistant",
+                      "content": "I don't have access to weather data"
+                    },
+                    {
+                      "role": "user",
+                      "content": "What day is it?"
+                    },
+                    {
+                      "role": "assistant",
+                      "content": "April fools' day"
+                    },
+                    {
+                      "role": "user",
+                      "content": "So, tell me a joke!"
+                    }
+                  ],
+                  "temperature": 0.7,
+                  "seed": 42
+                }
+                """;
+        Assertions.assertEquals(expectedResult, result);
+    }
+
+    @Test
     @DisplayName("Should handle API key in HTTP headers")
     void testGenerateApiKet() {
         // Given
@@ -214,7 +282,7 @@ class RequestPayloadGeneratorTest {
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
 
         // Then
         Assertions.assertEquals("Bearer: my-secret-API-key", result);
@@ -233,7 +301,7 @@ class RequestPayloadGeneratorTest {
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "&é~\"#'{([-|è`_\\ç^à@)]");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "&é~\"#'{([-|è`_\\ç^à@)]");
 
         // Then
         Assertions.assertEquals("Bearer: &é~\"#'{([-|è`_\\ç^à@)]", result);
@@ -247,7 +315,7 @@ class RequestPayloadGeneratorTest {
         final List<MessageRound> messages = Collections.emptyList();
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
 
         // Then
         Assertions.assertEquals("Messages: ", result);
@@ -263,7 +331,7 @@ class RequestPayloadGeneratorTest {
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
 
         // Then
         Assertions.assertEquals("This is a static template without placeholders", result);
@@ -279,7 +347,7 @@ class RequestPayloadGeneratorTest {
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
 
         // Then
         Assertions.assertEquals("Message: \"Hello \\\"world\\\" with 'quotes' and \\n newlines\"", result);
@@ -297,7 +365,7 @@ class RequestPayloadGeneratorTest {
         // When & Then
         RuntimeException exception = Assertions.assertThrows(
             RuntimeException.class,
-            () -> RequestPayloadGenerator.generate(template, messages, "my-secret-API-key")
+            () -> RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key")
         );
         Assertions.assertEquals("Failed to process Handlebars template", exception.getMessage());
     }
@@ -312,7 +380,7 @@ class RequestPayloadGeneratorTest {
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
 
         // Then
         Assertions.assertEquals("", result);

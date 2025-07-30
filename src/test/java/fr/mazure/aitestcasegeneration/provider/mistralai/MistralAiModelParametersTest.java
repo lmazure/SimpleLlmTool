@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -42,7 +43,7 @@ public class MistralAiModelParametersTest {
         Files.writeString(tempConfigPath, configContent);
 
         // When
-        final MistralAiModelParameters parameters = MistralAiModelParameters.loadFromFile(tempConfigPath);
+        final MistralAiModelParameters parameters = MistralAiModelParameters.loadFromFile(tempConfigPath, Optional.empty());
 
         // Then
         Assertions.assertEquals("mistral-large-latest", parameters.getModelName());
@@ -71,10 +72,39 @@ public class MistralAiModelParametersTest {
         Files.writeString(tempConfigPath, configContent);
 
         // When
-        final MistralAiModelParameters parameters = MistralAiModelParameters.loadFromFile(tempConfigPath);
+        final MistralAiModelParameters parameters = MistralAiModelParameters.loadFromFile(tempConfigPath, Optional.empty());
 
         // Then
         Assertions.assertEquals("mistral-small-latest", parameters.getModelName());
+        Assertions.assertEquals("MISTRAL_API_KEY", parameters.getApiKeyEnvironmentVariableName());
+        Assertions.assertFalse(parameters.getBaseUrl().isPresent());
+        Assertions.assertFalse(parameters.getTemperature().isPresent());
+        Assertions.assertFalse(parameters.getTopP().isPresent());
+        Assertions.assertFalse(parameters.getMaxTokens().isPresent());
+    }
+
+    /**
+     * Test loading with an overriding model name.
+     *
+     * @throws IOException if there is an error reading the file
+     * @throws MissingModelParameter if a compulsory parameter is missing
+     * @throws InvalidModelParameter if a parameter has an incorrect value
+     */
+    @Test
+    public void testLoadFromFileWithOverriddenModelName(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
+        // Given
+        final String configContent = """
+                modelName: mistral-small-latest
+                apiKeyEnvVar: MISTRAL_API_KEY
+                """;
+        final Path tempConfigPath = tempDir.resolve(("minimal-mistral-config.yaml"));
+        Files.writeString(tempConfigPath, configContent);
+
+        // When
+        final MistralAiModelParameters parameters = MistralAiModelParameters.loadFromFile(tempConfigPath, Optional.of("mistral-large-latest"));
+
+        // Then
+        Assertions.assertEquals("mistral-large-latest", parameters.getModelName());
         Assertions.assertEquals("MISTRAL_API_KEY", parameters.getApiKeyEnvironmentVariableName());
         Assertions.assertFalse(parameters.getBaseUrl().isPresent());
         Assertions.assertFalse(parameters.getTemperature().isPresent());
@@ -91,7 +121,7 @@ public class MistralAiModelParametersTest {
         final Path nonExistentPath = Paths.get("non-existent-file.yaml");
 
         // When/Then
-        Assertions.assertThrows(IOException.class, () -> MistralAiModelParameters.loadFromFile(nonExistentPath));
+        Assertions.assertThrows(IOException.class, () -> MistralAiModelParameters.loadFromFile(nonExistentPath, Optional.empty()));
     }
 
     /**
@@ -111,7 +141,7 @@ public class MistralAiModelParametersTest {
                 """);
 
         // When/Then
-        Assertions.assertThrows(InvalidModelParameter.class, () -> MistralAiModelParameters.loadFromFile(invalidConfigPath));
+        Assertions.assertThrows(InvalidModelParameter.class, () -> MistralAiModelParameters.loadFromFile(invalidConfigPath, Optional.empty()));
     }
 
     /**
@@ -131,6 +161,6 @@ public class MistralAiModelParametersTest {
                 """);
 
         // When/Then
-        Assertions.assertThrows(InvalidModelParameter.class, () -> MistralAiModelParameters.loadFromFile(invalidConfigPath));
+        Assertions.assertThrows(InvalidModelParameter.class, () -> MistralAiModelParameters.loadFromFile(invalidConfigPath, Optional.empty()));
     }
 }

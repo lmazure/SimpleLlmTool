@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -45,7 +46,7 @@ public class OpenAiModelParametersTest {
         Files.writeString(tempConfigPath, configContent);
 
         // When
-        final OpenAiModelParameters parameters = OpenAiModelParameters.loadFromFile(tempConfigPath);
+        final OpenAiModelParameters parameters = OpenAiModelParameters.loadFromFile(tempConfigPath, Optional.empty());
 
         // Then
         Assertions.assertEquals("gpt-4", parameters.getModelName());
@@ -77,10 +78,42 @@ public class OpenAiModelParametersTest {
         Files.writeString(tempConfigPath, configContent);
 
         // When
-        final OpenAiModelParameters parameters = OpenAiModelParameters.loadFromFile(tempConfigPath);
+        final OpenAiModelParameters parameters = OpenAiModelParameters.loadFromFile(tempConfigPath, Optional.empty());
 
         // Then
         Assertions.assertEquals("gpt-3.5-turbo", parameters.getModelName());
+        Assertions.assertEquals("OPENAI_API_KEY", parameters.getApiKeyEnvironmentVariableName());
+        Assertions.assertFalse(parameters.getBaseUrl().isPresent());
+        Assertions.assertFalse(parameters.getOrganizationId().isPresent());
+        Assertions.assertFalse(parameters.getProjectId().isPresent());
+        Assertions.assertFalse(parameters.getTemperature().isPresent());
+        Assertions.assertFalse(parameters.getSeed().isPresent());
+        Assertions.assertFalse(parameters.getTopP().isPresent());
+        Assertions.assertFalse(parameters.getMaxCompletionTokens().isPresent());
+    }
+
+    /**
+     * Test loading with an overriding model name.
+     *
+     * @throws IOException if there is an error reading the file
+     * @throws MissingModelParameter if a compulsory parameter is missing
+     * @throws InvalidModelParameter if a parameter has an incorrect value
+     */
+    @Test
+    public void testLoadFromFileWithOverriddenModelName(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
+        // Given
+        final String configContent = """
+                modelName: gpt-3.5-turbo
+                apiKeyEnvVar: OPENAI_API_KEY
+                """;
+        final Path tempConfigPath = tempDir.resolve(("minimal-openai-config.yaml"));
+        Files.writeString(tempConfigPath, configContent);
+
+        // When
+        final OpenAiModelParameters parameters = OpenAiModelParameters.loadFromFile(tempConfigPath, Optional.of("gpt-4"));
+
+        // Then
+        Assertions.assertEquals("gpt-4", parameters.getModelName());
         Assertions.assertEquals("OPENAI_API_KEY", parameters.getApiKeyEnvironmentVariableName());
         Assertions.assertFalse(parameters.getBaseUrl().isPresent());
         Assertions.assertFalse(parameters.getOrganizationId().isPresent());
@@ -100,7 +133,7 @@ public class OpenAiModelParametersTest {
         final Path nonExistentPath = Paths.get("non-existent-file.yaml");
 
         // When/Then
-        Assertions.assertThrows(IOException.class, () -> OpenAiModelParameters.loadFromFile(nonExistentPath));
+        Assertions.assertThrows(IOException.class, () -> OpenAiModelParameters.loadFromFile(nonExistentPath, Optional.empty()));
     }
 
     /**
@@ -120,7 +153,7 @@ public class OpenAiModelParametersTest {
                 """);
 
         // When/Then
-        Assertions.assertThrows(InvalidModelParameter.class, () -> OpenAiModelParameters.loadFromFile(invalidConfigPath));
+        Assertions.assertThrows(InvalidModelParameter.class, () -> OpenAiModelParameters.loadFromFile(invalidConfigPath, Optional.empty()));
     }
 
     /**
@@ -140,6 +173,6 @@ public class OpenAiModelParametersTest {
                 """);
 
         // When/Then
-        Assertions.assertThrows(InvalidModelParameter.class, () -> OpenAiModelParameters.loadFromFile(invalidConfigPath));
+        Assertions.assertThrows(InvalidModelParameter.class, () -> OpenAiModelParameters.loadFromFile(invalidConfigPath, Optional.empty()));
     }
 }

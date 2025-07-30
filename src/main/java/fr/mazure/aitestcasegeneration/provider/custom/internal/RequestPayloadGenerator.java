@@ -17,10 +17,13 @@ public class RequestPayloadGenerator {
      *
      * @param handlebarsTemplate the Handlebars template string to evaluate
      * @param messages the list of message rounds to use as template data
+     * @param modelName the name of the model
+     * @param apiKey the API key
      * @return the evaluated template as a string
      */
     public static String generate(final String handlebarsTemplate,
                                   final List<MessageRound> messages,
+                                  final String modelName,
                                   final String apiKey) {
         try {
             final Handlebars handlebars = new Handlebars();
@@ -60,6 +63,7 @@ public class RequestPayloadGenerator {
 
             final Map<String, Object> context = new HashMap<>();
             context.put("messages", messages);
+            context.put("modelName", modelName);
             context.put("apiKey", apiKey);
 
             return template.apply(context);

@@ -3,7 +3,7 @@ modelName: gpt-4.1-nano
 apiKeyEnvVar: OPENAI_API_KEY
 payloadTemplate: |
             {
-              "model": "gpt-4.1-nano",
+              "model": "{{modelName}}",
               "messages": [
                 {{#each messages}}{
                   "role": "{{#if (isSystem role)}}system{{/if}}{{#if (isUser role)}}user{{/if}}{{#if (isModel role)}}assistant{{/if}}",

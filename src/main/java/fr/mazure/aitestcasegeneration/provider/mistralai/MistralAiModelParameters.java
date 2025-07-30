@@ -58,16 +58,18 @@ public class MistralAiModelParameters extends ModelParameters {
      * Load parameters from a YAML file and create a new MistralAiModelParameters instance.
      *
      * @param yamlFilePath the path to the YAML file containing the parameters
+     * @param overridingModelName the name of the model to override the one in the YAML file
      * @return a new MistralAiModelParameters instance with the parameters from the YAML file
      * @throws IOException if there is an error reading the file
      * @throws MissingModelParameter if a compulsory parameter is missing
      * @throws InvalidModelParameter if a parameter has an incorrect value
      */
-    public static MistralAiModelParameters loadFromFile(final Path yamlFilePath) throws IOException, MissingModelParameter, InvalidModelParameter {
+    public static MistralAiModelParameters loadFromFile(final Path yamlFilePath,
+                                                        final Optional<String> overridingModelName) throws IOException, MissingModelParameter, InvalidModelParameter {
         try (final InputStream inputStream = new FileInputStream(yamlFilePath.toFile())) {
             final Yaml yaml = new Yaml();
             final ParameterMap parameterMap = new ParameterMap(yaml.load(inputStream));
-            return new MistralAiModelParameters(parameterMap.getString("modelName"),
+            return new MistralAiModelParameters(overridingModelName.orElse(parameterMap.getString("modelName")),
                                                 parameterMap.getOptionalUrl("baseUrl"),
                                                 parameterMap.getString("apiKeyEnvVar"),
                                                 parameterMap.getOptionalDouble("temperature"),

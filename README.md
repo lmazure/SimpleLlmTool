@@ -30,13 +30,15 @@ java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar -
 | `--error-file <error-file>`                     | error file (stderr by default)             |
 | `--log-file <log-file>`                         | log file (stderr by default)               |
 | `--provider <provider>`                         | provider                                   |
+| `--model-name <model-name>`                     | overriding model name                      |
 | `--chat-mode`                                   | chat mode                                  |
 | `--model-file <model_file>`                     | file defining the model and its parameters |
 | `--help`                                        | display help and exit                      |
 
 If `<output-file>` already exists, the text is appended to it.  
 If `<error-file>` already exists, the text is appended to it.  
-If `<log-file>` already exists, the text is appended to it.
+If `<log-file>` already exists, the text is appended to it.  
+If `<model-name>` is provided, it overrides the model name in the model file.
 
 # Parameters per provider
 
@@ -93,6 +95,7 @@ The provider is indicated on the command line with the `--provider <provider>` p
 The following variables are available:
 - `messages`: the list of messages  
     each message has a `role` and a `content`
+- `modelName`: the name of the model
 - `apiKey`: the API key
 
 The following helpers are available:
@@ -102,37 +105,38 @@ The following helpers are available:
 - `convertToJsonString` (string): converts a string to a JSON string (including the double quotes) by escaping the special characters
 
 ### Example
+- this YAML extract:
+    ```yaml
+    payloadTemplate: |
+        {
+            "model": "{{modelName}}",
+            "messages": [
+                {{#each messages}}{
+                    "role": "{{#if (isSystem role)}}system{{/if}}{{#if (isUser role)}}user{{/if}}{{#if (isModel role)}}assistant{{/if}}",
+                    "content": {{convertToJsonString content}}
+                }{{#unless @last}},
+                {{/unless}}{{/each}}
+            ],
+            "temperature": 0.7,
+            "seed": 42
+        }
+    httpHeaders:
+      Authorization: Bearer {{apiKey}}
+    ```
 
-```yaml
-payloadTemplate: |
-    {
-        "model": "gpt-4.1",
-        "messages": [
-            {{#each messages}}{
-                "role": "{{#if (isSystem role)}}system{{/if}}{{#if (isUser role)}}user{{/if}}{{#if (isModel role)}}assistant{{/if}}",
-                "content": {{convertToJsonString content}}
-            }{{#unless @last}},
-            {{/unless}}{{/each}}
-        ],
-        "temperature": 0.7,
-        "seed": 42
-    }
-httpHeaders:
-  Authorization: Bearer {{apiKey}}
-```
+- these messages:
 
-with these messages:
+    | role   | content                             |
+    | ------ | ----------------------------------- |
+    | system | you are a helpful assistant         |
+    | user   | what is the weather?                |
+    | model  | i don't have access to weather data |
+    | user   | what day is it?                     |
+    | model  | april fools' day                    |
+    | user   | so, tell me a joke!                 |
 
-| role   | content                             |
-| ------ | ----------------------------------- |
-| system | you are a helpful assistant         |
-| user   | what is the weather?                |
-| model  | i don't have access to weather data |
-| user   | what day is it?                     |
-| model  | april fools' day                    |
-| user   | so, tell me a joke!                 |
-
-and this API key: `sec_DEADBEEF`
+- the model name: `gpt-4.1`.
+- the API key: `sec_DEADBEEF`
 
 will generate this JSON:
 ```json

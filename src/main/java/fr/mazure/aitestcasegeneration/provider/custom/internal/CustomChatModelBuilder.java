@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class CustomChatModelBuilder {
 
+    private String modelName;
     private String apiKey;
     private String baseUrl;
     private String payloadTemplate;
@@ -18,6 +19,14 @@ public class CustomChatModelBuilder {
 
     public CustomChatModelBuilder() {
         // Default constructor
+    }
+
+    /**
+     * Sets the model name
+     */
+    public CustomChatModelBuilder modelName(final String modelName) {
+        this.modelName = modelName;
+        return this;
     }
 
     /**
@@ -124,6 +133,9 @@ public class CustomChatModelBuilder {
      * Validates required parameters before building
      */
     private void validateParameters() {
+        if (modelName == null || modelName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Model name is required");
+        }
         if (apiKey == null || apiKey.trim().isEmpty()) {
             throw new IllegalArgumentException("API key is required");
         }
@@ -151,6 +163,7 @@ public class CustomChatModelBuilder {
     }
 
     // Getters for the CustomChatModel constructor
+    String getModelName() { return modelName; }
     String getApiKey() { return apiKey; }
     String getBaseUrl() { return baseUrl; }
     String getPayloadTemplate() { return payloadTemplate; }

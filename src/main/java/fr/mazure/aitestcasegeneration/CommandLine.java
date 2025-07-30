@@ -18,6 +18,7 @@ public class CommandLine {
                              Optional<Path> logFile,
                              ProviderEnum provider,
                              Path modelFile,
+                             Optional<String> overridingModelName,
                              boolean chatMode) {}
 
     public static Parameters parseCommandLine(final String[] args) {
@@ -28,6 +29,7 @@ public class CommandLine {
         Path logFile = null;
         ProviderEnum provider = null;
         Path modelFile = null;
+        String overridingModelName = null;
         boolean chatMode = false;
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("--system-prompt-string")) {
@@ -132,6 +134,15 @@ public class CommandLine {
                 i++;
                 continue;
             }
+            if (args[i].equals("--model-name")) {
+                if ((i + 1 ) >= args.length) {
+                    System.err.println("Missing argument for --model-name");
+                    System.exit(ExitCode.INVALID_COMMAND_LINE.getCode());
+                }
+                overridingModelName = args[i + 1];
+                i++;
+                continue;
+            }
             if (args[i].equals("--chat-mode")) {
                 chatMode = true;
                 continue;
@@ -176,6 +187,7 @@ public class CommandLine {
                               Optional.ofNullable(logFile),
                               provider,
                               modelFile,
+                              Optional.ofNullable(overridingModelName),
                               chatMode);
     }
 
@@ -185,16 +197,19 @@ public class CommandLine {
                            executableName +
                            " {--user-prompt-string <user-prompt-string>|--user-prompt-file <user-prompt-file>}\n" +
                            "    [--system-prompt-string <system-prompt-string>]  [--system-prompt-file <system-prompt-file>]\n" +
-                           "    [--provider <provider>] [--model-file <model-file>] [--chat-mode] [--help]");
+                           "    [--provider <provider>] [--model-file <model-file>] [--model-name <model-name>]\n" +
+                           "    [--output-file <output-file>] [--error-file <error-file>] [--log-file <log-file>]\n" +
+                           "    [--chat-mode] [--help]");
         System.err.println(
             """
             --system-prompt-string <system-prompt-string> system prompt as a string
             --system-prompt-file <system-prompt-file>     system prompt as the content of a file
             --user-prompt-string <user-prompt-string>     user prompt as a string
             --user-prompt-file <user-prompt-file>         user prompt as the content of a file
-            --output-file output-file>                    output file (stdout by default)
-            --error-file error-file>                      error file (stderr by default)
-            --log-file log-file>                          log file (stderr by default)
+            --model-name <model-name>                     model name
+            --output-file <output-file>                   output file (stdout by default)
+            --error-file <error-file>                     error file (stderr by default)
+            --log-file <log-file>                         log file (stderr by default)
             --provider <provider>                         provider
             --model-file <model-file>                     file defining the model and its parameters
             --chat-mode                                   trigger chat mode
