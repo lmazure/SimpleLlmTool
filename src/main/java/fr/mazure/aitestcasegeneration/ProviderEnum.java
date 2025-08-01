@@ -6,6 +6,7 @@ public enum ProviderEnum {
 
     OPENAI("OpenAI"),
     MISTRAL_AI("Mistral AI"),
+    ANTHROPIC("Anthropic"),
     CUSTOM("custom"),
     MOCK("mock");
 

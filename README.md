@@ -14,6 +14,11 @@ use Mistral AI provider
 java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider "Mistral AI" --model-file mistral-large-latest@mistralai.yaml
 ```
 
+use Anthropic provider
+```bash
+java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider Anthropic --model-file claude-3-5-sonnet@anthropic.yaml
+```
+
 use custom provider
 ```bash
 java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider custom --model-file gpt-4.1-nano@custom.yaml
@@ -70,6 +75,17 @@ The provider is indicated on the command line with the `--provider <provider>` p
 | `temperature`       | temperature of the model                                 | float  | no           |
 | `seed`              | random seed of the model                                 | int    | no           |
 | `topP`              | top P value of the model                                 | float  | no           |
+| `maxTokens`         | maximum number of tokens the model should generate       | int    | no           |
+
+## Anthropic
+| parameter           | description                                              | type   | compulsory   |
+| ------------------- | -------------------------------------------------------- | ------ | ------------ |
+| `modelName`         | name of the model                                        | string | yes          |
+| `baseUrl`           | base URL of the provider                                 | string | no           |
+| `apiKeyEnvVar`      | name of the environment variable containing the API key  | string | yes          |
+| `temperature`       | temperature of the model                                 | float  | no           |
+| `topP`              | top P value of the model                                 | float  | no           |
+| `topK`              | top K value of the model                                 | int    | no           |
 | `maxTokens`         | maximum number of tokens the model should generate       | int    | no           |
 
 ## custom

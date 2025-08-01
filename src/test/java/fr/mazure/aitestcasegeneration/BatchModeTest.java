@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import dev.langchain4j.model.chat.ChatModel;
+import fr.mazure.aitestcasegeneration.provider.anthropic.AnthropicChatModelProvider;
+import fr.mazure.aitestcasegeneration.provider.anthropic.AnthropicModelParameters;
 import fr.mazure.aitestcasegeneration.provider.base.MissingEnvironmentVariable;
 import fr.mazure.aitestcasegeneration.provider.custom.CustomChatModelProvider;
 import fr.mazure.aitestcasegeneration.provider.custom.CustomModelParameters;
@@ -77,6 +79,36 @@ public class BatchModeTest {
                                                                                 Optional.empty());
         final ChatModel model = MistralAiChatModelProvider.createChatModel(parameters);
         final Optional<String> sysPrompt = Optional.of("You must answer in one word.");
+        final String userPrompt = "What is the capital of France?";
+
+        // When
+        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, log);
+
+        // Then
+        Assertions.assertEquals("Paris", outputBuffer.toString().trim());
+    }
+
+    /**
+     * Basic test for Anthropic.
+     * @throws MissingEnvironmentVariable 
+     */
+    @Test
+    @Tag("e2e")
+    public void testBasicAnthropic() throws MissingEnvironmentVariable {
+        // Given
+        final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
+        final PrintStream output = new PrintStream(outputBuffer);
+        final ByteArrayOutputStream logBuffer = new ByteArrayOutputStream();
+        final PrintStream log = new PrintStream(logBuffer);
+        final AnthropicModelParameters parameters = new AnthropicModelParameters("claude-3-haiku-20240307",
+                                                                                 Optional.empty(),
+                                                                                 "ANTHROPIC_API_KEY",
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty());
+        final ChatModel model = AnthropicChatModelProvider.createChatModel(parameters);
+        final Optional<String> sysPrompt = Optional.of("You must answer in one word with no punctuation.");
         final String userPrompt = "What is the capital of France?";
 
         // When

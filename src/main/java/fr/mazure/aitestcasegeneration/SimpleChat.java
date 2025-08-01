@@ -9,6 +9,8 @@ import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
+import fr.mazure.aitestcasegeneration.provider.anthropic.AnthropicChatModelProvider;
+import fr.mazure.aitestcasegeneration.provider.anthropic.AnthropicModelParameters;
 import fr.mazure.aitestcasegeneration.provider.base.InvalidModelParameter;
 import fr.mazure.aitestcasegeneration.provider.base.MissingEnvironmentVariable;
 import fr.mazure.aitestcasegeneration.provider.base.MissingModelParameter;
@@ -64,6 +66,7 @@ public class SimpleChat {
         final ChatModel model = switch (cli.provider()) {
             case ProviderEnum.OPENAI     -> OpenAiChatModelProvider.createChatModel(OpenAiModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));
             case ProviderEnum.MISTRAL_AI -> MistralAiChatModelProvider.createChatModel(MistralAiModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));
+            case ProviderEnum.ANTHROPIC  -> AnthropicChatModelProvider.createChatModel(AnthropicModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));
             case ProviderEnum.CUSTOM     -> CustomChatModelProvider.createChatModel(CustomModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()), log);
             case ProviderEnum.MOCK       -> MockChatModelProvider.createChatModel(new MockModelParameters());
         };
