@@ -33,7 +33,7 @@ public class GoogleGeminiModelParametersTest {
         // Given
         final String configContent = """
                 modelName: gemini-1.5-flash
-                apiKeyEnvVar: GEMINI_API_KEY
+                apiKeyEnvVar: GOOGLE_GEMINI_API_KEY
                 baseUrl: https://generativelanguage.googleapis.com
                 temperature: 0.7
                 topP: 0.95
@@ -48,7 +48,7 @@ public class GoogleGeminiModelParametersTest {
 
         // Then
         Assertions.assertEquals("gemini-1.5-flash", parameters.getModelName());
-        Assertions.assertEquals("GEMINI_API_KEY", parameters.getApiKeyEnvironmentVariableName());
+        Assertions.assertEquals("GOOGLE_GEMINI_API_KEY", parameters.getApiKeyEnvironmentVariableName());
         Assertions.assertEquals(new URI("https://generativelanguage.googleapis.com").toURL(), parameters.getBaseUrl().get());
         Assertions.assertEquals(0.7, parameters.getTemperature().get());
         Assertions.assertEquals(0.95, parameters.getTopP().get());
@@ -68,7 +68,7 @@ public class GoogleGeminiModelParametersTest {
         // Given
         final String configContent = """
                 modelName: gemini-1.5-flash
-                apiKeyEnvVar: GEMINI_API_KEY
+                apiKeyEnvVar: GOOGLE_GEMINI_API_KEY
                 """;
         final Path tempConfigPath = tempDir.resolve("minimal-gemini-config.yaml");
         Files.writeString(tempConfigPath, configContent);
@@ -78,7 +78,7 @@ public class GoogleGeminiModelParametersTest {
 
         // Then
         Assertions.assertEquals("gemini-1.5-flash", parameters.getModelName());
-        Assertions.assertEquals("GEMINI_API_KEY", parameters.getApiKeyEnvironmentVariableName());
+        Assertions.assertEquals("GOOGLE_GEMINI_API_KEY", parameters.getApiKeyEnvironmentVariableName());
         Assertions.assertFalse(parameters.getBaseUrl().isPresent());
         Assertions.assertFalse(parameters.getTemperature().isPresent());
         Assertions.assertFalse(parameters.getTopP().isPresent());
@@ -98,7 +98,7 @@ public class GoogleGeminiModelParametersTest {
         // Given
         final String configContent = """
                 modelName: gemini-1.0-pro
-                apiKeyEnvVar: GEMINI_API_KEY
+                apiKeyEnvVar: GOOGLE_GEMINI_API_KEY
                 """;
         final Path tempConfigPath = tempDir.resolve("minimal-gemini-config.yaml");
         Files.writeString(tempConfigPath, configContent);
@@ -108,7 +108,7 @@ public class GoogleGeminiModelParametersTest {
 
         // Then
         Assertions.assertEquals("gemini-1.5-flash", parameters.getModelName());
-        Assertions.assertEquals("GEMINI_API_KEY", parameters.getApiKeyEnvironmentVariableName());
+        Assertions.assertEquals("GOOGLE_GEMINI_API_KEY", parameters.getApiKeyEnvironmentVariableName());
         Assertions.assertFalse(parameters.getBaseUrl().isPresent());
         Assertions.assertFalse(parameters.getTemperature().isPresent());
         Assertions.assertFalse(parameters.getTopP().isPresent());
@@ -140,7 +140,7 @@ public class GoogleGeminiModelParametersTest {
         final Path invalidConfigPath = tempDir.resolve("invalid-url-config.yaml");
         Files.writeString(invalidConfigPath, """
                 modelName: gemini-1.5-flash
-                apiKeyEnvVar: GEMINI_API_KEY
+                apiKeyEnvVar: GOOGLE_GEMINI_API_KEY
                 baseUrl: invalid-url
                 """);
 
@@ -160,7 +160,7 @@ public class GoogleGeminiModelParametersTest {
         final Path invalidConfigPath = tempDir.resolve("invalid-numeric-config.yaml");
         Files.writeString(invalidConfigPath, """
                 modelName: gemini-1.5-flash
-                apiKeyEnvVar: GEMINI_API_KEY
+                apiKeyEnvVar: GOOGLE_GEMINI_API_KEY
                 temperature: not-a-number
                 """);
 

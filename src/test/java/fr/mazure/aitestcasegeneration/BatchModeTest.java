@@ -134,7 +134,7 @@ public class BatchModeTest {
         final PrintStream log = new PrintStream(logBuffer);
         final GoogleGeminiModelParameters parameters = new GoogleGeminiModelParameters("gemini-1.5-flash",
                                                                           Optional.empty(),
-                                                                          "GEMINI_API_KEY",
+                                                                          "GOOGLE_GEMINI_API_KEY",
                                                                           Optional.empty(),
                                                                           Optional.empty(),
                                                                           Optional.empty(),

@@ -16,8 +16,9 @@ public class GoogleGeminiChatModelProvider implements ModelProvider {
                                                                               .apiKey(apiKey)
                                                                               .modelName(parameters.getModelName());
 
-        // Note: baseUrl is not supported in GoogleAiGeminiChatModelBuilder in the current version
-        // If baseUrl support is needed, consider using a custom HTTP client or wait for future versions
+        if (parameters.getBaseUrl().isPresent()) {
+            builder.baseUrl(parameters.getBaseUrl().get().toString());
+        }
 
         if (parameters.getTemperature().isPresent()) {
             builder.temperature(parameters.getTemperature().get());
