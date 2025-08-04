@@ -17,6 +17,8 @@ import fr.mazure.aitestcasegeneration.provider.anthropic.AnthropicModelParameter
 import fr.mazure.aitestcasegeneration.provider.base.MissingEnvironmentVariable;
 import fr.mazure.aitestcasegeneration.provider.custom.CustomChatModelProvider;
 import fr.mazure.aitestcasegeneration.provider.custom.CustomModelParameters;
+import fr.mazure.aitestcasegeneration.provider.googlegemini.GoogleGeminiChatModelProvider;
+import fr.mazure.aitestcasegeneration.provider.googlegemini.GoogleGeminiModelParameters;
 import fr.mazure.aitestcasegeneration.provider.mistralai.MistralAiChatModelProvider;
 import fr.mazure.aitestcasegeneration.provider.mistralai.MistralAiModelParameters;
 import fr.mazure.aitestcasegeneration.provider.openai.OpenAiChatModelProvider;
@@ -108,6 +110,36 @@ public class BatchModeTest {
                                                                                  Optional.empty(),
                                                                                  Optional.empty());
         final ChatModel model = AnthropicChatModelProvider.createChatModel(parameters);
+        final Optional<String> sysPrompt = Optional.of("You must answer in one word with no punctuation.");
+        final String userPrompt = "What is the capital of France?";
+
+        // When
+        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, log);
+
+        // Then
+        Assertions.assertEquals("Paris", outputBuffer.toString().trim());
+    }
+    
+    /**
+     * Basic test for Google AI Gemini.
+     * @throws MissingEnvironmentVariable 
+     */
+    @Test
+    @Tag("e2e")
+    public void testBasicGemini() throws MissingEnvironmentVariable {
+        // Given
+        final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
+        final PrintStream output = new PrintStream(outputBuffer);
+        final ByteArrayOutputStream logBuffer = new ByteArrayOutputStream();
+        final PrintStream log = new PrintStream(logBuffer);
+        final GoogleGeminiModelParameters parameters = new GoogleGeminiModelParameters("gemini-1.5-flash",
+                                                                          Optional.empty(),
+                                                                          "GEMINI_API_KEY",
+                                                                          Optional.empty(),
+                                                                          Optional.empty(),
+                                                                          Optional.empty(),
+                                                                          Optional.empty());
+        final ChatModel model = GoogleGeminiChatModelProvider.createChatModel(parameters);
         final Optional<String> sysPrompt = Optional.of("You must answer in one word with no punctuation.");
         final String userPrompt = "What is the capital of France?";
 

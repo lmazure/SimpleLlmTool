@@ -19,6 +19,11 @@ use Anthropic provider
 java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider Anthropic --model-file claude-3-5-sonnet@anthropic.yaml
 ```
 
+use Google Gemini provider
+```bash
+java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider "Google Gemini" --model-file gemini-2.5-flash@google.yaml
+```
+
 use custom provider
 ```bash
 java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider custom --model-file gpt-4.1-nano@custom.yaml
@@ -78,6 +83,17 @@ The provider is indicated on the command line with the `--provider <provider>` p
 | `maxTokens`         | maximum number of tokens the model should generate       | int    | no           |
 
 ## Anthropic
+| parameter           | description                                              | type   | compulsory   |
+| ------------------- | -------------------------------------------------------- | ------ | ------------ |
+| `modelName`         | name of the model                                        | string | yes          |
+| `baseUrl`           | base URL of the provider                                 | string | no           |
+| `apiKeyEnvVar`      | name of the environment variable containing the API key  | string | yes          |
+| `temperature`       | temperature of the model                                 | float  | no           |
+| `topP`              | top P value of the model                                 | float  | no           |
+| `topK`              | top K value of the model                                 | int    | no           |
+| `maxTokens`         | maximum number of tokens the model should generate       | int    | no           |
+
+## Google Gemini
 | parameter           | description                                              | type   | compulsory   |
 | ------------------- | -------------------------------------------------------- | ------ | ------------ |
 | `modelName`         | name of the model                                        | string | yes          |

@@ -16,6 +16,8 @@ import fr.mazure.aitestcasegeneration.provider.base.MissingEnvironmentVariable;
 import fr.mazure.aitestcasegeneration.provider.base.MissingModelParameter;
 import fr.mazure.aitestcasegeneration.provider.custom.CustomChatModelProvider;
 import fr.mazure.aitestcasegeneration.provider.custom.CustomModelParameters;
+import fr.mazure.aitestcasegeneration.provider.googlegemini.GoogleGeminiChatModelProvider;
+import fr.mazure.aitestcasegeneration.provider.googlegemini.GoogleGeminiModelParameters;
 import fr.mazure.aitestcasegeneration.provider.mistralai.MistralAiChatModelProvider;
 import fr.mazure.aitestcasegeneration.provider.mistralai.MistralAiModelParameters;
 import fr.mazure.aitestcasegeneration.provider.mock.MockChatModelProvider;
@@ -67,6 +69,7 @@ public class SimpleChat {
             case ProviderEnum.OPENAI     -> OpenAiChatModelProvider.createChatModel(OpenAiModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));
             case ProviderEnum.MISTRAL_AI -> MistralAiChatModelProvider.createChatModel(MistralAiModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));
             case ProviderEnum.ANTHROPIC  -> AnthropicChatModelProvider.createChatModel(AnthropicModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));
+            case ProviderEnum.GOOGLE_GEMINI -> GoogleGeminiChatModelProvider.createChatModel(GoogleGeminiModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));
             case ProviderEnum.CUSTOM     -> CustomChatModelProvider.createChatModel(CustomModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()), log);
             case ProviderEnum.MOCK       -> MockChatModelProvider.createChatModel(new MockModelParameters());
         };

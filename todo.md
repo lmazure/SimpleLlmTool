@@ -1,4 +1,5 @@
-- corriger mauvaise gestion du modelName
+- remove baseUrl in GeminiModelParameters
+- move the YAML files in an `examples` directory, do not forget to update the README
 
 - Mustache
   - lancer une exception BadParamaterValue quand le template est incorrect
