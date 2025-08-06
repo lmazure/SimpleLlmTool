@@ -22,15 +22,21 @@ public class MockChatModel implements ChatModel {
         final List<ChatMessage> messages = chatRequest.messages();
 
         final StringBuilder mockAnswerBuilder = new StringBuilder();
-        mockAnswerBuilder.append(String.format("%03d ", messages.size()));
-        final ChatMessage lastMessage = messages.get(messages.size() - 1);
-        mockAnswerBuilder.append(
-            switch (lastMessage) {
-                case UserMessage userMessage -> "USER " + userMessage.singleText();
-                case AiMessage aiMessage -> "MODEL " + aiMessage.text();
-                case SystemMessage systemMessage -> "SYSTEM " + systemMessage.text();
-                default -> throw new IllegalArgumentException("Unsupported message type: " + lastMessage.getClass()); // TODO: we will have to support tools and
-            });
+        final int numberOfReturnedMessages = Math.min(messages.size(), 5);
+        for (int i = messages.size() - numberOfReturnedMessages; i < messages.size(); i++) {
+            final ChatMessage message = messages.get(i);
+            mockAnswerBuilder.append(String.format("%03d ", i));
+            mockAnswerBuilder.append(
+                switch (message) {
+                    case UserMessage userMessage -> "USER " + userMessage.singleText().replaceAll("\n", "↵");
+                    case AiMessage aiMessage -> "MODEL " + aiMessage.text().replaceAll("\n", "↵");
+                    case SystemMessage systemMessage -> "SYSTEM " + systemMessage.text().replaceAll("\n", "↵");
+                    default -> throw new IllegalArgumentException("Unsupported message type: " + message.getClass());
+                });
+            if (i < messages.size() - 1) {
+                mockAnswerBuilder.append("\n");
+            }
+        }
 
         return ChatResponse.builder()
                            .aiMessage(AiMessage.from(mockAnswerBuilder.toString()))

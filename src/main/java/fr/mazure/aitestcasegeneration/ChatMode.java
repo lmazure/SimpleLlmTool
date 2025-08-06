@@ -26,6 +26,8 @@ import dev.langchain4j.model.output.TokenUsage;
  */
 public class ChatMode {
 
+    private record ChatAnswer(String answer, TokenUsage tokenUsage) {}
+
     /**
      * Handles interactive chat processing of chat interactions using a specified ChatModel.
      *
@@ -41,65 +43,97 @@ public class ChatMode {
                            final PrintStream log) throws IOException {
     
         // setup terminal
-        final Terminal terminal = TerminalBuilder.builder()
-                                                 .system(true)
-                                                 .build();
-        final LineReader reader = LineReaderBuilder.builder()
-                                                   .terminal(terminal)
-                                                   .build();
-        final AttributedString prompt = new AttributedString("Enter text: ",
-                                                             AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
+        try (final Terminal terminal = TerminalBuilder.builder()
+                                                     .system(true)
+                                                     .build()) {
+            final LineReader reader = LineReaderBuilder.builder()
+                                                       .terminal(terminal)
+                                                       .build();
     
-        // print help message
+            // setup memory
+            final ChatMemory memory = MessageWindowChatMemory.withMaxMessages(10);
+            
+            // print help message
+            displayHelpMessage(terminal);
+
+            // handle system prompt if it is defined
+            if (sysPrompt.isPresent()) {
+                final SystemMessage systemPrompt = new SystemMessage(sysPrompt.get());
+                memory.add(systemPrompt);
+                displaySystemPrompt(terminal, sysPrompt);
+            }
+
+            // handle chat
+            String prefilledText = userPrompt.orElse("");
+            while (true) {
+                final String input = getUserInput(reader, prefilledText);
+                if (input.isEmpty()) {
+                    continue;
+                }
+                if (input.equals("/exit")) {
+                    return;
+                }
+                memory.add(UserMessage.from(input));
+                final ChatAnswer chatAnswer = generateAnswer(model, memory);
+                memory.add(AiMessage.from(chatAnswer.answer()));
+                displayAnswer(terminal, chatAnswer.answer());
+                logTokenUsage(log, chatAnswer.tokenUsage());
+                prefilledText = "";
+            }
+        }
+    }
+
+    private static String getUserInput(final LineReader reader,
+                                       final String prefilledText) {
+        final String prompt = "Enter text: ";
+        final AttributedString promptAttributedString = new AttributedString(prompt,
+                                                                             AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
+        final String input = reader.readLine(promptAttributedString.toAnsi(), null, prefilledText);
+        return input;
+    }
+
+    private static void displayHelpMessage(final Terminal terminal) {
         final String helpMessage = "Type '/exit' to exit";
         final AttributedString help = new AttributedString(helpMessage,
                                                            AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
         terminal.writer().println(help.toAnsi());
-    
-        // handle chat
-        final ChatMemory memory = MessageWindowChatMemory.withMaxMessages(10);
-    
-        if (sysPrompt.isPresent()) {
-            final SystemMessage systemPrompt = new SystemMessage(sysPrompt.get());
-            memory.add(systemPrompt);
-            final AttributedString systemPromptString = new AttributedString("System prompt: ",
-                                                                             AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
-            terminal.writer().print(systemPromptString.toAnsi());
-            terminal.writer().println(sysPrompt.get());
-        }
-    
-        String prefilledText = userPrompt.orElse("");
-        while (true) {
-            final String input = reader.readLine(prompt.toAnsi(), null, prefilledText);
-            if (input.isEmpty()) {
-                continue;
-            }
-            if (input.equals("/exit")) {
-                terminal.close();
-                return;
-            }
-    
-            memory.add(UserMessage.from(input));
-            final ChatRequest chatRequest = ChatRequest.builder()
-                                                       .parameters(model.defaultRequestParameters())
-                                                       .messages(memory.messages())
-                                                       .build();
-            final ChatResponse response = model.doChat(chatRequest);
-            final String answer = response.aiMessage().text();
-            memory.add(AiMessage.from(answer));
-            final AttributedString displayedAnswer = new AttributedString(answer, AttributedStyle.DEFAULT.foreground(AttributedStyle.BLUE));
-            terminal.writer().println(displayedAnswer.toAnsi());
-            final TokenUsage tokenUsage = response.tokenUsage();
-            if (tokenUsage != null) {
-                final Integer inputTokens = tokenUsage.inputTokenCount();
-                final Integer outputTokens = tokenUsage.outputTokenCount();
-                final Integer totalTokens = tokenUsage.totalTokenCount();
+    }
 
-                log.println("Input tokens: " + inputTokens);
-                log.println("Output tokens: " + outputTokens);
-                log.println("Total tokens: " + totalTokens);
-            }
-            prefilledText = "";
+    private static void displaySystemPrompt(final Terminal terminal,
+                                            final Optional<String> sysPrompt) {
+        final AttributedString systemPromptString = new AttributedString("System prompt: ",
+                                                                         AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
+        terminal.writer().print(systemPromptString.toAnsi());
+        terminal.writer().println(sysPrompt.get());
+    }
+
+    private static void displayAnswer(final Terminal terminal,
+                                      final String answer) {
+        final AttributedString displayedAnswer = new AttributedString(answer,
+                                                                      AttributedStyle.DEFAULT.foreground(AttributedStyle.BLUE));
+        terminal.writer().println(displayedAnswer.toAnsi());
+    }
+
+    private static ChatAnswer generateAnswer(final ChatModel model,
+                                             final ChatMemory memory) {
+        final ChatRequest chatRequest = ChatRequest.builder()
+                                                   .parameters(model.defaultRequestParameters())
+                                                   .messages(memory.messages())
+                                                   .build();
+        final ChatResponse response = model.doChat(chatRequest);
+        return new ChatAnswer(response.aiMessage().text(), response.tokenUsage());
+    }
+
+    private static void logTokenUsage(final PrintStream log,
+                                      final TokenUsage tokenUsage) {
+        if (tokenUsage != null) {
+            final Integer inputTokens = tokenUsage.inputTokenCount();
+            final Integer outputTokens = tokenUsage.outputTokenCount();
+            final Integer totalTokens = tokenUsage.totalTokenCount();
+
+            log.println("Input tokens: " + inputTokens);
+            log.println("Output tokens: " + outputTokens);
+            log.println("Total tokens: " + totalTokens);
         }
     }
     

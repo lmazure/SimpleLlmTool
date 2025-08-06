@@ -18,7 +18,7 @@ public class CommandLine {
      * Parameters for the chat application.
      *
      * @param sysPrompt the optional system prompt to send to the model
-     * @param userPrompt the user prompt to send to the model
+     * @param userPrompt the optional user prompt to send to the model
      * @param outputFile the optional file to write output to
      * @param errorFile the optional file to write errors to
      * @param logFile the optional file to write logs to
