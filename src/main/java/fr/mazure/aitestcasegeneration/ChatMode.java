@@ -21,8 +21,20 @@ import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.TokenUsage;
 
+/**
+ * The ChatMode class handles interactive chat processing.
+ */
 public class ChatMode {
 
+    /**
+     * Handles interactive chat processing of chat interactions using a specified ChatModel.
+     *
+     * @param model The ChatModel to use for processing.
+     * @param sysPrompt An optional system prompt.
+     * @param userPrompt An optional user prompt.
+     * @param log The PrintStream to use for logging.
+     * @throws IOException If an I/O error occurs.
+     */
     static void handleChat(final ChatModel model,
                            final Optional<String> sysPrompt,
                            final Optional<String> userPrompt,

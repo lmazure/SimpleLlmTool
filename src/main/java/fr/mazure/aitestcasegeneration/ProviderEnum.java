@@ -2,6 +2,19 @@ package fr.mazure.aitestcasegeneration;
 
 import java.util.Arrays;
 
+/**
+ * Enum for the providers of the application.
+ *
+ * The providers are as follows:
+ * <ul>
+ *     <li>{@link #OPENAI}: OpenAI</li>
+ *     <li>{@link #MISTRAL_AI}: Mistral AI</li>
+ *     <li>{@link #ANTHROPIC}: Anthropic</li>
+ *     <li>{@link #GOOGLE_GEMINI}: Google Gemini</li>
+ *     <li>{@link #CUSTOM}: Custom</li>
+ *     <li>{@link #MOCK}: Mock</li>
+ * </ul>
+ */
 public enum ProviderEnum {
 
     OPENAI("OpenAI"),

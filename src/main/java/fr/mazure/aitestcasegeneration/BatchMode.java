@@ -11,8 +11,20 @@ import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.ChatResponse;
 
+/**
+ * The BatchMode class handles batch processing.
+ */
 public class BatchMode {
 
+    /**
+     * Handles batch processing of chat interactions using a specified ChatModel.
+     *
+     * @param model The ChatModel to use for processing.
+     * @param sysPrompt An optional system prompt.
+     * @param userPrompt The user prompt to process.
+     * @param output The PrintStream to use for output.
+     * @param log The PrintStream to use for logging.
+     */
     static void handleBatch(final ChatModel model,
                             final Optional<String> sysPrompt,
                             final String userPrompt,

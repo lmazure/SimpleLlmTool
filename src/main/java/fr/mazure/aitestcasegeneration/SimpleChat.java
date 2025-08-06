@@ -25,6 +25,9 @@ import fr.mazure.aitestcasegeneration.provider.mock.MockModelParameters;
 import fr.mazure.aitestcasegeneration.provider.openai.OpenAiChatModelProvider;
 import fr.mazure.aitestcasegeneration.provider.openai.OpenAiModelParameters;
 
+/**
+ * Simple chat application.
+ */
 public class SimpleChat {
 
     interface Assistant {

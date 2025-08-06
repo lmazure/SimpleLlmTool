@@ -9,8 +9,24 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * The CommandLine class parses command-line arguments to configure a chat application.
+ */
 public class CommandLine {
 
+    /**
+     * Parameters for the chat application.
+     *
+     * @param sysPrompt the optional system prompt to send to the model
+     * @param userPrompt the user prompt to send to the model
+     * @param outputFile the optional file to write output to
+     * @param errorFile the optional file to write errors to
+     * @param logFile the optional file to write logs to
+     * @param provider the provider to use
+     * @param modelFile the file containing the model
+     * @param overridingModelName the name to use instead of the name in the model file
+     * @param chatMode whether to run in chat mode
+     */
     public record Parameters(Optional<String> sysPrompt,
                              Optional<String> userPrompt,
                              Optional<Path> outputFile,
@@ -21,6 +37,12 @@ public class CommandLine {
                              Optional<String> overridingModelName,
                              boolean chatMode) {}
 
+    /**
+     * Parses command-line arguments to configure a chat application.
+     *
+     * @param args The command-line arguments to parse.
+     * @return A Parameters object containing the parsed arguments.
+     */
     public static Parameters parseCommandLine(final String[] args) {
         String sysPrompt = null;
         String userPrompt = null;
