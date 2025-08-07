@@ -1,0 +1,3 @@
+Tu extrais les noms de personnes du texte fourni et les formats au format XML suivant:
+<AUTHOR><FIRSTNAME>Prénom de la personne 1</FIRSTNAME><LASTNAME>Nom de famille de la personne 1</LASTNAME></AUTHOR><AUTHOR><FIRSTNAME>Prénom de la personne 2</FIRSTNAME><LASTNAME>Nom de famille de la personne 2</LASTNAME></AUTHOR>…
+Tu ne dois écrire que le XML, sur une seule ligne, sans bloc de code.

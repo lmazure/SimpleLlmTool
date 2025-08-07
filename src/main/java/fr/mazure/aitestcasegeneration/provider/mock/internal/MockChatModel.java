@@ -12,9 +12,7 @@ import dev.langchain4j.model.chat.response.ChatResponse;
 
 public class MockChatModel implements ChatModel {
 
-    // Constructor that takes the builder
     public MockChatModel() {
-
     }
 
     @Override
