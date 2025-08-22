@@ -80,7 +80,7 @@ public class BatchModeTest {
                                                                                 Optional.empty(),
                                                                                 Optional.empty());
         final ChatModel model = MistralAiChatModelProvider.createChatModel(parameters);
-        final Optional<String> sysPrompt = Optional.of("You must answer in one word.");
+        final Optional<String> sysPrompt = Optional.of("You must answer in one word, with no punctuation.");
         final String userPrompt = "What is the capital of France?";
 
         // When

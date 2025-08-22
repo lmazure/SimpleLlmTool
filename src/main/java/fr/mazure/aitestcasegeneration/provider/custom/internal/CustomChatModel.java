@@ -132,7 +132,7 @@ public class CustomChatModel implements ChatModel {
             case UserMessage userMessage -> new MessageRound(Role.USER, userMessage.singleText());
             case AiMessage aiMessage -> new MessageRound(Role.MODEL, aiMessage.text());
             case SystemMessage systemMessage -> new MessageRound(Role.SYSTEM, systemMessage.text());
-            default -> throw new IllegalArgumentException("Unsupported message type: " + message.getClass()); // TODO: we will have to support tools and
+            default -> throw new IllegalArgumentException("Unsupported message type: " + message.getClass()); // TODO: we will have to support tools
         };
     }
 

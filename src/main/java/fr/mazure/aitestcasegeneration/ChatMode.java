@@ -1,6 +1,9 @@
 package fr.mazure.aitestcasegeneration;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.Optional;
 
@@ -73,6 +76,10 @@ public class ChatMode {
                 if (input.equals("/exit")) {
                     return;
                 }
+                if (input.equals("/tools list")) {
+                    displayToolList(terminal);
+                    continue;
+                }
                 memory.add(UserMessage.from(input));
                 final ChatAnswer chatAnswer = generateAnswer(model, memory);
                 memory.add(AiMessage.from(chatAnswer.answer()));
@@ -93,8 +100,21 @@ public class ChatMode {
     }
 
     private static void displayHelpMessage(final Terminal terminal) {
-        final String helpMessage = "Type '/exit' to exit";
-        final AttributedString help = new AttributedString(helpMessage,
+        final String helpMessage = """
+                Type '/exit' to exit
+                Type '/tools list' to display the list of availables tools
+                """;;
+        displayMessage(terminal, helpMessage);
+    }
+
+    private static void displayToolList(final Terminal terminal) {
+        final String toolList = getToolList();
+        displayMessage(terminal, toolList);
+    }
+
+    private static void displayMessage(final Terminal terminal,
+                                       final String message) {
+        final AttributedString help = new AttributedString(message,
                                                            AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
         terminal.writer().println(help.toAnsi());
     }
@@ -136,5 +156,52 @@ public class ChatMode {
             log.println("Total tokens: " + totalTokens);
         }
     }
-    
+
+    private static String getToolList() {
+        final StringBuilder toolList = new StringBuilder();
+        final File toolsDir = new File("tools");
+        
+        if (!toolsDir.exists() || !toolsDir.isDirectory()) {
+            throw new RuntimeException("No tools directory found.");
+        }
+        
+        final File[] pythonFiles = toolsDir.listFiles((_, name) -> name.endsWith(".py"));
+        
+        if (pythonFiles == null || pythonFiles.length == 0) {
+            return "";
+        }
+        
+        for (final File pythonFile : pythonFiles) {
+            final String scriptName = pythonFile.getName().replace(".py", "");
+            final String description = getToolDescription(pythonFile);
+            toolList.append(scriptName)
+                    .append(": ")
+                    .append(description)
+                    .append("\n");
+        }
+
+        return toolList.toString();
+    }
+
+    private static String getToolDescription(final File pythonFile) {
+        try {
+            final ProcessBuilder pb = new ProcessBuilder("python", pythonFile.getAbsolutePath(), "--description");
+            pb.redirectErrorStream(true);
+            final Process process = pb.start();
+
+            final StringBuilder output = new StringBuilder();
+            try (final BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                output.append(reader.readLine());
+            }
+
+            final int exitCode = process.waitFor();
+            if (exitCode != 0 || output.length() == 0) {
+                throw new RuntimeException("description not available for " + pythonFile);
+            }
+
+            return output.toString().trim();
+        } catch (final IOException | InterruptedException e) {
+            throw new RuntimeException("failed to get description of " + pythonFile, e);
+        }
+    }
 }
