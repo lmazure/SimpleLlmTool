@@ -1,5 +1,5 @@
 """
-Script to return current date and time in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.ffffff)
+Tool to return current date and time in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.ffffff)
 """
 
 import sys
