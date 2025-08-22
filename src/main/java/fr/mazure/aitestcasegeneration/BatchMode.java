@@ -31,13 +31,13 @@ public class BatchMode {
                             final PrintStream output,
                             final PrintStream log ) {
         final ChatMemory memory = MessageWindowChatMemory.withMaxMessages(2);
-    
+
         if (sysPrompt.isPresent()) {
             final SystemMessage systemPrompt = new SystemMessage(sysPrompt.get());
             memory.add(systemPrompt);
         }
         memory.add(UserMessage.from(userPrompt));
-    
+
         final ChatRequest chatRequest = ChatRequest.builder()
                                                    .parameters(model.defaultRequestParameters())
                                                    .messages(memory.messages())
@@ -46,5 +46,4 @@ public class BatchMode {
         final String answer = response.aiMessage().text();
         output.println(answer);
     }
-    
 }

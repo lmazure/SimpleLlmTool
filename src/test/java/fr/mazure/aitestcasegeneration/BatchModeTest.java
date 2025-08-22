@@ -31,7 +31,7 @@ public class BatchModeTest {
 
     /**
      * Basic test for OpenAI.
-     * @throws MissingEnvironmentVariable 
+     * @throws MissingEnvironmentVariable
      */
     @Test
     @Tag("e2e")
@@ -63,7 +63,7 @@ public class BatchModeTest {
 
     /**
      * Basic test for Mistral AI.
-     * @throws MissingEnvironmentVariable 
+     * @throws MissingEnvironmentVariable
      */
     @Test
     @Tag("e2e")
@@ -92,7 +92,7 @@ public class BatchModeTest {
 
     /**
      * Basic test for Anthropic.
-     * @throws MissingEnvironmentVariable 
+     * @throws MissingEnvironmentVariable
      */
     @Test
     @Tag("e2e")
@@ -119,10 +119,10 @@ public class BatchModeTest {
         // Then
         Assertions.assertEquals("Paris", outputBuffer.toString().trim());
     }
-    
+
     /**
      * Basic test for Google AI Gemini.
-     * @throws MissingEnvironmentVariable 
+     * @throws MissingEnvironmentVariable
      */
     @Test
     @Tag("e2e")
@@ -152,9 +152,9 @@ public class BatchModeTest {
 
     /**
      * Basic test for custom model.
-     * @throws URISyntaxException 
-     * @throws MalformedURLException 
-     * @throws MissingEnvironmentVariable 
+     * @throws URISyntaxException
+     * @throws MalformedURLException
+     * @throws MissingEnvironmentVariable
      */
     @Test
     @Tag("e2e")

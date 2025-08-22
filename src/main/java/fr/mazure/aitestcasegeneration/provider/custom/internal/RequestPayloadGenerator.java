@@ -87,7 +87,7 @@ public class RequestPayloadGenerator {
 
         for (int i = 0; i < input.length(); i++) {
             final char c = input.charAt(i);
-            
+
             switch (c) {
                 case '"':
                     escaped.append("\\\"");

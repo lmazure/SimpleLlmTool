@@ -44,7 +44,7 @@ public class ChatMode {
                            final Optional<String> sysPrompt,
                            final Optional<String> userPrompt,
                            final PrintStream log) throws IOException {
-    
+
         // setup terminal
         try (final Terminal terminal = TerminalBuilder.builder()
                                                      .system(true)
@@ -52,10 +52,10 @@ public class ChatMode {
             final LineReader reader = LineReaderBuilder.builder()
                                                        .terminal(terminal)
                                                        .build();
-    
+
             // setup memory
             final ChatMemory memory = MessageWindowChatMemory.withMaxMessages(10);
-            
+
             // print help message
             displayHelpMessage(terminal);
 
@@ -158,19 +158,17 @@ public class ChatMode {
     }
 
     private static String getToolList() {
-        final StringBuilder toolList = new StringBuilder();
         final File toolsDir = new File("tools");
-        
         if (!toolsDir.exists() || !toolsDir.isDirectory()) {
             throw new RuntimeException("No tools directory found.");
         }
-        
+
         final File[] pythonFiles = toolsDir.listFiles((_, name) -> name.endsWith(".py"));
-        
         if (pythonFiles == null || pythonFiles.length == 0) {
             return "";
         }
-        
+
+        final StringBuilder toolList = new StringBuilder();
         for (final File pythonFile : pythonFiles) {
             final String scriptName = pythonFile.getName().replace(".py", "");
             final String description = getToolDescription(pythonFile);
