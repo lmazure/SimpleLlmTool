@@ -1,10 +1,8 @@
 package fr.mazure.aitestcasegeneration;
 
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.util.List;
 import java.util.Optional;
 
 import org.jline.reader.LineReader;
@@ -16,11 +14,13 @@ import org.jline.utils.AttributedStyle;
 
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.SystemMessage;
+import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
+import dev.langchain4j.model.chat.request.ChatRequestParameters;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.TokenUsage;
 
@@ -28,8 +28,6 @@ import dev.langchain4j.model.output.TokenUsage;
  * The ChatMode class handles interactive chat processing.
  */
 public class ChatMode {
-
-    private record ChatAnswer(String answer, TokenUsage tokenUsage) {}
 
     /**
      * Handles interactive chat processing of chat interactions using a specified ChatModel.
@@ -47,14 +45,14 @@ public class ChatMode {
 
         // setup terminal
         try (final Terminal terminal = TerminalBuilder.builder()
-                                                     .system(true)
-                                                     .build()) {
+                                                      .system(true)
+                                                      .build()) {
             final LineReader reader = LineReaderBuilder.builder()
                                                        .terminal(terminal)
                                                        .build();
 
             // setup memory
-            final ChatMemory memory = MessageWindowChatMemory.withMaxMessages(10);
+            final ChatMemory memory = MessageWindowChatMemory.withMaxMessages(25);
 
             // print help message
             displayHelpMessage(terminal);
@@ -81,10 +79,20 @@ public class ChatMode {
                     continue;
                 }
                 memory.add(UserMessage.from(input));
-                final ChatAnswer chatAnswer = generateAnswer(model, memory);
-                memory.add(AiMessage.from(chatAnswer.answer()));
-                displayAnswer(terminal, chatAnswer.answer());
-                logTokenUsage(log, chatAnswer.tokenUsage());
+                ChatResponse chatResponse = generateResponse(model, memory);
+                AiMessage aiMessage = chatResponse.aiMessage();
+                memory.add(aiMessage);
+                while (aiMessage.hasToolExecutionRequests()) {
+                    final List<ToolExecutionResultMessage> toolExecutionResultMessages = ToolManager.handleToolExecutionRequests(aiMessage.toolExecutionRequests());
+                    for (final ToolExecutionResultMessage m: toolExecutionResultMessages) {
+                        memory.add(m);
+                    }
+                    chatResponse = generateResponse(model, memory);
+                    aiMessage = chatResponse.aiMessage();
+                    memory.add(aiMessage);
+                }
+                displayAnswer(terminal, aiMessage.text());
+                logTokenUsage(log, chatResponse.tokenUsage());
                 prefilledText = "";
             }
         }
@@ -108,7 +116,7 @@ public class ChatMode {
     }
 
     private static void displayToolList(final Terminal terminal) {
-        final String toolList = getToolList();
+        final String toolList = getToolListAsString();
         displayMessage(terminal, toolList);
     }
 
@@ -134,14 +142,14 @@ public class ChatMode {
         terminal.writer().println(displayedAnswer.toAnsi());
     }
 
-    private static ChatAnswer generateAnswer(final ChatModel model,
-                                             final ChatMemory memory) {
+    private static ChatResponse generateResponse(final ChatModel model,
+                                                 final ChatMemory memory) {
         final ChatRequest chatRequest = ChatRequest.builder()
-                                                   .parameters(model.defaultRequestParameters())
+                                                   .parameters(model.defaultRequestParameters().overrideWith(ChatRequestParameters.builder().toolSpecifications(ToolManager.getSpecifications()).build()))
+                                                   //.toolSpecifications(ToolManager.getSpecifications())
                                                    .messages(memory.messages())
                                                    .build();
-        final ChatResponse response = model.doChat(chatRequest);
-        return new ChatAnswer(response.aiMessage().text(), response.tokenUsage());
+        return model.doChat(chatRequest);
     }
 
     private static void logTokenUsage(final PrintStream log,
@@ -157,49 +165,17 @@ public class ChatMode {
         }
     }
 
-    private static String getToolList() {
-        final File toolsDir = new File("tools");
-        if (!toolsDir.exists() || !toolsDir.isDirectory()) {
-            throw new RuntimeException("No tools directory found.");
+    private static String getToolListAsString() {
+        final List<ToolManager.Tool> toolList = ToolManager.getToolList();
+        final StringBuilder str = new StringBuilder();
+        for (final ToolManager.Tool tool: toolList) {
+            str.append(tool.name())
+               .append(": ")
+               .append(tool.description())
+               .append("\n");
         }
 
-        final File[] pythonFiles = toolsDir.listFiles((_, name) -> name.endsWith(".py"));
-        if (pythonFiles == null || pythonFiles.length == 0) {
-            return "";
-        }
-
-        final StringBuilder toolList = new StringBuilder();
-        for (final File pythonFile : pythonFiles) {
-            final String scriptName = pythonFile.getName().replace(".py", "");
-            final String description = getToolDescription(pythonFile);
-            toolList.append(scriptName)
-                    .append(": ")
-                    .append(description)
-                    .append("\n");
-        }
-
-        return toolList.toString();
+        return str.toString();
     }
 
-    private static String getToolDescription(final File pythonFile) {
-        try {
-            final ProcessBuilder pb = new ProcessBuilder("python", pythonFile.getAbsolutePath(), "--description");
-            pb.redirectErrorStream(true);
-            final Process process = pb.start();
-
-            final StringBuilder output = new StringBuilder();
-            try (final BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                output.append(reader.readLine());
-            }
-
-            final int exitCode = process.waitFor();
-            if (exitCode != 0 || output.length() == 0) {
-                throw new RuntimeException("description not available for " + pythonFile);
-            }
-
-            return output.toString().trim();
-        } catch (final IOException | InterruptedException e) {
-            throw new RuntimeException("failed to get description of " + pythonFile, e);
-        }
-    }
 }

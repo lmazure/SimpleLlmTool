@@ -6,31 +6,37 @@ mvn clean package
 
 use OpenAI provider
 ```bash
+source tools/.venv/Scripts/Activate
 java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider OpenAI --model-file examples/gpt-4.1-nano@openai.yaml
 ```
 
 use Mistral AI provider
 ```bash
+source tools/.venv/Scripts/Activate
 java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Why is the sky blue?" --system-prompt-string "You are a scientific." --provider "Mistral AI" --model-file examples/mistral-large-latest@mistralai.yaml
 ```
 
 use Anthropic provider
 ```bash
+source tools/.venv/Scripts/Activate
 java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider Anthropic --model-file examples/claude-3-5-sonnet@anthropic.yaml
 ```
 
 use Google Gemini provider
 ```bash
+source tools/.venv/Scripts/Activate
 java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider "Google Gemini" --model-file examples/gemini-2.5-flash@google.yaml
 ```
 
 use custom provider
 ```bash
+source tools/.venv/Scripts/Activate
 java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider custom --model-file examples/gpt-4.1-nano@custom.yaml
 ```
 
 use mock provider
 ```bash
+source tools/.venv/Scripts/Activate
 java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider mock --model-file non-existing-file.yaml
 ```
 

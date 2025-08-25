@@ -4,3 +4,7 @@
 - lancer une exception BadParamaterValue quand le template Handlebars est incorrect
 - analyse token count evaluation
 - rename project
+
+
+
+support des tools dans BatchMode class

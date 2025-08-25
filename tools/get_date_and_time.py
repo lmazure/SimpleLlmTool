@@ -9,7 +9,7 @@ if __name__ == "__main__":
     # Check command line arguments
     if len(sys.argv) > 1:
         if len(sys.argv) == 2 and sys.argv[1] == "--description":
-            print("return the current date and time formated as YYYY-MM-DDTHH:MM:SS.ffffff")
+            print("Returns the current date and time formated as YYYY-MM-DDTHH:MM:SS.ffffff")
         else:
             print("Error: Invalid argument. Only '--description' is allowed.", file=sys.stderr)
             sys.exit(1)
