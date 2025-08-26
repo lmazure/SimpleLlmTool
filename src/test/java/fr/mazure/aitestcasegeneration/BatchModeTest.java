@@ -73,7 +73,7 @@ public class BatchModeTest {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
-        final MistralAiModelParameters parameters = new MistralAiModelParameters("mistral-large-latest",
+        final MistralAiModelParameters parameters = new MistralAiModelParameters("mistral-small-latest",
                                                                                 Optional.empty(),
                                                                                 "MISTRALAI_API_KEY",
                                                                                 Optional.empty(),

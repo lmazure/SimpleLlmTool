@@ -23,6 +23,7 @@ use Anthropic provider
 export $(cat .env)
 source tools/.venv/Scripts/Activate
 java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider Anthropic --model-file examples/claude-3-5-sonnet@anthropic.yaml
+java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "What is the weather in Paris?" --system-prompt-string "You always provide an English anwer, followed by a precise translation in French" --provider Anthropic --model-file examples/claude-3-5-sonnet@anthropic.yaml --tools-dir tools
 ```
 
 use Google Gemini provider

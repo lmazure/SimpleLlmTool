@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
@@ -17,7 +18,7 @@ import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 
 public class ToolManager {
-    
+
     public record ToolParameter(String name, String description) {}
     public record Tool(String name, String description, List<ToolParameter> parameters) {}
 
@@ -63,8 +64,16 @@ public class ToolManager {
 
     private ToolExecutionResultMessage handleToolExecutionRequest(final ToolExecutionRequest request) {
 
-        final String output = executeTool(request.name(), extractValues(request.arguments()));
-        return new ToolExecutionResultMessage(request.id(), request.name(), output);
+        final String toolName = request.name();
+        final Tool tool = this.toolList.stream()
+                                       .filter(t -> t.name().equals(toolName))
+                                       .findFirst()
+                                       .orElse(null);
+        if (tool == null) {
+            throw new RuntimeException("The model called a tool " + toolName + " that does not exist.");
+        }
+        final String output = executeTool(toolName, extractValues(tool.parameters(), request.arguments()));
+        return new ToolExecutionResultMessage(request.id(), toolName, output);
     }
 
     private List<Tool> initToolList(final Path toolsDir) {
@@ -152,12 +161,17 @@ public class ToolManager {
         return output.toString();
     }
 
-    public static List<String> extractValues(final String jsonString) {
+    public static List<String> extractValues(final List<ToolParameter> parameters,
+                                             final String jsonString) {
         final JSONObject jsonObject = new JSONObject(jsonString);
         final List<String> result = new ArrayList<>();
 
-        for (final String key : jsonObject.keySet()) { //TODO the order of the parameters is not guaranteed
-            result.add(jsonObject.getString(key));
+        try {
+            for (final String key : parameters.stream().map(ToolParameter::name).toList()) {
+                result.add(jsonObject.getString(key));
+            }
+        } catch (final JSONException e) {
+            throw new RuntimeException("the model did not return a value for the tool parameters " + parameters + " in " + jsonString, e);
         }
 
         return result;

@@ -12,9 +12,7 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 
-import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.SystemMessage;
-import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
@@ -80,20 +78,8 @@ public class ChatMode extends BaseMode {
                     continue;
                 }
                 memory.add(UserMessage.from(input));
-                ChatResponse chatResponse = generateResponse(model, memory, toolManager);
-                AiMessage aiMessage = chatResponse.aiMessage();
-                memory.add(aiMessage);
-                while (aiMessage.hasToolExecutionRequests()) {
-                    assert toolManager.isPresent();
-                    final List<ToolExecutionResultMessage> toolExecutionResultMessages = toolManager.get().handleToolExecutionRequests(aiMessage.toolExecutionRequests());
-                    for (final ToolExecutionResultMessage m: toolExecutionResultMessages) {
-                        memory.add(m);
-                    }
-                    chatResponse = generateResponse(model, memory, toolManager);
-                    aiMessage = chatResponse.aiMessage();
-                    memory.add(aiMessage);
-                }
-                displayAnswer(terminal, aiMessage.text());
+                final ChatResponse chatResponse = generateResponse(model, memory, toolManager);
+                displayAnswer(terminal, chatResponse.aiMessage().text());
                 logTokenUsage(log, chatResponse.tokenUsage());
                 prefilledText = "";
             }
