@@ -83,7 +83,7 @@ public class ToolManager {
     }
 
     private static Tool getToolDescription(final String toolName) {
-        final String output = executeTool(toolName, "--description");
+        final String output = executeTool(toolName, List.of("--description"));
 
         final StringReader stringReader = new StringReader(output);
         final BufferedReader bufferedReader = new BufferedReader(stringReader);
@@ -110,7 +110,7 @@ public class ToolManager {
     }
 
     private static String executeTool(final String toolName,
-                                      final String arguments) {
+                                      final List<String> arguments) {
         final File toolsDir = new File("tools");
         final File pythonFile = new File(toolsDir, toolName + ".py");
         if (!pythonFile.exists() || !pythonFile.isFile()) {
@@ -122,9 +122,7 @@ public class ToolManager {
             final List<String> args = new ArrayList<>();
             args.add("python");
             args.add(pythonFile.getAbsolutePath());
-            if (!arguments.isEmpty()) {
-                args.add(arguments);
-            }
+            args.addAll(arguments);
             final ProcessBuilder pb = new ProcessBuilder(args);
             System.out.println("python " + pythonFile.getAbsolutePath() + " " + arguments);
             pb.redirectErrorStream(true);
@@ -148,20 +146,14 @@ public class ToolManager {
         return output.toString();
     }
 
-    public static String extractValues(final String jsonString) {
+    public static List<String> extractValues(final String jsonString) {
         final JSONObject jsonObject = new JSONObject(jsonString);
-        final StringBuilder result = new StringBuilder();
+        final List<String> result = new ArrayList<>();
 
         for (final String key : jsonObject.keySet()) { //TODO the order of the parameters is not guaranteed
-            final String value = jsonObject.getString(key);
-            final String escapedValue = value.replace("\"", "\\\"");
-            result.append("\"").append(escapedValue).append("\" ");
-            if (result.length() > 0) {
-                result.append(" ");
-            }
+            result.add(jsonObject.getString(key));
         }
 
-        // Remove the trailing space and return
-        return result.toString();
+        return result;
     }
 }
