@@ -5,6 +5,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Optional;
 
 import dev.langchain4j.model.chat.ChatModel;
 
@@ -49,14 +50,16 @@ public class SimpleChat {
             case ProviderEnum.MOCK          -> MockChatModelProvider.createChatModel(new MockModelParameters());
         };
 
+        final Optional<ToolManager> toolManager = cli.toolsDir().map(dir -> new ToolManager(dir));
+
         try {
             if (cli.chatMode()) {
                 assert output == System.out;
                 assert error == System.err;
-                ChatMode.handleChat(model, cli.sysPrompt(), cli.userPrompt(), log);
+                ChatMode.handleChat(model, cli.sysPrompt(), cli.userPrompt(), log, toolManager);
             } else {
                 assert cli.userPrompt().isPresent();
-                BatchMode.handleBatch(model, cli.sysPrompt(), cli.userPrompt().get(), output);
+                BatchMode.handleBatch(model, cli.sysPrompt(), cli.userPrompt().get(), output, toolManager);
             }
         } catch (final RuntimeException e) {
             error.println("Model failure (" + e.getMessage() + ")");

@@ -22,6 +22,7 @@ public class CommandLine {
      * @param outputFile the optional file to write output to
      * @param errorFile the optional file to write errors to
      * @param logFile the optional file to write logs to
+     * @param toolsDir the optional directory containing tools
      * @param provider the provider to use
      * @param modelFile the file containing the model
      * @param overridingModelName the name to use instead of the name in the model file
@@ -32,6 +33,7 @@ public class CommandLine {
                              Optional<Path> outputFile,
                              Optional<Path> errorFile,
                              Optional<Path> logFile,
+                             Optional<Path> toolsDir,
                              ProviderEnum provider,
                              Path modelFile,
                              Optional<String> overridingModelName,
@@ -49,6 +51,7 @@ public class CommandLine {
         Path outputFile = null;
         Path errorFile = null;
         Path logFile = null;
+        Path toolsDir = null;
         ProviderEnum provider = null;
         Path modelFile = null;
         String overridingModelName = null;
@@ -133,6 +136,15 @@ public class CommandLine {
                 i++;
                 continue;
             }
+            if (args[i].equals("--tools-dir")) {
+                if ((i + 1 ) >= args.length) {
+                    System.err.println("Missing argument for --tools-dir");
+                    System.exit(ExitCode.INVALID_COMMAND_LINE.getCode());
+                }
+                toolsDir = Paths.get(args[i + 1]);
+                i++;
+                continue;
+            }
             if (args[i].equals("--provider")) {
                 if ((i + 1 ) >= args.length) {
                     System.err.println("Missing argument for --provider");
@@ -207,6 +219,7 @@ public class CommandLine {
                               Optional.ofNullable(outputFile),
                               Optional.ofNullable(errorFile),
                               Optional.ofNullable(logFile),
+                              Optional.ofNullable(toolsDir),
                               provider,
                               modelFile,
                               Optional.ofNullable(overridingModelName),
@@ -232,6 +245,7 @@ public class CommandLine {
             --output-file <output-file>                   output file (stdout by default)
             --error-file <error-file>                     error file (stderr by default)
             --log-file <log-file>                         log file (stderr by default)
+            --tools-dir <tools-dir>                       directory containing tools
             --provider <provider>                         provider
             --model-file <model-file>                     file defining the model and its parameters
             --chat-mode                                   trigger chat mode

@@ -34,12 +34,15 @@ public class ChatMode extends BaseMode {
      * @param sysPrompt An optional system prompt.
      * @param userPrompt An optional user prompt.
      * @param log The PrintStream to use for logging.
+     * @param toolManager The ToolManager to use for tool execution.
+     *
      * @throws IOException If an I/O error occurs.
      */
     static void handleChat(final ChatModel model,
                            final Optional<String> sysPrompt,
                            final Optional<String> userPrompt,
-                           final PrintStream log) throws IOException {
+                           final PrintStream log,
+                           final Optional<ToolManager> toolManager) throws IOException {
 
         // setup terminal
         try (final Terminal terminal = TerminalBuilder.builder()
@@ -73,19 +76,20 @@ public class ChatMode extends BaseMode {
                     return;
                 }
                 if (input.equals("/tools list")) {
-                    displayToolList(terminal);
+                    displayToolList(terminal, toolManager);
                     continue;
                 }
                 memory.add(UserMessage.from(input));
-                ChatResponse chatResponse = generateResponse(model, memory);
+                ChatResponse chatResponse = generateResponse(model, memory, toolManager);
                 AiMessage aiMessage = chatResponse.aiMessage();
                 memory.add(aiMessage);
                 while (aiMessage.hasToolExecutionRequests()) {
-                    final List<ToolExecutionResultMessage> toolExecutionResultMessages = ToolManager.handleToolExecutionRequests(aiMessage.toolExecutionRequests());
+                    assert toolManager.isPresent();
+                    final List<ToolExecutionResultMessage> toolExecutionResultMessages = toolManager.get().handleToolExecutionRequests(aiMessage.toolExecutionRequests());
                     for (final ToolExecutionResultMessage m: toolExecutionResultMessages) {
                         memory.add(m);
                     }
-                    chatResponse = generateResponse(model, memory);
+                    chatResponse = generateResponse(model, memory, toolManager);
                     aiMessage = chatResponse.aiMessage();
                     memory.add(aiMessage);
                 }
@@ -113,9 +117,14 @@ public class ChatMode extends BaseMode {
         displayMessage(terminal, helpMessage);
     }
 
-    private static void displayToolList(final Terminal terminal) {
-        final String toolList = getToolListAsString();
-        displayMessage(terminal, toolList);
+    private static void displayToolList(final Terminal terminal,
+                                        final Optional<ToolManager> toolManager) {
+        if (toolManager.isPresent()) {
+            final String toolList = getToolListAsString(toolManager.get());
+            displayMessage(terminal, toolList);
+        } else {
+            displayMessage(terminal, "No tools available");
+        }
     }
 
     private static void displayMessage(final Terminal terminal,
@@ -153,8 +162,8 @@ public class ChatMode extends BaseMode {
         }
     }
 
-    private static String getToolListAsString() {
-        final List<ToolManager.Tool> toolList = ToolManager.getToolList();
+    private static String getToolListAsString(final ToolManager toolManager) {
+        final List<ToolManager.Tool> toolList = toolManager.getToolList();
         final StringBuilder str = new StringBuilder();
         for (final ToolManager.Tool tool: toolList) {
             str.append(tool.name())
@@ -165,5 +174,4 @@ public class ChatMode extends BaseMode {
 
         return str.toString();
     }
-
 }

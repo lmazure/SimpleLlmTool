@@ -22,11 +22,13 @@ public class BatchMode extends BaseMode {
      * @param sysPrompt An optional system prompt.
      * @param userPrompt The user prompt to process.
      * @param output The PrintStream to use for output.
+     * @param toolManager The ToolManager to use for tool execution.
      */
     static void handleBatch(final ChatModel model,
                             final Optional<String> sysPrompt,
                             final String userPrompt,
-                            final PrintStream output) {
+                            final PrintStream output,
+                            final Optional<ToolManager> toolManager) {
         final ChatMemory memory = MessageWindowChatMemory.withMaxMessages(15);
 
         if (sysPrompt.isPresent()) {
@@ -35,7 +37,7 @@ public class BatchMode extends BaseMode {
         }
         memory.add(UserMessage.from(userPrompt));
 
-        final ChatResponse response = generateResponse(model, memory);
+        final ChatResponse response = generateResponse(model, memory, toolManager);
         final String answer = response.aiMessage().text();
         output.println(answer);
     }

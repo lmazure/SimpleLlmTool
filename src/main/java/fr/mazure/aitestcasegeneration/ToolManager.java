@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,15 +21,20 @@ public class ToolManager {
     public record ToolParameter(String name, String description) {}
     public record Tool(String name, String description, List<ToolParameter> parameters) {}
 
-    final static List<Tool> toolList = initToolList();
+    private final Path toolsDir;
+    private final List<Tool> toolList;
 
-    public static List<Tool> getToolList() {
-        return toolList;
+    public ToolManager(final Path toolsDir) {
+        this.toolsDir = toolsDir;
+        toolList = initToolList(toolsDir);
+    }
+    public List<Tool> getToolList() {
+        return this.toolList;
     }
 
-    public static List<ToolSpecification> getSpecifications() {
+    public List<ToolSpecification> getSpecifications() {
         final List<ToolSpecification> specifications = new ArrayList<>();
-        for (final Tool tool: toolList) {
+        for (final Tool tool: this.toolList) {
             specifications.add(getSpecification(tool));
         }
         return specifications;
@@ -47,7 +53,7 @@ public class ToolManager {
         return builder.build();
     }
 
-    public static List<ToolExecutionResultMessage> handleToolExecutionRequests(final List<ToolExecutionRequest> requests) {
+    public List<ToolExecutionResultMessage> handleToolExecutionRequests(final List<ToolExecutionRequest> requests) {
         final List<ToolExecutionResultMessage> resultMessages = new ArrayList<>();
         for (final ToolExecutionRequest request: requests) {
             resultMessages.add(handleToolExecutionRequest(request));
@@ -55,21 +61,21 @@ public class ToolManager {
         return resultMessages;
     }
 
-    private static ToolExecutionResultMessage handleToolExecutionRequest(final ToolExecutionRequest request) {
+    private ToolExecutionResultMessage handleToolExecutionRequest(final ToolExecutionRequest request) {
 
         final String output = executeTool(request.name(), extractValues(request.arguments()));
         return new ToolExecutionResultMessage(request.id(), request.name(), output);
     }
 
-    private static List<Tool> initToolList() {
+    private List<Tool> initToolList(final Path toolsDir) {
         final List<Tool> toolList = new ArrayList<>();
 
-        final File toolsDir = new File("tools");
-        if (!toolsDir.exists() || !toolsDir.isDirectory()) {
-            throw new RuntimeException("No tools directory found.");
+        final File dir = toolsDir.toFile();
+        if (!dir.exists() || !dir.isDirectory()) {
+            throw new RuntimeException("Tools directory not found: " + toolsDir);
         }
 
-        final File[] pythonFiles = toolsDir.listFiles((_, name) -> name.endsWith(".py"));
+        final File[] pythonFiles = dir.listFiles((_, name) -> name.endsWith(".py"));
         if (pythonFiles == null || pythonFiles.length == 0) {
             return toolList;
         }
@@ -82,7 +88,7 @@ public class ToolManager {
         return toolList;
     }
 
-    private static Tool getToolDescription(final String toolName) {
+    private Tool getToolDescription(final String toolName) {
         final String output = executeTool(toolName, List.of("--description"));
 
         final StringReader stringReader = new StringReader(output);
@@ -109,9 +115,9 @@ public class ToolManager {
         }
     }
 
-    private static String executeTool(final String toolName,
-                                      final List<String> arguments) {
-        final File toolsDir = new File("tools");
+    private String executeTool(final String toolName,
+                               final List<String> arguments) {
+        final File toolsDir = this.toolsDir.toFile();
         final File pythonFile = new File(toolsDir, toolName + ".py");
         if (!pythonFile.exists() || !pythonFile.isFile()) {
             throw new RuntimeException("Tool " + toolName + " not found.");

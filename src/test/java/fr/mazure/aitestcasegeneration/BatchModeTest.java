@@ -57,7 +57,7 @@ public class BatchModeTest {
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(model, sysPrompt, userPrompt, output);
+        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, Optional.empty());
 
         // Then
         Assertions.assertEquals("Paris", outputBuffer.toString().trim());
@@ -84,7 +84,7 @@ public class BatchModeTest {
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(model, sysPrompt, userPrompt, output);
+        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, Optional.empty());
 
         // Then
         Assertions.assertEquals("Paris", outputBuffer.toString().trim());
@@ -112,7 +112,7 @@ public class BatchModeTest {
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(model, sysPrompt, userPrompt, output);
+        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, Optional.empty());
 
         // Then
         Assertions.assertEquals("Paris", outputBuffer.toString().trim());
@@ -140,7 +140,7 @@ public class BatchModeTest {
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(model, sysPrompt, userPrompt, output);
+        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, Optional.empty());
 
         // Then
         Assertions.assertEquals("Paris", outputBuffer.toString().trim());
@@ -189,7 +189,7 @@ public class BatchModeTest {
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(model, sysPrompt, userPrompt, output);
+        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, Optional.empty());
 
         // Then
         Assertions.assertEquals("Paris", outputBuffer.toString().trim());
