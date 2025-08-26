@@ -1,4 +1,5 @@
 package fr.mazure.aitestcasegeneration;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
@@ -8,10 +9,12 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;
+//import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import dev.langchain4j.model.chat.ChatModel;
+
 import fr.mazure.aitestcasegeneration.provider.anthropic.AnthropicChatModelProvider;
 import fr.mazure.aitestcasegeneration.provider.anthropic.AnthropicModelParameters;
 import fr.mazure.aitestcasegeneration.provider.base.MissingEnvironmentVariable;
@@ -27,6 +30,7 @@ import fr.mazure.aitestcasegeneration.provider.openai.OpenAiModelParameters;
 /**
  * Tests for the {@link BatchMode} class.
  */
+//@Disabled
 public class BatchModeTest {
 
     /**
@@ -39,8 +43,6 @@ public class BatchModeTest {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
-        final ByteArrayOutputStream logBuffer = new ByteArrayOutputStream();
-        final PrintStream log = new PrintStream(logBuffer);
         final OpenAiModelParameters parameters = new OpenAiModelParameters("gpt-4.1-nano",
                                                                            Optional.empty(),
                                                                            "OPENAI_API_KEY",
@@ -55,7 +57,7 @@ public class BatchModeTest {
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, log);
+        BatchMode.handleBatch(model, sysPrompt, userPrompt, output);
 
         // Then
         Assertions.assertEquals("Paris", outputBuffer.toString().trim());
@@ -71,8 +73,6 @@ public class BatchModeTest {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
-        final ByteArrayOutputStream logBuffer = new ByteArrayOutputStream();
-        final PrintStream log = new PrintStream(logBuffer);
         final MistralAiModelParameters parameters = new MistralAiModelParameters("mistral-large-latest",
                                                                                 Optional.empty(),
                                                                                 "MISTRALAI_API_KEY",
@@ -84,7 +84,7 @@ public class BatchModeTest {
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, log);
+        BatchMode.handleBatch(model, sysPrompt, userPrompt, output);
 
         // Then
         Assertions.assertEquals("Paris", outputBuffer.toString().trim());
@@ -100,8 +100,6 @@ public class BatchModeTest {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
-        final ByteArrayOutputStream logBuffer = new ByteArrayOutputStream();
-        final PrintStream log = new PrintStream(logBuffer);
         final AnthropicModelParameters parameters = new AnthropicModelParameters("claude-3-haiku-20240307",
                                                                                  Optional.empty(),
                                                                                  "ANTHROPIC_API_KEY",
@@ -114,7 +112,7 @@ public class BatchModeTest {
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, log);
+        BatchMode.handleBatch(model, sysPrompt, userPrompt, output);
 
         // Then
         Assertions.assertEquals("Paris", outputBuffer.toString().trim());
@@ -130,8 +128,6 @@ public class BatchModeTest {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
-        final ByteArrayOutputStream logBuffer = new ByteArrayOutputStream();
-        final PrintStream log = new PrintStream(logBuffer);
         final GoogleGeminiModelParameters parameters = new GoogleGeminiModelParameters("gemini-1.5-flash",
                                                                           Optional.empty(),
                                                                           "GOOGLE_GEMINI_API_KEY",
@@ -140,11 +136,11 @@ public class BatchModeTest {
                                                                           Optional.empty(),
                                                                           Optional.empty());
         final ChatModel model = GoogleGeminiChatModelProvider.createChatModel(parameters);
-        final Optional<String> sysPrompt = Optional.of("You must answer in one word with no punctuation.");
+        final Optional<String> sysPrompt = Optional.of("You must answer in one word with no punctuation, but using title case.");
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, log);
+        BatchMode.handleBatch(model, sysPrompt, userPrompt, output);
 
         // Then
         Assertions.assertEquals("Paris", outputBuffer.toString().trim());
@@ -193,7 +189,7 @@ public class BatchModeTest {
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, log);
+        BatchMode.handleBatch(model, sysPrompt, userPrompt, output);
 
         // Then
         Assertions.assertEquals("Paris", outputBuffer.toString().trim());

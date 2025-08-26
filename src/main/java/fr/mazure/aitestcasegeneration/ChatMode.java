@@ -19,15 +19,13 @@ import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
-import dev.langchain4j.model.chat.request.ChatRequest;
-import dev.langchain4j.model.chat.request.ChatRequestParameters;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.TokenUsage;
 
 /**
  * The ChatMode class handles interactive chat processing.
  */
-public class ChatMode {
+public class ChatMode extends BaseMode {
 
     /**
      * Handles interactive chat processing of chat interactions using a specified ChatModel.
@@ -140,16 +138,6 @@ public class ChatMode {
         final AttributedString displayedAnswer = new AttributedString(answer,
                                                                       AttributedStyle.DEFAULT.foreground(AttributedStyle.BLUE));
         terminal.writer().println(displayedAnswer.toAnsi());
-    }
-
-    private static ChatResponse generateResponse(final ChatModel model,
-                                                 final ChatMemory memory) {
-        final ChatRequest chatRequest = ChatRequest.builder()
-                                                   .parameters(model.defaultRequestParameters().overrideWith(ChatRequestParameters.builder().toolSpecifications(ToolManager.getSpecifications()).build()))
-                                                   //.toolSpecifications(ToolManager.getSpecifications())
-                                                   .messages(memory.messages())
-                                                   .build();
-        return model.doChat(chatRequest);
     }
 
     private static void logTokenUsage(final PrintStream log,
