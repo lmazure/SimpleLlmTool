@@ -1,6 +1,7 @@
 # Usage
 build the project
 ```bash
+export $(cat .env)
 mvn clean package
 ```
 

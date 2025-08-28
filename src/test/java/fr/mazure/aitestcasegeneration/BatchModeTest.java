@@ -1,10 +1,13 @@
 package fr.mazure.aitestcasegeneration;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 
@@ -12,6 +15,7 @@ import org.junit.jupiter.api.Assertions;
 //import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import dev.langchain4j.model.chat.ChatModel;
 
@@ -194,4 +198,71 @@ public class BatchModeTest {
         // Then
         Assertions.assertEquals("Paris", outputBuffer.toString().trim());
     }
-}
+
+    /**
+     * Tool test for OpenAI.
+     * @throws MissingEnvironmentVariable
+     */
+    @Test
+    @Tag("e2e")
+    public void testToolOpenAi(@TempDir final Path tempDir) throws IOException, MissingEnvironmentVariable {
+        // Given
+        final String pythonScript = """
+                import sys
+                from datetime import datetime
+                
+                def parse_date(date_string):
+                    try:
+                        return datetime.strptime(date_string, "%Y-%m-%d")
+                    except ValueError:
+                        print(f"Error: Invalid date format '{date_string}'. Use YYYY-MM-DD format (e.g., 2023-01-17)")
+                        sys.exit(1)
+
+                def main():
+                    if len(sys.argv) == 2 and sys.argv[1] == "--description":
+                        print("Calculate the number of days between start_date and end_date")
+                        print("start_date\tstart date formatted as YYYY-MM-DD")
+                        print("end_date\tend date formatted as YYYY-MM-DD")
+                        sys.exit(0)
+
+                    if len(sys.argv) != 3:
+                        print("Usage: python date_diff.py <start_date> <end_date>")
+                        sys.exit(1)
+                    
+                    start_date_str = sys.argv[1]
+                    end_date_str = sys.argv[2]
+
+                    start_date = parse_date(start_date_str)
+                    end_date = parse_date(end_date_str)
+                    
+                    days_difference = (end_date - start_date).days
+                    print(days_difference)
+
+                if __name__ == "__main__":
+                    main()
+                """;
+        final Path pythonScriptPath = tempDir.resolve("compute_dates_difference.py");
+        Files.writeString(pythonScriptPath, pythonScript);
+        final ToolManager toolManager = new ToolManager(tempDir);
+        final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
+        final PrintStream output = new PrintStream(outputBuffer);
+        final OpenAiModelParameters parameters = new OpenAiModelParameters("gpt-4.1-nano",
+                                                                           Optional.empty(),
+                                                                           "OPENAI_API_KEY",
+                                                                           Optional.empty(),
+                                                                           Optional.empty(),
+                                                                           Optional.empty(),
+                                                                           Optional.empty(),
+                                                                           Optional.empty(),
+                                                                           Optional.empty());
+        final ChatModel model = OpenAiChatModelProvider.createChatModel(parameters);
+        final Optional<String> sysPrompt = Optional.of("You must answer in one number. Do not add any other text.");
+        final String userPrompt = "How many days are there between 2021, January 23rd and 2027, September 3rd?";
+
+        // When
+        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, Optional.of(toolManager));
+
+        // Then
+        Assertions.assertEquals("2414", outputBuffer.toString().trim());
+    }
+  }

@@ -45,12 +45,14 @@ public class ToolManager {
         final ToolSpecification.Builder builder = ToolSpecification.builder()
                                                                    .name(tool.name())
                                                                    .description(tool.description());
+
+        final JsonObjectSchema.Builder jsonBuilder = JsonObjectSchema.builder();
         for (final ToolParameter parameter: tool.parameters()) {
-            builder.parameters(JsonObjectSchema.builder()
-                                               .addStringProperty(parameter.name(), parameter.description)
-                                               .required(parameter.name())
-                                               .build());
+            jsonBuilder.addStringProperty(parameter.name(), parameter.description)
+                       .required(parameter.name());
         }
+
+        builder.parameters(jsonBuilder.build());
         return builder.build();
     }
 
