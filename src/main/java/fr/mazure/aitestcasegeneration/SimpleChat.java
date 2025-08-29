@@ -3,12 +3,12 @@ package fr.mazure.aitestcasegeneration;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Optional;
 
-import dev.langchain4j.data.message.SystemMessage;
-import dev.langchain4j.memory.ChatMemory;
-import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
+
 import fr.mazure.aitestcasegeneration.provider.anthropic.AnthropicChatModelProvider;
 import fr.mazure.aitestcasegeneration.provider.anthropic.AnthropicModelParameters;
 import fr.mazure.aitestcasegeneration.provider.base.InvalidModelParameter;
@@ -30,68 +30,36 @@ import fr.mazure.aitestcasegeneration.provider.openai.OpenAiModelParameters;
  */
 public class SimpleChat {
 
-    interface Assistant {
-        String chat(final String userMessage);
-    }
-
     public static void main(final String[] args) throws MissingEnvironmentVariable, IOException, MissingModelParameter, InvalidModelParameter {
 
         final CommandLine.Parameters cli = CommandLine.parseCommandLine(args);
 
-        PrintStream output = System.out;
-        if (cli.outputFile().isPresent()) {
-            try {
-                output = new PrintStream(Files.newOutputStream(cli.outputFile().get(), StandardOpenOption.CREATE, StandardOpenOption.APPEND));
-            } catch (final IOException e) {
-                System.err.println("Error: Unable to write output file: " + cli.outputFile().get().toString() + " (" + e.getMessage() + ")");
-                System.exit(ExitCode.FILE_ERROR.getCode());
-            }
-        }
-
-        PrintStream error = System.err;
-        if (cli.errorFile().isPresent()) {
-            try {
-                error = new PrintStream(Files.newOutputStream(cli.errorFile().get(), StandardOpenOption.CREATE, StandardOpenOption.APPEND));
-            } catch (final IOException e) {
-                System.err.println("Error: Unable to write error file: " + cli.errorFile().get().toString() + "(" + e.getMessage() + ")");
-                System.exit(ExitCode.FILE_ERROR.getCode());
-            }
-        }
-
-        PrintStream log = System.err;
-        if (cli.logFile().isPresent()) {
-            try {
-                log = new PrintStream(Files.newOutputStream(cli.logFile().get(), StandardOpenOption.CREATE, StandardOpenOption.APPEND));
-            } catch (final IOException e) {
-                System.err.println("Error: Unable to write log file: " + cli.logFile().get().toString() + " (" + e.getMessage() + ")");
-                System.exit(ExitCode.FILE_ERROR.getCode());
-            }
-        }
+        final PrintStream output = cli.outputFile().isPresent() ? createStream(cli.outputFile().get(), "output")
+                                                                :System.out;
+        final PrintStream error = cli.errorFile().isPresent() ? createStream(cli.errorFile().get(), "error")
+                                                              :System.err;
+        final PrintStream log = cli.logFile().isPresent() ? createStream(cli.logFile().get(), "log")
+                                                          :System.err;
 
         final ChatModel model = switch (cli.provider()) {
-            case ProviderEnum.OPENAI     -> OpenAiChatModelProvider.createChatModel(OpenAiModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));
-            case ProviderEnum.MISTRAL_AI -> MistralAiChatModelProvider.createChatModel(MistralAiModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));
-            case ProviderEnum.ANTHROPIC  -> AnthropicChatModelProvider.createChatModel(AnthropicModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));
+            case ProviderEnum.OPENAI        -> OpenAiChatModelProvider.createChatModel(OpenAiModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));
+            case ProviderEnum.MISTRAL_AI    -> MistralAiChatModelProvider.createChatModel(MistralAiModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));
+            case ProviderEnum.ANTHROPIC     -> AnthropicChatModelProvider.createChatModel(AnthropicModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));
             case ProviderEnum.GOOGLE_GEMINI -> GoogleGeminiChatModelProvider.createChatModel(GoogleGeminiModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));
-            case ProviderEnum.CUSTOM     -> CustomChatModelProvider.createChatModel(CustomModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()), log);
-            case ProviderEnum.MOCK       -> MockChatModelProvider.createChatModel(new MockModelParameters());
+            case ProviderEnum.CUSTOM        -> CustomChatModelProvider.createChatModel(CustomModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()), log);
+            case ProviderEnum.MOCK          -> MockChatModelProvider.createChatModel(new MockModelParameters());
         };
 
-        final ChatMemory memory = MessageWindowChatMemory.withMaxMessages(2);
-
-        if (cli.sysPrompt().isPresent()) {
-            final SystemMessage systemPrompt = new SystemMessage(cli.sysPrompt().get());
-            memory.add(systemPrompt);
-        }
+        final Optional<ToolManager> toolManager = cli.toolsDir().map(dir -> new ToolManager(dir));
 
         try {
             if (cli.chatMode()) {
                 assert output == System.out;
                 assert error == System.err;
-                ChatMode.handleChat(model, cli.sysPrompt(), cli.userPrompt(), log);
+                ChatMode.handleChat(model, cli.sysPrompt(), cli.userPrompt(), log, toolManager);
             } else {
                 assert cli.userPrompt().isPresent();
-                BatchMode.handleBatch(model, cli.sysPrompt(), cli.userPrompt().get(), output, log);
+                BatchMode.handleBatch(model, cli.sysPrompt(), cli.userPrompt().get(), output, toolManager);
             }
         } catch (final RuntimeException e) {
             error.println("Model failure (" + e.getMessage() + ")");
@@ -100,5 +68,16 @@ public class SimpleChat {
         }
 
         System.exit(ExitCode.SUCCESS.getCode());
+    }
+
+    private static PrintStream createStream(final Path file,
+                                            final String description) {
+        try {
+            return new PrintStream(Files.newOutputStream(file, StandardOpenOption.CREATE, StandardOpenOption.APPEND));
+        } catch (final IOException e) {
+            System.err.println("Error: Unable to write " + description + " file: " + file.toString() + " (" + e.getMessage() + ")");
+            System.exit(ExitCode.FILE_ERROR.getCode());
+        }
+        return null;
     }
 }

@@ -2,6 +2,7 @@ package fr.mazure.aitestcasegeneration;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.List;
 import java.util.Optional;
 
 import org.jline.reader.LineReader;
@@ -11,22 +12,18 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 
-import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
-import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.TokenUsage;
 
 /**
  * The ChatMode class handles interactive chat processing.
  */
-public class ChatMode {
-
-    private record ChatAnswer(String answer, TokenUsage tokenUsage) {}
+public class ChatMode extends BaseMode {
 
     /**
      * Handles interactive chat processing of chat interactions using a specified ChatModel.
@@ -35,24 +32,27 @@ public class ChatMode {
      * @param sysPrompt An optional system prompt.
      * @param userPrompt An optional user prompt.
      * @param log The PrintStream to use for logging.
+     * @param toolManager The ToolManager to use for tool execution.
+     *
      * @throws IOException If an I/O error occurs.
      */
     static void handleChat(final ChatModel model,
                            final Optional<String> sysPrompt,
                            final Optional<String> userPrompt,
-                           final PrintStream log) throws IOException {
-    
+                           final PrintStream log,
+                           final Optional<ToolManager> toolManager) throws IOException {
+
         // setup terminal
         try (final Terminal terminal = TerminalBuilder.builder()
-                                                     .system(true)
-                                                     .build()) {
+                                                      .system(true)
+                                                      .build()) {
             final LineReader reader = LineReaderBuilder.builder()
                                                        .terminal(terminal)
                                                        .build();
-    
+
             // setup memory
-            final ChatMemory memory = MessageWindowChatMemory.withMaxMessages(10);
-            
+            final ChatMemory memory = MessageWindowChatMemory.withMaxMessages(25);
+
             // print help message
             displayHelpMessage(terminal);
 
@@ -73,11 +73,14 @@ public class ChatMode {
                 if (input.equals("/exit")) {
                     return;
                 }
+                if (input.equals("/tools list")) {
+                    displayToolList(terminal, toolManager);
+                    continue;
+                }
                 memory.add(UserMessage.from(input));
-                final ChatAnswer chatAnswer = generateAnswer(model, memory);
-                memory.add(AiMessage.from(chatAnswer.answer()));
-                displayAnswer(terminal, chatAnswer.answer());
-                logTokenUsage(log, chatAnswer.tokenUsage());
+                final ChatResponse chatResponse = generateResponse(model, memory, toolManager);
+                displayAnswer(terminal, chatResponse.aiMessage().text());
+                logTokenUsage(log, chatResponse.tokenUsage());
                 prefilledText = "";
             }
         }
@@ -93,8 +96,26 @@ public class ChatMode {
     }
 
     private static void displayHelpMessage(final Terminal terminal) {
-        final String helpMessage = "Type '/exit' to exit";
-        final AttributedString help = new AttributedString(helpMessage,
+        final String helpMessage = """
+                Type '/exit' to exit
+                Type '/tools list' to display the list of availables tools
+                """;;
+        displayMessage(terminal, helpMessage);
+    }
+
+    private static void displayToolList(final Terminal terminal,
+                                        final Optional<ToolManager> toolManager) {
+        if (toolManager.isPresent()) {
+            final String toolList = getToolListAsString(toolManager.get());
+            displayMessage(terminal, toolList);
+        } else {
+            displayMessage(terminal, "No tools available");
+        }
+    }
+
+    private static void displayMessage(final Terminal terminal,
+                                       final String message) {
+        final AttributedString help = new AttributedString(message,
                                                            AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
         terminal.writer().println(help.toAnsi());
     }
@@ -114,16 +135,6 @@ public class ChatMode {
         terminal.writer().println(displayedAnswer.toAnsi());
     }
 
-    private static ChatAnswer generateAnswer(final ChatModel model,
-                                             final ChatMemory memory) {
-        final ChatRequest chatRequest = ChatRequest.builder()
-                                                   .parameters(model.defaultRequestParameters())
-                                                   .messages(memory.messages())
-                                                   .build();
-        final ChatResponse response = model.doChat(chatRequest);
-        return new ChatAnswer(response.aiMessage().text(), response.tokenUsage());
-    }
-
     private static void logTokenUsage(final PrintStream log,
                                       final TokenUsage tokenUsage) {
         if (tokenUsage != null) {
@@ -136,5 +147,17 @@ public class ChatMode {
             log.println("Total tokens: " + totalTokens);
         }
     }
-    
+
+    private static String getToolListAsString(final ToolManager toolManager) {
+        final List<ToolManager.Tool> toolList = toolManager.getToolList();
+        final StringBuilder str = new StringBuilder();
+        for (final ToolManager.Tool tool: toolList) {
+            str.append(tool.name())
+               .append(": ")
+               .append(tool.description())
+               .append("\n");
+        }
+
+        return str.toString();
+    }
 }

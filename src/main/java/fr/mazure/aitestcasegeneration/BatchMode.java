@@ -8,13 +8,12 @@ import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
-import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.ChatResponse;
 
 /**
  * The BatchMode class handles batch processing.
  */
-public class BatchMode {
+public class BatchMode extends BaseMode {
 
     /**
      * Handles batch processing of chat interactions using a specified ChatModel.
@@ -23,28 +22,23 @@ public class BatchMode {
      * @param sysPrompt An optional system prompt.
      * @param userPrompt The user prompt to process.
      * @param output The PrintStream to use for output.
-     * @param log The PrintStream to use for logging.
+     * @param toolManager The ToolManager to use for tool execution.
      */
     static void handleBatch(final ChatModel model,
                             final Optional<String> sysPrompt,
                             final String userPrompt,
                             final PrintStream output,
-                            final PrintStream log ) {
-        final ChatMemory memory = MessageWindowChatMemory.withMaxMessages(2);
-    
+                            final Optional<ToolManager> toolManager) {
+        final ChatMemory memory = MessageWindowChatMemory.withMaxMessages(15);
+
         if (sysPrompt.isPresent()) {
             final SystemMessage systemPrompt = new SystemMessage(sysPrompt.get());
             memory.add(systemPrompt);
         }
         memory.add(UserMessage.from(userPrompt));
-    
-        final ChatRequest chatRequest = ChatRequest.builder()
-                                                   .parameters(model.defaultRequestParameters())
-                                                   .messages(memory.messages())
-                                                   .build();
-        final ChatResponse response = model.doChat(chatRequest);
+
+        final ChatResponse response = generateResponse(model, memory, toolManager);
         final String answer = response.aiMessage().text();
         output.println(answer);
     }
-    
 }
