@@ -1,4 +1,4 @@
-package fr.mazure.aitestcasegeneration.provider.mock.internal;
+package fr.mazure.simplellmtool.provider.mock.internal;
 
 import java.util.List;
 

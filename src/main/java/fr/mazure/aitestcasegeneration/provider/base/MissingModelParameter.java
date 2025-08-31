@@ -1,4 +1,4 @@
-package fr.mazure.aitestcasegeneration.provider.base;
+package fr.mazure.simplellmtool.provider.base;
 
 public class MissingModelParameter extends Exception {
     public MissingModelParameter(final String parameterName) {

@@ -1,10 +1,10 @@
-package fr.mazure.aitestcasegeneration.provider.openai;
+package fr.mazure.simplellmtool.provider.openai;
 
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel.OpenAiChatModelBuilder;
-import fr.mazure.aitestcasegeneration.provider.base.MissingEnvironmentVariable;
-import fr.mazure.aitestcasegeneration.provider.base.ModelProvider;
+import fr.mazure.simplellmtool.provider.base.MissingEnvironmentVariable;
+import fr.mazure.simplellmtool.provider.base.ModelProvider;
 
 public class OpenAiChatModelProvider implements ModelProvider {
 

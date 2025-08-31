@@ -1,4 +1,4 @@
-package fr.mazure.aitestcasegeneration.provider.mistralai;
+package fr.mazure.simplellmtool.provider.mistralai;
 
 import java.io.IOException;
 import java.net.URI;
@@ -12,8 +12,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import fr.mazure.aitestcasegeneration.provider.base.InvalidModelParameter;
-import fr.mazure.aitestcasegeneration.provider.base.MissingModelParameter;
+import fr.mazure.simplellmtool.provider.base.InvalidModelParameter;
+import fr.mazure.simplellmtool.provider.base.MissingModelParameter;
 
 /**
  * Tests for the {@link MistralAiModelParameters} class.

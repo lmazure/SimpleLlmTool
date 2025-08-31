@@ -1,4 +1,4 @@
-package fr.mazure.aitestcasegeneration.provider.base;
+package fr.mazure.simplellmtool.provider.base;
 
 import java.net.URL;
 import java.util.Optional;

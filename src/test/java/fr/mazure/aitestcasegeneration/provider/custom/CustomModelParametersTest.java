@@ -1,4 +1,4 @@
-package fr.mazure.aitestcasegeneration.provider.custom;
+package fr.mazure.simplellmtool.provider.custom;
 
 import java.io.IOException;
 import java.net.URI;
@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import fr.mazure.aitestcasegeneration.provider.base.InvalidModelParameter;
-import fr.mazure.aitestcasegeneration.provider.base.MissingModelParameter;
+import fr.mazure.simplellmtool.provider.base.InvalidModelParameter;
+import fr.mazure.simplellmtool.provider.base.MissingModelParameter;
 
 /**
  * Tests for the {@link CustomModelParameters} class.

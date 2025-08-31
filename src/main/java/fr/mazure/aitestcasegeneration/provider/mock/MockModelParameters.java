@@ -1,8 +1,8 @@
-package fr.mazure.aitestcasegeneration.provider.mock;
+package fr.mazure.simplellmtool.provider.mock;
 
 import java.util.Optional;
 
-import fr.mazure.aitestcasegeneration.provider.base.ModelParameters;
+import fr.mazure.simplellmtool.provider.base.ModelParameters;
 
 /**
  * Parameters for the mock model provider.

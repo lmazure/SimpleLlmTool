@@ -1,4 +1,4 @@
-package fr.mazure.aitestcasegeneration.provider.custom.internal;
+package fr.mazure.simplellmtool.provider.custom.internal;
 
 import java.io.IOException;
 

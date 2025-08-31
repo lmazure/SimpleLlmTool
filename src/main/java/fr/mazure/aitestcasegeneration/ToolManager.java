@@ -1,4 +1,4 @@
-package fr.mazure.aitestcasegeneration;
+package fr.mazure.simplellmtool;
 
 import java.io.BufferedReader;
 import java.io.File;

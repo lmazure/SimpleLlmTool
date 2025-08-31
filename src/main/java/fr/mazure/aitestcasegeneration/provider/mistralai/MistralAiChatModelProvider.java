@@ -1,10 +1,10 @@
-package fr.mazure.aitestcasegeneration.provider.mistralai;
+package fr.mazure.simplellmtool.provider.mistralai;
 
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.mistralai.MistralAiChatModel;
 import dev.langchain4j.model.mistralai.MistralAiChatModel.MistralAiChatModelBuilder;
-import fr.mazure.aitestcasegeneration.provider.base.MissingEnvironmentVariable;
-import fr.mazure.aitestcasegeneration.provider.base.ModelProvider;
+import fr.mazure.simplellmtool.provider.base.MissingEnvironmentVariable;
+import fr.mazure.simplellmtool.provider.base.ModelProvider;
 
 public class MistralAiChatModelProvider implements ModelProvider {
 

@@ -1,10 +1,10 @@
-package fr.mazure.aitestcasegeneration.provider.anthropic;
+package fr.mazure.simplellmtool.provider.anthropic;
 
 import dev.langchain4j.model.anthropic.AnthropicChatModel;
 import dev.langchain4j.model.anthropic.AnthropicChatModel.AnthropicChatModelBuilder;
 import dev.langchain4j.model.chat.ChatModel;
-import fr.mazure.aitestcasegeneration.provider.base.MissingEnvironmentVariable;
-import fr.mazure.aitestcasegeneration.provider.base.ModelProvider;
+import fr.mazure.simplellmtool.provider.base.MissingEnvironmentVariable;
+import fr.mazure.simplellmtool.provider.base.ModelProvider;
 
 public class AnthropicChatModelProvider implements ModelProvider {
 

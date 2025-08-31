@@ -1,4 +1,4 @@
-package fr.mazure.aitestcasegeneration;
+package fr.mazure.simplellmtool;
 
 import java.io.PrintStream;
 import java.util.Optional;

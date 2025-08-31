@@ -1,9 +1,9 @@
-package fr.mazure.aitestcasegeneration.provider.mock;
+package fr.mazure.simplellmtool.provider.mock;
 
 import dev.langchain4j.model.chat.ChatModel;
-import fr.mazure.aitestcasegeneration.provider.base.MissingEnvironmentVariable;
-import fr.mazure.aitestcasegeneration.provider.base.ModelProvider;
-import fr.mazure.aitestcasegeneration.provider.mock.internal.MockChatModel;
+import fr.mazure.simplellmtool.provider.base.MissingEnvironmentVariable;
+import fr.mazure.simplellmtool.provider.base.ModelProvider;
+import fr.mazure.simplellmtool.provider.mock.internal.MockChatModel;
 
 public class MockChatModelProvider implements ModelProvider {
 

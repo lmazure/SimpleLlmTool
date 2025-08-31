@@ -1,12 +1,12 @@
-package fr.mazure.aitestcasegeneration.provider.custom;
+package fr.mazure.simplellmtool.provider.custom;
 
 import java.io.PrintStream;
 
 import dev.langchain4j.model.chat.ChatModel;
-import fr.mazure.aitestcasegeneration.provider.base.MissingEnvironmentVariable;
-import fr.mazure.aitestcasegeneration.provider.base.ModelProvider;
-import fr.mazure.aitestcasegeneration.provider.custom.internal.CustomChatModel;
-import fr.mazure.aitestcasegeneration.provider.custom.internal.CustomChatModelBuilder;
+import fr.mazure.simplellmtool.provider.base.MissingEnvironmentVariable;
+import fr.mazure.simplellmtool.provider.base.ModelProvider;
+import fr.mazure.simplellmtool.provider.custom.internal.CustomChatModel;
+import fr.mazure.simplellmtool.provider.custom.internal.CustomChatModelBuilder;
 
 public class CustomChatModelProvider implements ModelProvider {
 

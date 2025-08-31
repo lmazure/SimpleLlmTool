@@ -1,4 +1,4 @@
-package fr.mazure.aitestcasegeneration;
+package fr.mazure.simplellmtool;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,17 +19,17 @@ import org.junit.jupiter.api.io.TempDir;
 
 import dev.langchain4j.model.chat.ChatModel;
 
-import fr.mazure.aitestcasegeneration.provider.anthropic.AnthropicChatModelProvider;
-import fr.mazure.aitestcasegeneration.provider.anthropic.AnthropicModelParameters;
-import fr.mazure.aitestcasegeneration.provider.base.MissingEnvironmentVariable;
-import fr.mazure.aitestcasegeneration.provider.custom.CustomChatModelProvider;
-import fr.mazure.aitestcasegeneration.provider.custom.CustomModelParameters;
-import fr.mazure.aitestcasegeneration.provider.googlegemini.GoogleGeminiChatModelProvider;
-import fr.mazure.aitestcasegeneration.provider.googlegemini.GoogleGeminiModelParameters;
-import fr.mazure.aitestcasegeneration.provider.mistralai.MistralAiChatModelProvider;
-import fr.mazure.aitestcasegeneration.provider.mistralai.MistralAiModelParameters;
-import fr.mazure.aitestcasegeneration.provider.openai.OpenAiChatModelProvider;
-import fr.mazure.aitestcasegeneration.provider.openai.OpenAiModelParameters;
+import fr.mazure.simplellmtool.provider.anthropic.AnthropicChatModelProvider;
+import fr.mazure.simplellmtool.provider.anthropic.AnthropicModelParameters;
+import fr.mazure.simplellmtool.provider.base.MissingEnvironmentVariable;
+import fr.mazure.simplellmtool.provider.custom.CustomChatModelProvider;
+import fr.mazure.simplellmtool.provider.custom.CustomModelParameters;
+import fr.mazure.simplellmtool.provider.googlegemini.GoogleGeminiChatModelProvider;
+import fr.mazure.simplellmtool.provider.googlegemini.GoogleGeminiModelParameters;
+import fr.mazure.simplellmtool.provider.mistralai.MistralAiChatModelProvider;
+import fr.mazure.simplellmtool.provider.mistralai.MistralAiModelParameters;
+import fr.mazure.simplellmtool.provider.openai.OpenAiChatModelProvider;
+import fr.mazure.simplellmtool.provider.openai.OpenAiModelParameters;
 
 /**
  * Tests for the {@link BatchMode} class.

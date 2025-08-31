@@ -1,4 +1,4 @@
-package fr.mazure.aitestcasegeneration.provider.custom;
+package fr.mazure.simplellmtool.provider.custom;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -10,10 +10,10 @@ import java.util.Optional;
 
 import org.yaml.snakeyaml.Yaml;
 
-import fr.mazure.aitestcasegeneration.provider.base.InvalidModelParameter;
-import fr.mazure.aitestcasegeneration.provider.base.MissingModelParameter;
-import fr.mazure.aitestcasegeneration.provider.base.ModelParameters;
-import fr.mazure.aitestcasegeneration.provider.base.ParameterMap;
+import fr.mazure.simplellmtool.provider.base.InvalidModelParameter;
+import fr.mazure.simplellmtool.provider.base.MissingModelParameter;
+import fr.mazure.simplellmtool.provider.base.ModelParameters;
+import fr.mazure.simplellmtool.provider.base.ParameterMap;
 
 /**
  * Parameters for the custom model provider.

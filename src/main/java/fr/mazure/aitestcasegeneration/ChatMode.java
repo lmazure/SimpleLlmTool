@@ -1,4 +1,4 @@
-package fr.mazure.aitestcasegeneration;
+package fr.mazure.simplellmtool;
 
 import java.io.IOException;
 import java.io.PrintStream;

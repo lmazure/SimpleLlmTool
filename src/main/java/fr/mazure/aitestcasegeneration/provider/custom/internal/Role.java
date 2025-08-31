@@ -1,4 +1,4 @@
-package fr.mazure.aitestcasegeneration.provider.custom.internal;
+package fr.mazure.simplellmtool.provider.custom.internal;
 
 /**
  * Represents the actor (i.e. the source) of a message.

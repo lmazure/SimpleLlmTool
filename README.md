@@ -9,43 +9,43 @@ use OpenAI provider
 ```bash
 export $(cat .env)
 source tools/.venv/Scripts/Activate
-java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider OpenAI --model-file examples/gpt-4.1-nano@openai.yaml
+java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider OpenAI --model-file examples/gpt-4.1-nano@openai.yaml
 ```
 
 use Mistral AI provider
 ```bash
 export $(cat .env)
 source tools/.venv/Scripts/Activate
-java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Why is the sky blue?" --system-prompt-string "You are a scientific." --provider "Mistral AI" --model-file examples/mistral-large-latest@mistralai.yaml
+java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Why is the sky blue?" --system-prompt-string "You are a scientific." --provider "Mistral AI" --model-file examples/mistral-large-latest@mistralai.yaml
 ```
 
 use Anthropic provider
 ```bash
 export $(cat .env)
 source tools/.venv/Scripts/Activate
-java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider Anthropic --model-file examples/claude-3-5-sonnet@anthropic.yaml
-java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "What is the weather in Paris?" --system-prompt-string "You always provide an English anwer, followed by a precise translation in French" --provider Anthropic --model-file examples/claude-3-5-sonnet@anthropic.yaml --tools-dir tools
+java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider Anthropic --model-file examples/claude-3-5-sonnet@anthropic.yaml
+java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "What is the weather in Paris?" --system-prompt-string "You always provide an English anwer, followed by a precise translation in French" --provider Anthropic --model-file examples/claude-3-5-sonnet@anthropic.yaml --tools-dir tools
 ```
 
 use Google Gemini provider
 ```bash
 export $(cat .env)
 source tools/.venv/Scripts/Activate
-java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider "Google Gemini" --model-file examples/gemini-2.5-flash@google.yaml
+java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider "Google Gemini" --model-file examples/gemini-2.5-flash@google.yaml
 ```
 
 use custom provider
 ```bash
 export $(cat .env)
 source tools/.venv/Scripts/Activate
-java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider custom --model-file examples/gpt-4.1-nano@custom.yaml
+java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider custom --model-file examples/gpt-4.1-nano@custom.yaml
 ```
 
 use mock provider
 ```bash
 export $(cat .env)
 source tools/.venv/Scripts/Activate
-java -jar target/AITestCaseGeneration-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider mock --model-file non-existing-file.yaml
+java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider mock --model-file non-existing-file.yaml
 ```
 
 # CLI

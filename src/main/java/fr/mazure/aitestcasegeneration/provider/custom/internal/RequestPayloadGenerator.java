@@ -1,4 +1,4 @@
-package fr.mazure.aitestcasegeneration.provider.custom.internal;
+package fr.mazure.simplellmtool.provider.custom.internal;
 
 import com.github.jknack.handlebars.EscapingStrategy;
 import com.github.jknack.handlebars.Handlebars;
