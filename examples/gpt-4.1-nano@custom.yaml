@@ -19,5 +19,3 @@ httpHeaders:
 answerPath: choices[0].message.content
 inputTokenPath: usage.prompt_tokens
 outputTokenPath: usage.completion_tokens
-logRequests: true
-logResponses: true

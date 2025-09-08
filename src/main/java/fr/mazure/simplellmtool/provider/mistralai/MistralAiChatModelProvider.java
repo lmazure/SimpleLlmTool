@@ -32,6 +32,7 @@ public class MistralAiChatModelProvider implements ModelProvider {
             builder.maxTokens(parameters.getMaxTokens().get());
         }
 
-        return builder.build();
-    }
+        return builder.logRequests(true)
+                      .logResponses(true)
+                      .build();    }
 }

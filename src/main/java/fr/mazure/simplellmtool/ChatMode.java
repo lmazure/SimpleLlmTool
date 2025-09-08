@@ -1,7 +1,6 @@
 package fr.mazure.simplellmtool;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,6 +10,8 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
@@ -25,13 +26,14 @@ import dev.langchain4j.model.output.TokenUsage;
  */
 public class ChatMode extends BaseMode {
 
+        private static final Logger logger = LoggerFactory.getLogger(ChatMode.class);
+
     /**
      * Handles interactive chat processing of chat interactions using a specified ChatModel.
      *
      * @param model The ChatModel to use for processing.
      * @param sysPrompt An optional system prompt.
      * @param userPrompt An optional user prompt.
-     * @param log The PrintStream to use for logging.
      * @param toolManager The ToolManager to use for tool execution.
      *
      * @throws IOException If an I/O error occurs.
@@ -39,7 +41,6 @@ public class ChatMode extends BaseMode {
     static void handleChat(final ChatModel model,
                            final Optional<String> sysPrompt,
                            final Optional<String> userPrompt,
-                           final PrintStream log,
                            final Optional<ToolManager> toolManager) throws IOException {
 
         // setup terminal
@@ -80,7 +81,7 @@ public class ChatMode extends BaseMode {
                 memory.add(UserMessage.from(input));
                 final ChatResponse chatResponse = generateResponse(model, memory, toolManager);
                 displayAnswer(terminal, chatResponse.aiMessage().text());
-                logTokenUsage(log, chatResponse.tokenUsage());
+                logTokenUsage(chatResponse.tokenUsage());
                 prefilledText = "";
             }
         }
@@ -135,16 +136,15 @@ public class ChatMode extends BaseMode {
         terminal.writer().println(displayedAnswer.toAnsi());
     }
 
-    private static void logTokenUsage(final PrintStream log,
-                                      final TokenUsage tokenUsage) {
+    private static void logTokenUsage(final TokenUsage tokenUsage) {
         if (tokenUsage != null) {
             final Integer inputTokens = tokenUsage.inputTokenCount();
             final Integer outputTokens = tokenUsage.outputTokenCount();
             final Integer totalTokens = tokenUsage.totalTokenCount();
 
-            log.println("Input tokens: " + inputTokens);
-            log.println("Output tokens: " + outputTokens);
-            log.println("Total tokens: " + totalTokens);
+            logger.info("Input tokens: " + inputTokens);
+            logger.info("Output tokens: " + outputTokens);
+            logger.info("Total tokens: " + totalTokens);
         }
     }
 

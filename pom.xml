@@ -14,6 +14,7 @@
         <maven.compiler.source>22</maven.compiler.source>
         <langchain4j.version>1.4.0</langchain4j.version>
         <junit.jupiter.version>5.13.3</junit.jupiter.version>
+        <tinylog.version>2.7.0</tinylog.version>
     </properties>
 
     <dependencies>
@@ -75,6 +76,25 @@
             <groupId>com.github.jknack</groupId>
             <artifactId>handlebars</artifactId>
             <version>4.4.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.tinylog</groupId>
+            <artifactId>tinylog-impl</artifactId>
+            <version>${tinylog.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.tinylog</groupId>
+            <artifactId>tinylog-api</artifactId>
+            <version>${tinylog.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.tinylog</groupId>
+            <artifactId>slf4j-tinylog</artifactId>
+            <version>${tinylog.version}</version>
         </dependency>
 
         <!-- Test dependencies -->

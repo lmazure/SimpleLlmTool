@@ -58,6 +58,7 @@ java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-p
 | `--output-file <output-file>`                   | output file (stdout by default)            |
 | `--error-file <error-file>`                     | error file (stderr by default)             |
 | `--log-file <log-file>`                         | log file (stderr by default)               |
+| `--log-level <log-level>`                       | log level (info by default)                |
 | `--tools-dir <tools-dir>`                       | directory containing the tools             |
 | `--provider <provider>`                         | provider                                   |
 | `--model-name <model-name>`                     | overriding model name                      |
@@ -70,6 +71,8 @@ If `<error-file>` already exists, the text is appended to it.
 If `<log-file>` already exists, the text is appended to it.  
 If `<model-name>` is provided, it overrides the model name in the model file.
 If `--log-file <tools-dir>` is not provided, no tools are available.
+If `--log-level <log-level>` is not provided, the log level is `info`. `<log-level>` can be `trace`, `debug`, `info`, `warn`, or `error`.
+
 
 # Parameters per provider
 
@@ -138,8 +141,6 @@ The provider is indicated on the command line with the `--provider <provider>` p
 | `answerPath`            | JSON path to the field containing the answer                  | string | yes          |
 | `inputTokenPath`        | JSON path to the field containing the number of input tokens  | string | yes          |
 | `outputTokenPath`       | JSON path to the field containing the number of output tokens | string | yes          |
-| `logRequests`           | whether to log the requests                                   | bool   | no           |
-| `logResponses`          | whether to log the responses                                  | bool   | no           |
 
 † The HTTP header `Content-Type: application/json` is added automatically.
 

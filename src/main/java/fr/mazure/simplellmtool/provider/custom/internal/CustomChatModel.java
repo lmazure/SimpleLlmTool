@@ -1,7 +1,6 @@
 package fr.mazure.simplellmtool.provider.custom.internal;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +20,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okio.Buffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CustomChatModel implements ChatModel {
 
@@ -36,9 +37,10 @@ public class CustomChatModel implements ChatModel {
     private final String outputTokenPath;
     private final boolean logRequests;
     private final boolean logResponses;
-    private final PrintStream log;
 
     private final OkHttpClient httpClient;
+
+    private static final Logger logger = LoggerFactory.getLogger(CustomChatModel.class);
 
     // Constructor that takes the builder
     public CustomChatModel(final CustomChatModelBuilder builder) {
@@ -52,7 +54,6 @@ public class CustomChatModel implements ChatModel {
         this.outputTokenPath = builder.getOutputTokenPath();
         this.logRequests = builder.isLogRequests();
         this.logResponses = builder.isLogResponses();
-        this.log = builder.getLog();
 
         this.httpClient = new OkHttpClient.Builder()
                                           .connectTimeout(connectTimeout.toMillis(), TimeUnit.MILLISECONDS)
@@ -73,8 +74,8 @@ public class CustomChatModel implements ChatModel {
         try {
             requestBody = buildRequestBody(chatRequest);
             if (logRequests) {
-                this.log.println("URL: " + url);
-                this.log.println("Request: " + bodyToString(requestBody));
+                logger.info("URL: " + url);
+                logger.info("Request: " + bodyToString(requestBody));
             }
         } catch (final IOException e) {
             throw new RuntimeException("Failed to build request body: " + e.getMessage());
@@ -83,7 +84,7 @@ public class CustomChatModel implements ChatModel {
 
         try (final okhttp3.Response response = httpClient.newCall(request).execute()) {
             if (logResponses) {
-                this.log.println("Response: " + response.code() + " " + response.message());
+                logger.info("Response: " + response.code() + " " + response.message());
             }
             if (!response.isSuccessful()) {
                 throw new RuntimeException("API call failed: " + response.code() + " " + response.message());
@@ -91,7 +92,7 @@ public class CustomChatModel implements ChatModel {
 
             final String responseBody = response.body().string();
             if (logResponses) {
-                this.log.println("Response body: " + responseBody);
+                logger.info("Response body: " + responseBody);
             }
             return parseApiResponse(responseBody);
         } catch (final IOException e) {
@@ -114,7 +115,7 @@ public class CustomChatModel implements ChatModel {
             final String valueTemplate = entry.getValue();
             final String value = RequestPayloadGenerator.generate(valueTemplate, convertMessages(chatRequest.messages()), modelName, apiKey);
             if (logRequests) {
-                this.log.println("Header: " + entry.getKey() + ": " + value);
+                logger.info("Header: " + entry.getKey() + ": " + value);
             }
             builder.header(entry.getKey(), value);
         }

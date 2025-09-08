@@ -162,8 +162,6 @@ public class BatchModeTest {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
-        final ByteArrayOutputStream logBuffer = new ByteArrayOutputStream();
-        final PrintStream log = new PrintStream(logBuffer);
         final String payloadTemplate = """
                             {
                               "model": "gpt-4.1-nano",
@@ -185,10 +183,8 @@ public class BatchModeTest {
                                                                            Map.of("Authorization", "Bearer {{apiKey}}"),
                                                                            "choices[0].message.content",
                                                                            "usage.prompt_tokens",
-                                                                           "usage.completion_tokens",
-                                                                           Optional.empty(),
-                                                                           Optional.empty());
-        final ChatModel model = CustomChatModelProvider.createChatModel(parameters, log);
+                                                                           "usage.completion_tokens");
+        final ChatModel model = CustomChatModelProvider.createChatModel(parameters);
         final Optional<String> sysPrompt = Optional.of("You must answer in one word.");
         final String userPrompt = "What is the capital of France?";
 
