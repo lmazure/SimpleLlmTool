@@ -4,31 +4,32 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.exception.HttpException;
+import dev.langchain4j.http.client.HttpClient;
+import dev.langchain4j.http.client.HttpClientBuilder;
+import dev.langchain4j.http.client.HttpMethod;
+import dev.langchain4j.http.client.HttpRequest;
+import dev.langchain4j.http.client.HttpRequest.Builder;
+import dev.langchain4j.http.client.SuccessfulHttpResponse;
+import dev.langchain4j.http.client.log.LoggingHttpClient;
+import dev.langchain4j.http.client.jdk.JdkHttpClientBuilder;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.TokenUsage;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okio.Buffer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class CustomChatModel implements ChatModel {
 
     private final String modelName;
     private final String apiKey;
     private final String url;
-    private static final Duration timeout = Duration.ofSeconds(60);
+    private static final Duration readTimeout = Duration.ofSeconds(60);
     private static final Duration connectTimeout = Duration.ofSeconds(30);
     private final Map<String, String> httpHeaders;
     private final String payloadTemplate;
@@ -38,9 +39,7 @@ public class CustomChatModel implements ChatModel {
     private final boolean logRequests;
     private final boolean logResponses;
 
-    private final OkHttpClient httpClient;
-
-    private static final Logger logger = LoggerFactory.getLogger(CustomChatModel.class);
+    private final HttpClient httpClient;
 
     // Constructor that takes the builder
     public CustomChatModel(final CustomChatModelBuilder builder) {
@@ -55,10 +54,18 @@ public class CustomChatModel implements ChatModel {
         this.logRequests = builder.isLogRequests();
         this.logResponses = builder.isLogResponses();
 
-        this.httpClient = new OkHttpClient.Builder()
-                                          .connectTimeout(connectTimeout.toMillis(), TimeUnit.MILLISECONDS)
-                                          .readTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS)
-                                          .build();
+        this.httpClient = buildHttpClient();
+    }
+
+    private HttpClient buildHttpClient() {
+        final HttpClientBuilder httpClientBuilder = new JdkHttpClientBuilder();
+        final HttpClient client = httpClientBuilder.connectTimeout(connectTimeout).readTimeout(readTimeout).build();
+
+        if (logRequests || logResponses) {
+            return new LoggingHttpClient(client, logRequests, logResponses);
+        } else {
+            return client;
+        }
     }
 
     /**
@@ -70,56 +77,48 @@ public class CustomChatModel implements ChatModel {
 
     @Override
     public ChatResponse doChat(final ChatRequest chatRequest) {
-        RequestBody requestBody;
+        String requestBody;
         try {
             requestBody = buildRequestBody(chatRequest);
-            if (logRequests) {
-                logger.info("URL: " + url);
-                logger.info("Request: " + bodyToString(requestBody));
-            }
         } catch (final IOException e) {
             throw new RuntimeException("Failed to build request body: " + e.getMessage());
         }
-        final Request request = buildRequest(chatRequest, requestBody);
+        final HttpRequest request = buildRequest(chatRequest, requestBody);
 
-        try (final okhttp3.Response response = httpClient.newCall(request).execute()) {
-            if (logResponses) {
-                logger.info("Response: " + response.code() + " " + response.message());
-            }
-            if (!response.isSuccessful()) {
-                throw new RuntimeException("API call failed: " + response.code() + " " + response.message());
-            }
-
-            final String responseBody = response.body().string();
-            if (logResponses) {
-                logger.info("Response body: " + responseBody);
-            }
+        try {
+            final SuccessfulHttpResponse response = this.httpClient.execute(request);
+            final String responseBody = response.body();
             return parseApiResponse(responseBody);
+        } catch (final HttpException e) {
+            throw new RuntimeException("API call failed: " + e.statusCode() + " " + e.getMessage());
         } catch (final IOException e) {
             throw new RuntimeException("Failed to parse answer: " + e.getMessage());
         }
     }
 
-    private RequestBody buildRequestBody(final ChatRequest chatRequest) throws IOException {
-        final String json = RequestPayloadGenerator.generate(this.payloadTemplate, convertMessages(chatRequest.messages()), modelName, apiKey);
-        return RequestBody.create(json, MediaType.get("application/json"));
+    private String buildRequestBody(final ChatRequest chatRequest) throws IOException {
+        return RequestPayloadGenerator.generate(this.payloadTemplate,
+                                                convertMessages(chatRequest.messages()),
+                                                this.modelName,
+                                                this.apiKey);
     }
 
-    private Request buildRequest(final ChatRequest chatRequest,
-                                 final RequestBody requestBody) {
-        final Request.Builder builder = new Request.Builder()
-                                                   .url(url)
-                                                   .header("Content-Type", "application/json")
-                                                   .post(requestBody);
+    private HttpRequest buildRequest(final ChatRequest chatRequest,
+                                     final String requestBody) {
+        final Builder httpRequestBuilder = HttpRequest.builder()
+                                                      .method(HttpMethod.POST)
+                                                      .url(url)
+                                                      .addHeader("Content-Type", "application/json")
+                                                      .body(requestBody);
         for (final Map.Entry<String, String> entry : httpHeaders.entrySet()) {
             final String valueTemplate = entry.getValue();
-            final String value = RequestPayloadGenerator.generate(valueTemplate, convertMessages(chatRequest.messages()), modelName, apiKey);
-            if (logRequests) {
-                logger.info("Header: " + entry.getKey() + ": " + value);
-            }
-            builder.header(entry.getKey(), value);
+            final String value = RequestPayloadGenerator.generate(valueTemplate,
+                                                                  convertMessages(chatRequest.messages()),
+                                                                  this.modelName,
+                                                                  this.apiKey);
+            httpRequestBuilder.addHeader(entry.getKey(), value);
         }
-        return builder.build();
+        return httpRequestBuilder.build();
     }
 
     private List<MessageRound> convertMessages(final List<ChatMessage> messages) {
@@ -150,16 +149,5 @@ public class CustomChatModel implements ChatModel {
                            .aiMessage(aiMessage)
                            .tokenUsage(tokenUsage)
                            .build();
-    }
-
-    private String bodyToString(final RequestBody body) {
-        try {
-            final Buffer buffer = new Buffer();
-            body.writeTo(buffer);
-            return buffer.readUtf8();
-        } catch (final IOException e) {
-            // this should never happen
-            throw new RuntimeException("Failed to read request body: " + e.getMessage());
-        }
     }
 }
