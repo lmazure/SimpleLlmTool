@@ -15,7 +15,7 @@ import fr.mazure.simplellmtool.provider.base.ModelParameters;
 import fr.mazure.simplellmtool.provider.base.ParameterMap;
 
 /**
- * Parameters for the Google AI Gemini model provider.
+ * Parameters for the Google Gemini model provider.
  *
  * @param modelName           the name of the model
  * @param baseUrl             the base URL of the provider
