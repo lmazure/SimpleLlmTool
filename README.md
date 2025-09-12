@@ -237,12 +237,15 @@ A mock provider used for testing.
 
 # Tools
 
-If `--log-file <tools-dir>` is provided, it should be a directory containing Python, scripts.  
+If `--log-file <tools-dir>` is provided, it should be a directory containing Python scripts.  
 Each script is a tool.
 
-Each script should, when called with the `--description` parameter, return the description of the tool formattes as:
+Each script should, when called with the `--description` parameter, return the description of the tool formatted as:
 - first line: the description of the tool
-- following lines: one line per parameter, each line formatted as `parameter_name<tab>parameter_description` where `parameter_name` is the name of the parameter, `parameter_description` is the description of the parameter, and `<tab/>` is a tab character.
+- following lines: one line per parameter, each line formatted as `parameter_name<tab>parameter_description` where
+    - `parameter_name` is the name of the parameter,
+    - `parameter_description` is the description of the parameter, and
+    - `<tab>` is a tab character.
 
 Each script should
 - if successfully executed, output the result of the execution as a raw string and have an exit code of 0
