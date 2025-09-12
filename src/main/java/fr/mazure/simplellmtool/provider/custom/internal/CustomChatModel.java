@@ -62,7 +62,7 @@ public class CustomChatModel implements ChatModel {
         final HttpClient client = httpClientBuilder.connectTimeout(connectTimeout).readTimeout(readTimeout).build();
 
         if (logRequests || logResponses) {
-            return new LoggingHttpClient(client, logRequests, logResponses);
+            return new LoggingHttpClient(client, this.logRequests, this.logResponses);
         } else {
             return client;
         }
@@ -87,8 +87,7 @@ public class CustomChatModel implements ChatModel {
 
         try {
             final SuccessfulHttpResponse response = this.httpClient.execute(request);
-            final String responseBody = response.body();
-            return parseApiResponse(responseBody);
+            return parseApiResponse(response.body());
         } catch (final HttpException e) {
             throw new RuntimeException("API call failed: " + e.statusCode() + " " + e.getMessage());
         } catch (final IOException e) {
