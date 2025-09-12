@@ -69,8 +69,8 @@ java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-p
 If `<output-file>` already exists, the text is appended to it.  
 If `<error-file>` already exists, the text is appended to it.  
 If `<log-file>` already exists, the text is appended to it.  
-If `<model-name>` is provided, it overrides the model name in the model file.
-If `--log-file <tools-dir>` is not provided, no tools are available.
+If `<model-name>` is provided, it overrides the model name in the model file.  
+If `--log-file <tools-dir>` is not provided, no tools are available.  
 If `--log-level <log-level>` is not provided, the log level is `info`. `<log-level>` can be `trace`, `debug`, `info`, `warn`, or `error`.
 
 
