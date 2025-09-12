@@ -36,6 +36,8 @@ public class GoogleGeminiChatModelProvider implements ModelProvider {
             builder.maxOutputTokens(parameters.getMaxTokens().get());
         }
 
-        return builder.build();
+        return builder.logRequests(true)
+                      .logResponses(true)
+                      .build();
     }
 }
