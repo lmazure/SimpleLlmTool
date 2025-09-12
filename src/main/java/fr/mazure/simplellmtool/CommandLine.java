@@ -22,6 +22,7 @@ public class CommandLine {
      * @param outputFile the optional file to write output to
      * @param errorFile the optional file to write errors to
      * @param logFile the optional file to write logs to
+     * @param logLevel the optional log level
      * @param toolsDir the optional directory containing tools
      * @param provider the provider to use
      * @param modelFile the file containing the model
@@ -33,6 +34,7 @@ public class CommandLine {
                              Optional<Path> outputFile,
                              Optional<Path> errorFile,
                              Optional<Path> logFile,
+                             Optional<LogLevel> logLevel,
                              Optional<Path> toolsDir,
                              ProviderEnum provider,
                              Path modelFile,
@@ -51,6 +53,7 @@ public class CommandLine {
         Path outputFile = null;
         Path errorFile = null;
         Path logFile = null;
+        LogLevel logLevel = null;
         Path toolsDir = null;
         ProviderEnum provider = null;
         Path modelFile = null;
@@ -133,6 +136,21 @@ public class CommandLine {
                     System.exit(ExitCode.INVALID_COMMAND_LINE.getCode());
                 }
                 logFile = Paths.get(args[i + 1]);
+                i++;
+                continue;
+            }
+            if (args[i].equals("--log-level")) {
+                if ((i + 1 ) >= args.length) {
+                    System.err.println("Missing argument for --log-level");
+                    System.exit(ExitCode.INVALID_COMMAND_LINE.getCode());
+                }
+                try {
+                    logLevel = LogLevel.fromString(args[i + 1]);
+                }
+                catch (final IllegalArgumentException e) {
+                    System.err.println("Invalid log level: " + args[i + 1]);
+                    System.exit(ExitCode.INVALID_COMMAND_LINE.getCode());
+                }
                 i++;
                 continue;
             }
@@ -219,6 +237,7 @@ public class CommandLine {
                               Optional.ofNullable(outputFile),
                               Optional.ofNullable(errorFile),
                               Optional.ofNullable(logFile),
+                              Optional.ofNullable(logLevel),
                               Optional.ofNullable(toolsDir),
                               provider,
                               modelFile,
@@ -234,7 +253,7 @@ public class CommandLine {
                            "    [--system-prompt-string <system-prompt-string>]  [--system-prompt-file <system-prompt-file>]\n" +
                            "    [--provider <provider>] [--model-file <model-file>] [--model-name <model-name>]\n" +
                            "    [--output-file <output-file>] [--error-file <error-file>] [--log-file <log-file>]\n" +
-                           "    [--chat-mode] [--help]");
+                           "    [--log-level <log-level>] [--chat-mode] [--help]");
         System.err.println(
             """
             --system-prompt-string <system-prompt-string> system prompt as a string
@@ -245,6 +264,7 @@ public class CommandLine {
             --output-file <output-file>                   output file (stdout by default)
             --error-file <error-file>                     error file (stderr by default)
             --log-file <log-file>                         log file (stderr by default)
+            --log-level <log-level>                       log level (info by default, can be trace, debug, info, warn, or error)
             --tools-dir <tools-dir>                       directory containing tools
             --provider <provider>                         provider
             --model-file <model-file>                     file defining the model and its parameters

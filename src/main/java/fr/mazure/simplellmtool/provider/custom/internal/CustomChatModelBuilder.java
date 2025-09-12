@@ -1,6 +1,6 @@
 package fr.mazure.simplellmtool.provider.custom.internal;
 
-import java.io.PrintStream;
+
 import java.util.Map;
 
 public class CustomChatModelBuilder {
@@ -15,7 +15,6 @@ public class CustomChatModelBuilder {
     private String outputTokenPath;
     private boolean logRequests = false;
     private boolean logResponses = false;
-    private PrintStream log;
 
     public CustomChatModelBuilder() {
         // Default constructor
@@ -115,13 +114,6 @@ public class CustomChatModelBuilder {
     }
 
     /**
-     * Sets the log stream
-     */
-    public CustomChatModelBuilder log(final PrintStream log) {
-        this.log = log;
-        return this;
-    }
-    /**
      * Builds the CustomChatModel instance
      */
     public CustomChatModel build() {
@@ -157,9 +149,6 @@ public class CustomChatModelBuilder {
         if (outputTokenPath == null || outputTokenPath.trim().isEmpty()) {
             throw new IllegalArgumentException("Output token path is required");
         }
-        if (log == null) {
-            throw new IllegalArgumentException("Log stream is required");
-        }
     }
 
     // Getters for the CustomChatModel constructor
@@ -173,5 +162,4 @@ public class CustomChatModelBuilder {
     String getOutputTokenPath() { return outputTokenPath; }
     boolean isLogRequests() { return logRequests; }
     boolean isLogResponses() { return logResponses; }
-    PrintStream getLog() { return log; }
 }

@@ -10,7 +10,7 @@ public class GoogleGeminiChatModelProvider implements ModelProvider {
 
     public static ChatModel createChatModel(final GoogleGeminiModelParameters parameters) throws MissingEnvironmentVariable {
 
-        final String apiKey = ModelProvider.getApiKeyFromEnvironmentVariable(parameters.getApiKeyEnvironmentVariableName(), "Google AI Gemini");
+        final String apiKey = ModelProvider.getApiKeyFromEnvironmentVariable(parameters.getApiKeyEnvironmentVariableName(), "Google Gemini");
 
         final GoogleAiGeminiChatModelBuilder builder = GoogleAiGeminiChatModel.builder()
                                                                               .apiKey(apiKey)
@@ -36,6 +36,8 @@ public class GoogleGeminiChatModelProvider implements ModelProvider {
             builder.maxOutputTokens(parameters.getMaxTokens().get());
         }
 
-        return builder.build();
+        return builder.logRequests(true)
+                      .logResponses(true)
+                      .build();
     }
 }

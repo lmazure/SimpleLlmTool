@@ -1,3 +1,5 @@
+- be able to package without running paying tests
+
 commands
 - add command to list `/tools dlist` to list tools with their parameters
 - add command `/format json` to redisplay the last LLM answer (which should be JSON) preperly formatted

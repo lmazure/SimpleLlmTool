@@ -58,6 +58,7 @@ java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-p
 | `--output-file <output-file>`                   | output file (stdout by default)            |
 | `--error-file <error-file>`                     | error file (stderr by default)             |
 | `--log-file <log-file>`                         | log file (stderr by default)               |
+| `--log-level <log-level>`                       | log level (info by default)                |
 | `--tools-dir <tools-dir>`                       | directory containing the tools             |
 | `--provider <provider>`                         | provider                                   |
 | `--model-name <model-name>`                     | overriding model name                      |
@@ -68,8 +69,10 @@ java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-p
 If `<output-file>` already exists, the text is appended to it.  
 If `<error-file>` already exists, the text is appended to it.  
 If `<log-file>` already exists, the text is appended to it.  
-If `<model-name>` is provided, it overrides the model name in the model file.
-If `--log-file <tools-dir>` is not provided, no tools are available.
+If `<model-name>` is provided, it overrides the model name in the model file.  
+If `--log-file <tools-dir>` is not provided, no tools are available.  
+If `--log-level <log-level>` is not provided, the log level is `info`. `<log-level>` can be `trace`, `debug`, `info`, `warn`, or `error`.
+
 
 # Parameters per provider
 
@@ -138,8 +141,6 @@ The provider is indicated on the command line with the `--provider <provider>` p
 | `answerPath`            | JSON path to the field containing the answer                  | string | yes          |
 | `inputTokenPath`        | JSON path to the field containing the number of input tokens  | string | yes          |
 | `outputTokenPath`       | JSON path to the field containing the number of output tokens | string | yes          |
-| `logRequests`           | whether to log the requests                                   | bool   | no           |
-| `logResponses`          | whether to log the responses                                  | bool   | no           |
 
 † The HTTP header `Content-Type: application/json` is added automatically.
 
@@ -236,12 +237,15 @@ A mock provider used for testing.
 
 # Tools
 
-If `--log-file <tools-dir>` is provided, it should be a directory containing Python, scripts.  
+If `--log-file <tools-dir>` is provided, it should be a directory containing Python scripts.  
 Each script is a tool.
 
-Each script should, when called with the `--description` parameter, return the description of the tool formattes as:
+Each script should, when called with the `--description` parameter, return the description of the tool formatted as:
 - first line: the description of the tool
-- following lines: one line per parameter, each line formatted as `parameter_name<tab>parameter_description` where `parameter_name` is the name of the parameter, `parameter_description` is the description of the parameter, and `<tab/>` is a tab character.
+- following lines: one line per parameter, each line formatted as `parameter_name<tab>parameter_description` where
+    - `parameter_name` is the name of the parameter,
+    - `parameter_description` is the description of the parameter, and
+    - `<tab>` is a tab character.
 
 Each script should
 - if successfully executed, output the result of the execution as a raw string and have an exit code of 0

@@ -26,8 +26,6 @@ import fr.mazure.simplellmtool.provider.base.ParameterMap;
  * @param answerPath          the path to the answer in the API response
  * @param inputTokenPath      the path to the input token count in the API response
  * @param outputTokenPath     the path to the output token count in the API response
- * @param logRequests         whether to log the requests
- * @param logResponses        whether to log the responses
  */
 public class CustomModelParameters extends ModelParameters {
 
@@ -36,8 +34,6 @@ public class CustomModelParameters extends ModelParameters {
     private final String answerPath;
     private final String inputTokenPath;
     private final String outputTokenPath;
-    private final Optional<Boolean> logRequests;
-    private final Optional<Boolean> logResponses;
 
     public CustomModelParameters(final String modelName,
                                  final URL url,
@@ -46,17 +42,13 @@ public class CustomModelParameters extends ModelParameters {
                                  final Map<String, String> httpHeaders,
                                  final String answerPath,
                                  final String inputTokenPath,
-                                 final String outputTokenPath,
-                                 final Optional<Boolean> logRequests,
-                                 final Optional<Boolean> logResponses) {
+                                 final String outputTokenPath) {
         super(modelName, Optional.of(url), apiKeyEnvVar);
         this.payloadTemplate = payloadTemplate;
         this.httpHeaders = httpHeaders;
         this.answerPath = answerPath;
         this.inputTokenPath = inputTokenPath;
         this.outputTokenPath = outputTokenPath;
-        this.logRequests = logRequests;
-        this.logResponses = logResponses;
     }
 
     public String getPayloadTemplate() {
@@ -77,14 +69,6 @@ public class CustomModelParameters extends ModelParameters {
 
     public String getOutputTokenPath() {
         return outputTokenPath;
-    }
-
-    public Optional<Boolean> getLogRequests() {
-        return logRequests;
-    }
-
-    public Optional<Boolean> getLogResponses() {
-        return logResponses;
     }
 
     /**
@@ -109,9 +93,7 @@ public class CustomModelParameters extends ModelParameters {
                                              parameterMap.getMap("httpHeaders"),
                                              parameterMap.getString("answerPath"),
                                              parameterMap.getString("inputTokenPath"),
-                                             parameterMap.getString("outputTokenPath"),
-                                             parameterMap.getOptionalBoolean("logRequests"),
-                                             parameterMap.getOptionalBoolean("logResponses"));
+                                             parameterMap.getString("outputTokenPath"));
         }
     }
 }

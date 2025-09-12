@@ -42,8 +42,6 @@ public class CustomModelParametersTest {
                 answerPath: path_to_answer
                 inputTokenPath: path_to_number_of_input_tokens
                 outputTokenPath: path_to_number_of_output_tokens
-                logRequests: true
-                logResponses: true
                 """;
         final Path tempConfigPath = tempDir.resolve("valid-custom-config.yaml");
         Files.writeString(tempConfigPath, configContent);
@@ -60,8 +58,6 @@ public class CustomModelParametersTest {
         Assertions.assertEquals("path_to_answer", parameters.getAnswerPath());
         Assertions.assertEquals("path_to_number_of_input_tokens", parameters.getInputTokenPath());
         Assertions.assertEquals("path_to_number_of_output_tokens", parameters.getOutputTokenPath());
-        Assertions.assertTrue(parameters.getLogRequests().get());
-        Assertions.assertTrue(parameters.getLogResponses().get());
     }
 
     /**
@@ -100,8 +96,6 @@ public class CustomModelParametersTest {
         Assertions.assertEquals("path_to_answer", parameters.getAnswerPath());
         Assertions.assertEquals("path_to_number_of_input_tokens", parameters.getInputTokenPath());
         Assertions.assertEquals("path_to_number_of_output_tokens", parameters.getOutputTokenPath());
-        Assertions.assertFalse(parameters.getLogRequests().isPresent());
-        Assertions.assertFalse(parameters.getLogResponses().isPresent());
     }
 
     /**
@@ -140,8 +134,6 @@ public class CustomModelParametersTest {
         Assertions.assertEquals("path_to_answer", parameters.getAnswerPath());
         Assertions.assertEquals("path_to_number_of_input_tokens", parameters.getInputTokenPath());
         Assertions.assertEquals("path_to_number_of_output_tokens", parameters.getOutputTokenPath());
-        Assertions.assertFalse(parameters.getLogRequests().isPresent());
-        Assertions.assertFalse(parameters.getLogResponses().isPresent());
     }
 
     /**

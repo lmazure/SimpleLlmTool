@@ -10,10 +10,10 @@ import json
 def get_coordinates(city_name):
     """
     Gets coordinates for a city using OpenMeteo's geocoding API.
-    
+
     Args:
         city_name (str): Name of the city
-        
+
     Returns:
         tuple: (latitude, longitude, display_name) or None if not found
     """
@@ -21,40 +21,40 @@ def get_coordinates(city_name):
         # Use OpenMeteo geocoding API
         geocode_url = "https://geocoding-api.open-meteo.com/v1/search"
         params = {'name': city_name, 'count': 1, 'language': 'en', 'format': 'json'}
-        
+
         response = requests.get(geocode_url, params=params)
         response.raise_for_status()
-        
+
         data = response.json()
-        
+
         if 'results' not in data or len(data['results']) == 0:
             return None
-            
+
         result = data['results'][0]
         lat = result['latitude']
         lon = result['longitude']
-        
+
         # Create display name
         name_parts = [result['name']]
         if 'admin1' in result and result['admin1']:
             name_parts.append(result['admin1'])
         if 'country' in result and result['country']:
             name_parts.append(result['country'])
-        
+
         display_name = ', '.join(name_parts)
-        
+
         return (lat, lon, display_name)
-        
+
     except Exception:
         return None
 
 def get_weather(city_name):
     """
     Gets the current weather for a given city using OpenMeteo API.
-    
+
     Args:
         city_name (str): Name of the city
-        
+
     Returns:
         str: Weather information formatted as a string
     """
@@ -62,9 +62,9 @@ def get_weather(city_name):
     coords = get_coordinates(city_name)
     if coords is None:
         return f"Error: City '{city_name}' not found"
-    
+
     lat, lon, display_name = coords
-    
+
     try:
         # Make API request to OpenMeteo
         BASE_URL = "https://api.open-meteo.com/v1/forecast"
@@ -74,19 +74,19 @@ def get_weather(city_name):
             'current': 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code',
             'timezone': 'auto'
         }
-        
+
         response = requests.get(BASE_URL, params=params)
         response.raise_for_status()
-        
+
         data = response.json()
-        
+
         # Extract weather information
         current = data['current']
         temp = current['temperature_2m']
         feels_like = current['apparent_temperature']
         humidity = current['relative_humidity_2m']
         weather_code = current['weather_code']
-        
+
         # Convert weather code to description
         weather_descriptions = {
             0: "Clear Sky", 1: "Mainly Clear",
@@ -116,13 +116,13 @@ def get_weather(city_name):
             96: "Thunderstorm With Slight Hail",
             99: "Thunderstorm With Heavy Hail"
         }
-        
+
         description = weather_descriptions.get(weather_code, "Unknown")
-        
+
         # Format weather information
         weather_info = f"{display_name}: {temp}°C, {description}, Feels like {feels_like}°C, Humidity {humidity}%"
         return weather_info
-        
+
     except requests.exceptions.RequestException as e:
         return f"Error: Unable to fetch weather data - {str(e)}"
     except KeyError as e:

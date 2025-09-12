@@ -7,6 +7,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Optional;
 
+import org.tinylog.configuration.Configuration;
+
 import dev.langchain4j.model.chat.ChatModel;
 
 import fr.mazure.simplellmtool.provider.anthropic.AnthropicChatModelProvider;
@@ -29,7 +31,6 @@ import fr.mazure.simplellmtool.provider.openai.OpenAiModelParameters;
  * Simple chat application.
  */
 public class SimpleChat {
-
     public static void main(final String[] args) throws MissingEnvironmentVariable, IOException, MissingModelParameter, InvalidModelParameter {
 
         final CommandLine.Parameters cli = CommandLine.parseCommandLine(args);
@@ -38,15 +39,19 @@ public class SimpleChat {
                                                                 :System.out;
         final PrintStream error = cli.errorFile().isPresent() ? createStream(cli.errorFile().get(), "error")
                                                               :System.err;
-        final PrintStream log = cli.logFile().isPresent() ? createStream(cli.logFile().get(), "log")
-                                                          :System.err;
+
+        if (cli.logFile().isPresent()) {
+            Configuration.set("writer", "file");
+            Configuration.set("writer.file", cli.logFile().get().toString());
+        }
+        Configuration.set("writer.level", cli.logLevel().orElse(LogLevel.INFO).toString().toLowerCase());
 
         final ChatModel model = switch (cli.provider()) {
             case ProviderEnum.OPENAI        -> OpenAiChatModelProvider.createChatModel(OpenAiModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));
             case ProviderEnum.MISTRAL_AI    -> MistralAiChatModelProvider.createChatModel(MistralAiModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));
             case ProviderEnum.ANTHROPIC     -> AnthropicChatModelProvider.createChatModel(AnthropicModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));
             case ProviderEnum.GOOGLE_GEMINI -> GoogleGeminiChatModelProvider.createChatModel(GoogleGeminiModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));
-            case ProviderEnum.CUSTOM        -> CustomChatModelProvider.createChatModel(CustomModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()), log);
+            case ProviderEnum.CUSTOM        -> CustomChatModelProvider.createChatModel(CustomModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));
             case ProviderEnum.MOCK          -> MockChatModelProvider.createChatModel(new MockModelParameters());
         };
 
@@ -56,7 +61,7 @@ public class SimpleChat {
             if (cli.chatMode()) {
                 assert output == System.out;
                 assert error == System.err;
-                ChatMode.handleChat(model, cli.sysPrompt(), cli.userPrompt(), log, toolManager);
+                ChatMode.handleChat(model, cli.sysPrompt(), cli.userPrompt(), toolManager);
             } else {
                 assert cli.userPrompt().isPresent();
                 BatchMode.handleBatch(model, cli.sysPrompt(), cli.userPrompt().get(), output, toolManager);

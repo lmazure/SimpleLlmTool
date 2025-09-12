@@ -21,17 +21,17 @@ def main():
         print("start_date\tstart date formatted as YYYY-MM-DD")
         print("end_date\tend date formatted as YYYY-MM-DD")
         sys.exit(0)
-    
+
     if len(sys.argv) != 3:
         print("Usage: python date_diff.py <start_date> <end_date>")
         sys.exit(1)
-    
+
     start_date_str = sys.argv[1]
     end_date_str = sys.argv[2]
-    
+
     start_date = parse_date(start_date_str)
     end_date = parse_date(end_date_str)
-    
+
     days_difference = (end_date - start_date).days
     print(days_difference)
 

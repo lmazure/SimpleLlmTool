@@ -44,6 +44,8 @@ public class OpenAiChatModelProvider implements ModelProvider {
             builder.maxCompletionTokens(parameters.getMaxCompletionTokens().get());
         }
 
-        return builder.build();
+        return builder.logRequests(true)
+                      .logResponses(true)
+                      .build();
     }
 }
