@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;
-//import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -34,7 +33,6 @@ import fr.mazure.simplellmtool.provider.openai.OpenAiModelParameters;
 /**
  * Tests for the {@link BatchMode} class.
  */
-//@Disabled
 public class BatchModeTest {
 
     /**
@@ -123,7 +121,7 @@ public class BatchModeTest {
     }
 
     /**
-     * Basic test for Google AI Gemini.
+     * Basic test for Google Gemini.
      * @throws MissingEnvironmentVariable
      */
     @Test

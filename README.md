@@ -1,10 +1,27 @@
-# Usage
-build the project
-```bash
-export $(cat .env)
-mvn clean package
-```
+# SimpleLlmTool
+SimpleLlmTool has two objectives:
+- experimenting with [LangChain4j](https://docs.langchain4j.dev/) and understand what that framework can do
+- having a handy tool to exploit LLMs from the command line or from some scripts
 
+# How to build the project
+1) Store your keys in, for example, an `.env` file.  
+   You should provide the following environment variables:
+   - `OPENAI_API_KEY`
+   - `MISTRALAI_API_KEY`
+   - `ANTHROPIC_API_KEY`
+   - `GOOGLE_GEMINI_API_KEY`
+
+2) Build the project using
+   ```bash
+   export $(cat .env)
+   mvn clean package
+   ```
+   If you want to save money or if you do not have the necessary API keys, you can skip the tests accessing the LLM by running
+   ```bash
+   mvn clean package -Dgroups='!e2e'
+   ```
+
+# Usage
 use OpenAI provider
 ```bash
 export $(cat .env)
