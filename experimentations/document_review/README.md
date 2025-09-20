@@ -1,10 +1,13 @@
 # Review documents and propose corrections in a GitLab merge request
 
+Your LLM API should be stored as the adequate variable in the `.env` file at the root of this repository.
+
+Your GitLab API should be stored as `GITLAB_API_KEY` in the `.env` file of this directory.
+
+Being in this directory, run:
 ```bash
-export $(cat .env)
-java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-file //wsl.localhost/Ubuntu-22.04/home/laurent/code/GitLab/henixdevelopment/squash/doc/squashtm-doc-en/docs/admin-guide/manage-milestones/manage-milestones.md --system-prompt-file experimentations/document_review/system-prompt-en.txt --provider "Anthropic" --model-file examples/claude-3-5-sonnet@anthropic.yaml
-```
-and in the GitLabDocumentation repo
-```bash
-python gitlab_review.py  https://gitlab.com/lmazure_TestGroup/testreview manage-milestones.md ../SimpleLlmTool/findings.json
+python -m venv .venv
+source .venv/Scripts/activate
+pip install -r requirements.txt
+./review_doc.sh https://gitlab.com project_path/project_name example.md
 ```
