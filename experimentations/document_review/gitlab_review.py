@@ -547,7 +547,7 @@ This MR contains suggested corrections for `{file_path}` identified by AI review
             error_msg = f"Failed to add blank line to file: {e}\nResponse: {response_text}"
             raise GitLabReviewError(error_msg)
     
-    def process_review(self, project_url: str, file_path: str, findings_file: str) -> Dict:
+    def process_review(self, project_url: str, file_path: str, findings_file: str) -> None:
         """
         Main method to process the review and create merge request with suggestions.
         
@@ -555,9 +555,6 @@ This MR contains suggested corrections for `{file_path}` identified by AI review
             project_url: GitLab project URL
             file_path: Path to file in repository
             findings_file: Path to findings JSON file
-            
-        Returns:
-            Summary dictionary
         """
         # Parse project URL
         instance_url, namespace, project_name = self.parse_gitlab_url(project_url)
