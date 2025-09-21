@@ -254,10 +254,6 @@ class GitLabReviewer:
                         else:
                             self.log(f"Finding {finding} clashes with a previous finding")
                     else:
-                        print(f"match={match}")
-                        print(f"line={lines[match]}")
-                        print(f"finding['initial_text']={finding['initial_text']}")
-                        print(f"finding['corrected_text']={finding['corrected_text']}")
                         finding_lines[match] = { 'problem_description': "- " + finding['problem_description'],
                                                  'corrected_text': lines[match].replace(finding['initial_text'], finding['corrected_text'])}
         
@@ -621,24 +617,6 @@ This MR contains suggested corrections for `{file_path}` identified by AI review
                     
             except Exception as e:
                 self.log(f"Failed to create comment for line {line_number}: {e}", "ERROR")
-        
-        # Summary
-        summary = {
-            "mr_url": mr_info['web_url'],
-            "mr_iid": mr_iid,
-            "total_findings": len(findings),
-            "comments_created": comments_created,
-            "discussion_ids": discussion_ids,
-            "timestamp": datetime.now().isoformat()
-        }
-        
-        self.log("\n=== SUMMARY ===")
-        self.log(f"✓ Total findings: {len(findings)}")
-        self.log(f"✓ Comments created: {comments_created}")
-        self.log(f"\n📋 Merge Request: {mr_info['web_url']}")
-        
-        return summary
-
 
 def main():
     """Main entry point for the script."""
@@ -686,14 +664,8 @@ where:
     
     try:
         reviewer = GitLabReviewer(api_key, verbose=args.verbose)
-        summary = reviewer.process_review(args.project_url, args.file_path, args.findings_file)
-        
-        # Save summary to file
-        summary_file = f"review_summary_{summary['mr_iid']}.json"
-        with open(summary_file, 'w') as f:
-            json.dump(summary, f, indent=2)
-        print(f"\n📄 Summary saved to: {summary_file}")
-        
+        reviewer.process_review(args.project_url, args.file_path, args.findings_file)
+
         sys.exit(0)
         
     except GitLabReviewError as e:
