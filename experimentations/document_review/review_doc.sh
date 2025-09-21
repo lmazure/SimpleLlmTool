@@ -47,5 +47,5 @@ java -jar ../../target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar \
      --provider "Anthropic" --model-file ../../examples/claude-3-5-sonnet@anthropic.yaml \
      --output-file $findings_file
 
-# create a GitLab MR to fix the problems
+# Create a GitLab MR to fix the problems
 python gitlab_review.py  $gitlab_server_url/$gitlab_project $file_to_review $findings_file

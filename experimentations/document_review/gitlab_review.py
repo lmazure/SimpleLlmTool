@@ -229,36 +229,37 @@ class GitLabReviewer:
             error_msg = f"Failed to get file content: {e}\nResponse: {response_text}"
             raise GitLabReviewError(error_msg)
     
-    def find_text_lines(self, content: str, findings: List[Dict]) -> Dict[int, int]:
-        """
-        Find line numbers for each finding's initial text.
-        
-        Args:
-            content: File content
-            findings: List of findings
-            
-        Returns:
-            Dictionary mapping finding index to line number
-        """
+    def process_findings (self, content: str, findings: List[Dict]) -> Dict:
         lines = content.splitlines()
         finding_lines = {}
-        
+
         for i, finding in enumerate(findings):
-            initial_text = finding['initial_text']
-            matches = []
             
             # Search for text in each line
-            for line_num, line in enumerate(lines, 1):
-                if initial_text in line:
+            matches = []
+            for line_num, line in enumerate(lines):
+                if finding['initial_text'] in line:
                     matches.append(line_num)
             
             if len(matches) == 0:
-                self.log(f"Finding {i+1}: Text not found - '{initial_text[:50]}...'", "WARNING")
-            elif len(matches) > 1:
-                self.log(f"Finding {i+1}: Multiple matches found on lines {matches} - skipping", "WARNING")
+                self.log(f"Finding {i+1}: Text not found - '{finding['initial_text'][:50]}...'", "WARNING")
             else:
-                finding_lines[i] = matches[0]
-                self.log(f"Finding {i+1}: Located on line {matches[0]}", "SUCCESS")
+                for match in matches:
+                    if match in finding_lines:
+                        current_description = finding_lines[match]['problem_description']
+                        current_text = finding_lines[match]['corrected_text']
+                        if finding['initial_text'] in current_text:
+                            finding_lines[match] = { 'problem_description': current_description + "\n- " + finding['problem_description'],
+                                                     'corrected_text': current_text.replace(finding['initial_text'], finding['corrected_text'])}
+                        else:
+                            self.log(f"Finding {finding} clashes with a previous finding")
+                    else:
+                        print(f"match={match}")
+                        print(f"line={lines[match]}")
+                        print(f"finding['initial_text']={finding['initial_text']}")
+                        print(f"finding['corrected_text']={finding['corrected_text']}")
+                        finding_lines[match] = { 'problem_description': "- " + finding['problem_description'],
+                                                 'corrected_text': lines[match].replace(finding['initial_text'], finding['corrected_text'])}
         
         return finding_lines
     
@@ -384,7 +385,7 @@ This MR contains suggested corrections for `{file_path}` identified by AI review
             raise GitLabReviewError(error_msg)
     
     def create_discussion(self, api_url: str, project_id: int, mr_iid: int,
-                         finding: Dict, line_number: int, diff_info: Dict, file_path: str) -> str:
+                          problem_description: str, corrected_text: str, line_number: int, diff_info: Dict, file_path: str) -> str:
         """
         Create a discussion thread with suggestion for a finding.
         
@@ -401,12 +402,13 @@ This MR contains suggested corrections for `{file_path}` identified by AI review
             Discussion ID
         """
         # Format the comment body with GitLab suggestion syntax
-        body = f"""{finding['problem_description']}
+        body = f"""{problem_description}
 
 ```suggestion:-0+0
-{finding['corrected_text']}
+{corrected_text}
 ```"""
         # Compute SHA1 hash of the filename
+        line = line_number + 1
         filename_hash = hashlib.sha1(file_path.encode('utf-8')).hexdigest()
         position = {
             'position_type': 'text',
@@ -415,18 +417,18 @@ This MR contains suggested corrections for `{file_path}` identified by AI review
             'start_sha': diff_info['start_commit_sha'],
             'old_path': file_path,
             'new_path': file_path,
-            'old_line': line_number,
-            'new_line': line_number,
+            'old_line': line,
+            'new_line': line,
             'line_range': {
                 'start': {
-                    'old_line': line_number,
-                    'new_line': line_number,
-                    'line_code': f"{filename_hash}_{line_number}_{line_number}"
+                    'old_line': line,
+                    'new_line': line,
+                    'line_code': f"{filename_hash}_{line}_{line}"
                 },
                 'end': {
-                    'old_line': line_number,
-                    'new_line': line_number,
-                    'line_code': f"{filename_hash}_{line_number}_{line_number}"
+                    'old_line': line,
+                    'new_line': line,
+                    'line_code': f"{filename_hash}_{line}_{line}"
                 }
             }   
         }
@@ -580,7 +582,7 @@ This MR contains suggested corrections for `{file_path}` identified by AI review
         
         # Get file content and find text locations
         content = self.get_file_content(api_url, project_id, file_path, default_branch)
-        finding_lines = self.find_text_lines(content, findings)
+        finding_lines = self.process_findings(content, findings)
         
         if not finding_lines:
             raise GitLabReviewError("No findings could be located in the file.")
@@ -602,14 +604,13 @@ This MR contains suggested corrections for `{file_path}` identified by AI review
         discussion_ids = []
         comments_created = 0
         
-        for finding_idx, line_number in finding_lines.items():
-            finding = findings[finding_idx]
+        for line_number in finding_lines.keys():
             
-            self.log(f"Processing finding {finding_idx + 1} of {len(findings)}: \"{finding['problem_description'][:50]}...\"")
+            self.log(f"Processing line {line_number} of {len(finding_lines)} lines: \"{finding_lines[line_number]['problem_description'][:50]}...\"")
             
             try:
                 discussion_id = self.create_discussion(
-                    api_url, project_id, mr_iid, finding, line_number, diff_info, file_path
+                    api_url, project_id, mr_iid, finding_lines[line_number]['problem_description'], finding_lines[line_number]['corrected_text'], line_number, diff_info, file_path
                 )
                 discussion_ids.append(discussion_id)
                 comments_created += 1
@@ -619,16 +620,14 @@ This MR contains suggested corrections for `{file_path}` identified by AI review
                 time.sleep(2)
                     
             except Exception as e:
-                self.log(f"Failed to create comment for finding {finding_idx + 1}: {e}", "ERROR")
+                self.log(f"Failed to create comment for line {line_number}: {e}", "ERROR")
         
         # Summary
-        skipped_count = len(findings) - len(finding_lines)
         summary = {
             "mr_url": mr_info['web_url'],
             "mr_iid": mr_iid,
             "total_findings": len(findings),
             "comments_created": comments_created,
-            "skipped_findings": skipped_count,
             "discussion_ids": discussion_ids,
             "timestamp": datetime.now().isoformat()
         }
@@ -636,8 +635,6 @@ This MR contains suggested corrections for `{file_path}` identified by AI review
         self.log("\n=== SUMMARY ===")
         self.log(f"✓ Total findings: {len(findings)}")
         self.log(f"✓ Comments created: {comments_created}")
-        if skipped_count > 0:
-            self.log(f"⚠ Skipped (text not found): {skipped_count}")
         self.log(f"\n📋 Merge Request: {mr_info['web_url']}")
         
         return summary
