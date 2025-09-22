@@ -229,7 +229,21 @@ class GitLabReviewer:
             error_msg = f"Failed to get file content: {e}\nResponse: {response_text}"
             raise GitLabReviewError(error_msg)
     
-    def process_findings (self, content: str, findings: List[Dict]) -> Dict:
+    def process_findings(self, content: str, findings: List[Dict]) -> Dict:
+        """
+        Process findings and locate them in the file content.
+
+        Args:
+            content (str): File content as string
+            findings (List[Dict]): List of findings
+
+        Returns:
+            Dict: Dictionary mapping finding IDs to line numbers
+
+        This method searches for each finding in the file content and returns a dictionary mapping line numbers to
+        - problem_description: the description of each finding appliable to the line
+        - corrected_text: the corrected text of the line
+        """
         lines = content.splitlines()
         finding_lines = {}
 
@@ -237,7 +251,7 @@ class GitLabReviewer:
             
             # Search for text in each line
             matches = []
-            for line_num, line in enumerate(lines):
+            for line_num, line in enumerate(lines, 1):
                 if finding['initial_text'] in line:
                     matches.append(line_num)
             
@@ -255,7 +269,7 @@ class GitLabReviewer:
                             self.log(f"Finding {finding} clashes with a previous finding")
                     else:
                         finding_lines[match] = { 'problem_description': "- " + finding['problem_description'],
-                                                 'corrected_text': lines[match].replace(finding['initial_text'], finding['corrected_text'])}
+                                                 'corrected_text': lines[match - 1].replace(finding['initial_text'], finding['corrected_text'])}
         
         return finding_lines
     
@@ -404,7 +418,6 @@ This MR contains suggested corrections for `{file_path}` identified by AI review
 {corrected_text}
 ```"""
         # Compute SHA1 hash of the filename
-        line = line_number + 1
         filename_hash = hashlib.sha1(file_path.encode('utf-8')).hexdigest()
         position = {
             'position_type': 'text',
@@ -413,18 +426,18 @@ This MR contains suggested corrections for `{file_path}` identified by AI review
             'start_sha': diff_info['start_commit_sha'],
             'old_path': file_path,
             'new_path': file_path,
-            'old_line': line,
-            'new_line': line,
+            'old_line': line_number,
+            'new_line': line_number,
             'line_range': {
                 'start': {
-                    'old_line': line,
-                    'new_line': line,
-                    'line_code': f"{filename_hash}_{line}_{line}"
+                    'old_line': line_number,
+                    'new_line': line_number,
+                    'line_code': f"{filename_hash}_{line_number}_{line_number}"
                 },
                 'end': {
-                    'old_line': line,
-                    'new_line': line,
-                    'line_code': f"{filename_hash}_{line}_{line}"
+                    'old_line': line_number,
+                    'new_line': line_number,
+                    'line_code': f"{filename_hash}_{line_number}_{line_number}"
                 }
             }   
         }
