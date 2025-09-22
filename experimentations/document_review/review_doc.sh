@@ -44,7 +44,7 @@ curl -H "PRIVATE-TOKEN: $GITLAB_API_KEY" \
 java -jar ../../target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar \
      --system-prompt-file system-prompt-en.txt \
      --user-prompt-file $local_file_copy \
-     --provider "Anthropic" --model-file ../../examples/claude-3-5-sonnet@anthropic.yaml \
+     --provider "Anthropic" --model-file ../../examples/claude-4-sonnet@anthropic.yaml \
      --output-file $findings_file
 
 # Create a GitLab MR to fix the problems
