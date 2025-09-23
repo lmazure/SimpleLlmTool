@@ -102,7 +102,7 @@ public class BatchModeTest {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
-        final AnthropicModelParameters parameters = new AnthropicModelParameters("claude-3-haiku-20240307",
+        final AnthropicModelParameters parameters = new AnthropicModelParameters("claude-sonnet-4-20250514",
                                                                                  Optional.empty(),
                                                                                  "ANTHROPIC_API_KEY",
                                                                                  Optional.empty(),
