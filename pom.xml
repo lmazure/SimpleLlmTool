@@ -10,10 +10,11 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.target>22</maven.compiler.target>
-        <maven.compiler.source>22</maven.compiler.source>
-        <langchain4j.version>1.4.0</langchain4j.version>
-        <junit.jupiter.version>5.13.3</junit.jupiter.version>
+        <maven.compiler.target>25</maven.compiler.target>
+        <maven.compiler.source>25</maven.compiler.source>
+        <junit.jupiter.version>5.13.4</junit.jupiter.version>
+        <langchain4j.version>1.5.0</langchain4j.version>
+        <snakeyaml.version>2.5</snakeyaml.version>
         <tinylog.version>2.7.0</tinylog.version>
     </properties>
 
@@ -57,7 +58,7 @@
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>2.4</version>
+            <version>${snakeyaml.version}</version>
         </dependency>
 
         <dependency>
