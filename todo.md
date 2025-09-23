@@ -1,15 +1,16 @@
-detail experimentations
+add image attachment to
+- chat mode
+- interface mode
+add PDF attachment to
+- chat mode
+- interface mode
 
 commands
-- add command to list `/tools dlist` to list tools with their parameters
 - add command `/format json` to redisplay the last LLM answer (which should be JSON) preperly formatted
 
 - tools
   - proper logging of tool calls
   - support tools in `CustomChatModel`
-
-- do not run expensive test while daily coding
-- add pointers between READMEs
 
 - less
   - clean up interface mode

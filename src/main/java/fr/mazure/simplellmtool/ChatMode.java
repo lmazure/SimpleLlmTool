@@ -29,6 +29,9 @@ import dev.langchain4j.model.output.TokenUsage;
 public class ChatMode extends BaseMode {
 
         private static final Logger logger = LoggerFactory.getLogger(ChatMode.class);
+        private static final String COMMAND_EXIT = "/exit";
+        private static final String COMMAND_TOOLS_LIST = "/tools list";
+        private static final String COMMAND_TOOLS_DETAILS = "/tools details";
 
     /**
      * Handles interactive chat processing of chat interactions using a specified ChatModel.
@@ -73,14 +76,14 @@ public class ChatMode extends BaseMode {
                 if (input.isEmpty()) {
                     continue;
                 }
-                if (input.equals("/exit")) {
+                if (input.equals(COMMAND_EXIT)) {
                     return;
                 }
-                if (input.equals("/tools list")) {
+                if (input.equals(COMMAND_TOOLS_LIST)) {
                     displayToolList(terminal, toolManager, false);
                     continue;
                 }
-                if (input.equals("/tools details")) {
+                if (input.equals(COMMAND_TOOLS_DETAILS)) {
                     displayToolList(terminal, toolManager, true);
                     continue;
                 }
@@ -106,10 +109,12 @@ public class ChatMode extends BaseMode {
 
     private static void displayHelpMessage(final Terminal terminal) {
         final String helpMessage = """
-                Type '/exit' to exit
-                Type '/tools list' to display the list of available tools
-                Type '/tools details' to display the details of available tools
-                """;;
+                Type '%s' to exit
+                Type '%s' to display the list of available tools
+                Type '%s' to display the details of available tools
+                """.formatted(COMMAND_EXIT,
+                              COMMAND_TOOLS_LIST,
+                              COMMAND_TOOLS_DETAILS);
         displayMessage(terminal, helpMessage);
     }
 
