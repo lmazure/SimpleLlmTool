@@ -6,5 +6,6 @@
     },
     "terminal.integrated.defaultProfile.windows": "Git Bash",
     "java.configuration.updateBuildConfiguration": "interactive",
-    "java.configuration.maven.globalSettings": "G:\\Documents\\home\\.m2\\settings.xml"
+    "java.configuration.maven.globalSettings": "G:\\Documents\\home\\.m2\\settings.xml",
+    "java.home": "G:\\Documents\\tools\\JDK\\jdk-25"
 }
