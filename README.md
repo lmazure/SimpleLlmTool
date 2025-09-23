@@ -269,3 +269,18 @@ Each script should
 - if in error, output an error message and have an exit code not equal to 0
 
 See examples in the [`tools`](tools) directory.
+
+# Experimentations
+
+Some experiments with SimpleLlmTool.
+
+## Document review
+
+Reviewing a document (e.g. a Markdown file) stored in a GitLab repository and proposing corrections in a GitLab merge request.  
+See the [README](experimentations/document_review/README.md) for more details.
+
+## Extract names to XML
+
+Extracting names from a text and formatting them as an XML extract (something that I could exploit later on for [my homepage](https://mazure.fr))  
+See the [README](experimentations/extract_names_to_xml_fr/README.md) for more details.  
+

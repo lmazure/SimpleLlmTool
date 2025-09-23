@@ -1,4 +1,4 @@
-- be able to package without running paying tests
+detail experimentations
 
 commands
 - add command to list `/tools dlist` to list tools with their parameters
