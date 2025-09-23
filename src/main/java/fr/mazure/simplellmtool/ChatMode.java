@@ -13,7 +13,9 @@ import org.jline.utils.AttributedStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+//import dev.langchain4j.data.message.ImageContent;
 import dev.langchain4j.data.message.SystemMessage;
+//import dev.langchain4j.data.message.TextContent;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
@@ -75,10 +77,16 @@ public class ChatMode extends BaseMode {
                     return;
                 }
                 if (input.equals("/tools list")) {
-                    displayToolList(terminal, toolManager);
+                    displayToolList(terminal, toolManager, false);
+                    continue;
+                }
+                if (input.equals("/tools details")) {
+                    displayToolList(terminal, toolManager, true);
                     continue;
                 }
                 memory.add(UserMessage.from(input));
+                //memory.add(UserMessage.from(TextContent.from(input),
+                //                            ImageContent.from("https://example.com/cat.jpg")));
                 final ChatResponse chatResponse = generateResponse(model, memory, toolManager);
                 displayAnswer(terminal, chatResponse.aiMessage().text());
                 logTokenUsage(chatResponse.tokenUsage());
@@ -99,15 +107,17 @@ public class ChatMode extends BaseMode {
     private static void displayHelpMessage(final Terminal terminal) {
         final String helpMessage = """
                 Type '/exit' to exit
-                Type '/tools list' to display the list of availables tools
+                Type '/tools list' to display the list of available tools
+                Type '/tools details' to display the details of available tools
                 """;;
         displayMessage(terminal, helpMessage);
     }
 
     private static void displayToolList(final Terminal terminal,
-                                        final Optional<ToolManager> toolManager) {
+                                        final Optional<ToolManager> toolManager,
+                                        final boolean includeParameters) {
         if (toolManager.isPresent()) {
-            final String toolList = getToolListAsString(toolManager.get());
+            final String toolList = getToolListAsString(toolManager.get(), includeParameters);
             displayMessage(terminal, toolList);
         } else {
             displayMessage(terminal, "No tools available");
@@ -148,7 +158,8 @@ public class ChatMode extends BaseMode {
         }
     }
 
-    private static String getToolListAsString(final ToolManager toolManager) {
+    private static String getToolListAsString(final ToolManager toolManager,
+                                              final boolean includeParameters) {
         final List<ToolManager.Tool> toolList = toolManager.getToolList();
         final StringBuilder str = new StringBuilder();
         for (final ToolManager.Tool tool: toolList) {
@@ -156,6 +167,15 @@ public class ChatMode extends BaseMode {
                .append(": ")
                .append(tool.description())
                .append("\n");
+            if (includeParameters) {
+                for (final ToolManager.ToolParameter param: tool.parameters()) {
+                    str.append("  ")
+                       .append(param.name())
+                       .append(": ")
+                       .append(param.description())
+                       .append("\n");
+                }
+            }
         }
 
         return str.toString();
