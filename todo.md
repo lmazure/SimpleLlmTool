@@ -1,3 +1,7 @@
+readme
+- fix the header level
+- add hyperlinks for the "see below"
+
 add image attachment to
 - chat mode
 - interface mode

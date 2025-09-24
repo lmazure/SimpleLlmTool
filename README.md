@@ -1,10 +1,10 @@
 # SimpleLlmTool
 SimpleLlmTool has two objectives:
 - experimenting with [LangChain4j](https://docs.langchain4j.dev/) and understand what that framework can do
-- having a handy tool to exploit LLMs from the command line or from some scripts
+- having a handy tool to exploit LLMs from the command line, both in batch mode and interactively (i.e. in chat mode)
 
 # How to build the project
-1) Store your keys in, for example, an `.env` file.  
+1) Store your API keys in, for example, an `.env` file.  
    You should provide the following environment variables:
    - `OPENAI_API_KEY`
    - `MISTRALAI_API_KEY`
@@ -16,72 +16,31 @@ SimpleLlmTool has two objectives:
    export $(cat .env)
    mvn clean package
    ```
-   If you want to save money or if you do not have the necessary API keys, you can skip the tests accessing the LLM by running
+   If you want to save money or if you do not have the necessary API keys, you can skip the end-to-end tests accessing the LLM by running
    ```bash
    mvn clean package -Dgroups='!e2e'
    ```
 
-# Usage
-use OpenAI provider
-```bash
-export $(cat .env)
-source tools/.venv/Scripts/Activate
-java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider OpenAI --model-file examples/gpt-4.1-nano@openai.yaml
-```
+# How to run SimpleLlmTool
 
-use Mistral AI provider
-```bash
-export $(cat .env)
-source tools/.venv/Scripts/Activate
-java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Why is the sky blue?" --system-prompt-string "You are a scientific." --provider "Mistral AI" --model-file examples/mistral-large-latest@mistralai.yaml
-```
+SimpleLlmTool accepts the following parameters on the command line:
 
-use Anthropic provider
-```bash
-export $(cat .env)
-source tools/.venv/Scripts/Activate
-java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider Anthropic --model-file examples/claude-4-sonnet@anthropic.yaml
-java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "What is the weather in Paris?" --system-prompt-string "You always provide an English anwer, followed by a precise translation in French" --provider Anthropic --model-file examples/claude-4-sonnet@anthropic.yaml --tools-dir tools
-```
-
-use Google Gemini provider
-```bash
-export $(cat .env)
-source tools/.venv/Scripts/Activate
-java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider "Google Gemini" --model-file examples/gemini-2.5-flash@google.yaml
-```
-
-use custom provider
-```bash
-export $(cat .env)
-source tools/.venv/Scripts/Activate
-java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider custom --model-file examples/gpt-4.1-nano@custom.yaml
-```
-
-use mock provider
-```bash
-export $(cat .env)
-source tools/.venv/Scripts/Activate
-java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider mock --model-file non-existing-file.yaml
-```
-
-# CLI
-| parameter                                       | description                                |
-| ----------------------------------------------- | ------------------------------------------ |
-| `--system-prompt-string <system-prompt-string>` | system prompt as a string                  |
-| `--system-prompt-file <system-prompt-file>`     | system prompt as the content of a file     |
-| `--user-prompt-string <user-prompt-string>`     | user prompt as a string                    |
-| `--user-prompt-file <user-prompt-file>`         | user prompt as the content of a file       |
-| `--output-file <output-file>`                   | output file (stdout by default)            |
-| `--error-file <error-file>`                     | error file (stderr by default)             |
-| `--log-file <log-file>`                         | log file (stderr by default)               |
-| `--log-level <log-level>`                       | log level (info by default)                |
-| `--tools-dir <tools-dir>`                       | directory containing the tools             |
-| `--provider <provider>`                         | provider                                   |
-| `--model-name <model-name>`                     | overriding model name                      |
-| `--chat-mode`                                   | chat mode                                  |
-| `--model-file <model_file>`                     | file defining the model and its parameters |
-| `--help`                                        | display help and exit                      |
+| parameter                                       | description                                            |
+| ----------------------------------------------- | ------------------------------------------------------ |
+| `--system-prompt-string <system-prompt-string>` | system prompt as a string                              |
+| `--system-prompt-file <system-prompt-file>`     | system prompt as the content of a file                 |
+| `--user-prompt-string <user-prompt-string>`     | user prompt as a string                                |
+| `--user-prompt-file <user-prompt-file>`         | user prompt as the content of a file                   |
+| `--output-file <output-file>`                   | output file (stdout by default)                        |
+| `--error-file <error-file>`                     | error file (stderr by default)                         |
+| `--log-file <log-file>`                         | log file (stderr by default)                           |
+| `--log-level <log-level>`                       | log level (info by default)                            |
+| `--tools-dir <tools-dir>`                       | directory containing the tools (see )                         |
+| `--provider <provider>`                         | provider (see below)                                   |
+| `--model-file <model_file>`                     | file defining the model and its parameters (see below) |
+| `--model-name <model-name>`                     | overriding model name                                  |
+| `--chat-mode`                                   | chat mode                                              |
+| `--help`                                        | display help and exit                                  |
 
 If `<output-file>` already exists, the text is appended to it.  
 If `<error-file>` already exists, the text is appended to it.  
@@ -91,7 +50,7 @@ If `--log-file <tools-dir>` is not provided, no tools are available.
 If `--log-level <log-level>` is not provided, the log level is `info`. `<log-level>` can be `trace`, `debug`, `info`, `warn`, or `error`.
 
 
-# Parameters per provider
+# How to write a model file
 
 A model and its parameters are defined by a YAML file, see for example [gpt-4.1-nano@openai.yaml](examples/gpt-4.1-nano@openai.yaml).  
 It is indicated on the command line with the `--model-file <model_file>` parameter.
@@ -252,6 +211,50 @@ Authorization: Bearer sec_DEADBEEF
 
 A mock provider used for testing.
 
+# Example of usage
+use OpenAI provider
+```bash
+export $(cat .env)
+source tools/.venv/Scripts/Activate
+java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider OpenAI --model-file examples/gpt-4.1-nano@openai.yaml
+```
+
+use Mistral AI provider
+```bash
+export $(cat .env)
+source tools/.venv/Scripts/Activate
+java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Why is the sky blue?" --system-prompt-string "You are a scientific." --provider "Mistral AI" --model-file examples/mistral-large-latest@mistralai.yaml
+```
+
+use Anthropic provider
+```bash
+export $(cat .env)
+source tools/.venv/Scripts/Activate
+java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider Anthropic --model-file examples/claude-4-sonnet@anthropic.yaml
+java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "What is the weather in Paris?" --system-prompt-string "You always provide an English anwer, followed by a precise translation in French" --provider Anthropic --model-file examples/claude-4-sonnet@anthropic.yaml --tools-dir tools
+```
+
+use Google Gemini provider
+```bash
+export $(cat .env)
+source tools/.venv/Scripts/Activate
+java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider "Google Gemini" --model-file examples/gemini-2.5-flash@google.yaml
+```
+
+use custom provider
+```bash
+export $(cat .env)
+source tools/.venv/Scripts/Activate
+java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider custom --model-file examples/gpt-4.1-nano@custom.yaml
+```
+
+use mock provider
+```bash
+export $(cat .env)
+source tools/.venv/Scripts/Activate
+java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider mock --model-file non-existing-file.yaml
+```
+
 # Tools
 
 If `--log-file <tools-dir>` is provided, it should be a directory containing Python scripts.  
@@ -261,8 +264,8 @@ Each script should, when called with the `--description` parameter, return the d
 - first line: the description of the tool
 - following lines: one line per parameter, each line formatted as `parameter_name<tab>parameter_description` where
     - `parameter_name` is the name of the parameter,
-    - `parameter_description` is the description of the parameter, and
-    - `<tab>` is a tab character.
+    - `<tab>` is a tab character, and
+    - `parameter_description` is the description of the parameter.
 
 Each script should
 - if successfully executed, output the result of the execution as a raw string and have an exit code of 0
