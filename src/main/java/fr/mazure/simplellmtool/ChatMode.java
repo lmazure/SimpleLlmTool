@@ -1,6 +1,10 @@
 package fr.mazure.simplellmtool;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,9 +17,11 @@ import org.jline.utils.AttributedStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//import dev.langchain4j.data.message.ImageContent;
+import dev.langchain4j.data.message.Content;
+import dev.langchain4j.data.message.ImageContent;
+import dev.langchain4j.data.message.PdfFileContent;
 import dev.langchain4j.data.message.SystemMessage;
-//import dev.langchain4j.data.message.TextContent;
+import dev.langchain4j.data.message.TextContent;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
@@ -32,6 +38,8 @@ public class ChatMode extends BaseMode {
         private static final String COMMAND_EXIT = "/exit";
         private static final String COMMAND_TOOLS_LIST = "/tools list";
         private static final String COMMAND_TOOLS_DETAILS = "/tools details";
+        private static final String COMMAND_ATTACH_IMAGE = "/attach image";
+        private static final String COMMAND_ATTACH_PDF = "/attach pdf";
 
     /**
      * Handles interactive chat processing of chat interactions using a specified ChatModel.
@@ -71,6 +79,7 @@ public class ChatMode extends BaseMode {
 
             // handle chat
             String prefilledText = userPrompt.orElse("");
+            final List<Content> attachments = new ArrayList<>();
             while (true) {
                 final String input = getUserInput(reader, prefilledText);
                 if (input.isEmpty()) {
@@ -87,13 +96,64 @@ public class ChatMode extends BaseMode {
                     displayToolList(terminal, toolManager, true);
                     continue;
                 }
-                memory.add(UserMessage.from(input));
-                //memory.add(UserMessage.from(TextContent.from(input),
-                //                            ImageContent.from("https://example.com/cat.jpg")));
+                if (input.startsWith(COMMAND_ATTACH_IMAGE + " ")) {
+                    final String filePath = input.substring(COMMAND_ATTACH_IMAGE.length() + 1).trim();
+                    String fileExtension = filePath.substring(filePath.lastIndexOf('.') + 1).toLowerCase();
+                    if (!fileExtension.equals("jpg") &&
+                        !fileExtension.equals("jpeg") &&
+                        !fileExtension.equals("png") &&
+                        !fileExtension.equals("gif") &&
+                        !fileExtension.equals("webp")) {
+                        displayError(terminal, "Unsupported image file format: " + fileExtension);
+                        continue;
+                    }
+                    if (fileExtension.equals("jpg")) {
+                        fileExtension = "jpeg";
+                    }
+                    byte[] bytes = null;
+                    try {
+                        bytes = Files.readAllBytes(Paths.get(filePath));
+                    } catch (final IOException e) {
+                        displayError(terminal, "Error reading image file: " + e.getMessage());
+                        continue;
+                    }
+                    final String base64Data = Base64.getEncoder().encodeToString(bytes);
+                    final ImageContent imageContent = ImageContent.from(base64Data, "image/" + fileExtension);
+                    attachments.add(imageContent);
+                    continue;
+                }
+                if (input.equals(COMMAND_ATTACH_PDF)) {
+                    final String filePath = input.substring(COMMAND_ATTACH_PDF.length() + 1).trim();
+                    String fileExtension = filePath.substring(filePath.lastIndexOf('.') + 1).toLowerCase();
+                    if (!fileExtension.equals("pdf")) {
+                        displayError(terminal, "Unsupported PDF file format: " + fileExtension);
+                        continue;
+                    }
+                    byte[] bytes = null;
+                    try {
+                        bytes = Files.readAllBytes(Paths.get(filePath));
+                    } catch (final IOException e) {
+                        displayError(terminal, "Error reading PDF file: " + e.getMessage());
+                        continue;
+                    }
+                    final String base64Data = Base64.getEncoder().encodeToString(bytes);
+                    final PdfFileContent pdfContent = PdfFileContent.from(base64Data);
+                    attachments.add(pdfContent);
+                    continue;
+                }
+                if (input.startsWith("/")) {
+                    displayError(terminal, "Invalid command: " + input);
+                    continue;
+                }
+                final List<Content> contents = new ArrayList<>();
+                contents.add(TextContent.from(input));
+                contents.addAll(attachments);
+                memory.add(UserMessage.from(contents));
                 final ChatResponse chatResponse = generateResponse(model, memory, toolManager);
                 displayAnswer(terminal, chatResponse.aiMessage().text());
                 logTokenUsage(chatResponse.tokenUsage());
                 prefilledText = "";
+                attachments.clear();
             }
         }
     }
@@ -112,9 +172,13 @@ public class ChatMode extends BaseMode {
                 Type '%s' to exit
                 Type '%s' to display the list of available tools
                 Type '%s' to display the details of available tools
+                Type '%s' to attach an image file
+                Type '%s' to attach a PDF file
                 """.formatted(COMMAND_EXIT,
                               COMMAND_TOOLS_LIST,
-                              COMMAND_TOOLS_DETAILS);
+                              COMMAND_TOOLS_DETAILS,
+                              COMMAND_ATTACH_IMAGE,
+                              COMMAND_ATTACH_PDF);
         displayMessage(terminal, helpMessage);
     }
 
@@ -133,6 +197,13 @@ public class ChatMode extends BaseMode {
                                        final String message) {
         final AttributedString help = new AttributedString(message,
                                                            AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
+        terminal.writer().println(help.toAnsi());
+    }
+
+    private static void displayError(final Terminal terminal,
+                                     final String message) {
+    final AttributedString help = new AttributedString(message,
+                                                       AttributedStyle.DEFAULT.foreground(AttributedStyle.RED));
         terminal.writer().println(help.toAnsi());
     }
 
