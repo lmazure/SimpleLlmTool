@@ -3,7 +3,7 @@ SimpleLlmTool has two objectives:
 - experimenting with [LangChain4j](https://docs.langchain4j.dev/) and understand what that framework can do
 - having a handy tool to exploit LLMs from the command line, both in batch mode and interactively (i.e. in chat mode)
 
-# How to build the project
+## How to build the project
 1) Store your API keys in, for example, an `.env` file.  
    You should provide the following environment variables:
    - `OPENAI_API_KEY`
@@ -21,36 +21,28 @@ SimpleLlmTool has two objectives:
    mvn clean package -Dgroups='!e2e'
    ```
 
-# How to run SimpleLlmTool
+## How to run SimpleLlmTool
 
 SimpleLlmTool accepts the following parameters on the command line:
 
-| parameter                                       | description                                            |
-| ----------------------------------------------- | ------------------------------------------------------ |
-| `--system-prompt-string <system-prompt-string>` | system prompt as a string                              |
-| `--system-prompt-file <system-prompt-file>`     | system prompt as the content of a file                 |
-| `--user-prompt-string <user-prompt-string>`     | user prompt as a string                                |
-| `--user-prompt-file <user-prompt-file>`         | user prompt as the content of a file                   |
-| `--output-file <output-file>`                   | output file (stdout by default)                        |
-| `--error-file <error-file>`                     | error file (stderr by default)                         |
-| `--log-file <log-file>`                         | log file (stderr by default)                           |
-| `--log-level <log-level>`                       | log level (info by default)                            |
-| `--tools-dir <tools-dir>`                       | directory containing the tools (see )                         |
-| `--provider <provider>`                         | provider (see below)                                   |
-| `--model-file <model_file>`                     | file defining the model and its parameters (see below) |
-| `--model-name <model-name>`                     | overriding model name                                  |
-| `--chat-mode`                                   | chat mode                                              |
-| `--help`                                        | display help and exit                                  |
+| parameter                                       | description                                                                          |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `--system-prompt-string <system-prompt-string>` | system prompt as a string                                                            |
+| `--system-prompt-file <system-prompt-file>`     | system prompt as the content of a file                                               |
+| `--user-prompt-string <user-prompt-string>`     | user prompt as a string                                                              |
+| `--user-prompt-file <user-prompt-file>`         | user prompt as the content of a file                                                 |
+| `--output-file <output-file>`                   | output file (stdout by default)<br>If `<output-file>` already exists, the text is appended to it.|
+| `--error-file <error-file>`                     | error file (stderr by default)<br>If `<error-file>` already exists, the text is appended to it.  |
+| `--log-file <log-file>`                         | log file (stderr by default)<br>If `<log-file>` already exists, the text is appended to it.      |
+| `--log-level <log-level>`                       | log level (info by default)<br>If `--log-level <log-level>` is not provided, the default log level is `info`.<br>`<log-level>` can be `trace`, `debug`, `info`, `warn`, or `error`. |
+| `--tools-dir <tools-dir>`                       | directory containing the tools (see [below](#tools))<br>If `--tools-dir <tools-dir>` is not provided, no tools are available. |
+| `--provider <provider>`                         | provider<br>`<provider>` can be `OpenAI`, `Mistral AI`, `Anthropic`, `Google Gemini`, `custom`, or `mock` |
+| `--model-file <model_file>`                     | file defining the model and its parameters (see [below](#how-to-write-a-model-file)) |
+| `--model-name <model-name>`                     | overriding model name<br>If `--model-name <model-name>` is provided, it overrides the model name in the model file. |
+| `--chat-mode`                                   | chat mode                                                                            |
+| `--help`                                        | display help and exit                                                                |
 
-If `<output-file>` already exists, the text is appended to it.  
-If `<error-file>` already exists, the text is appended to it.  
-If `<log-file>` already exists, the text is appended to it.  
-If `<model-name>` is provided, it overrides the model name in the model file.  
-If `--log-file <tools-dir>` is not provided, no tools are available.  
-If `--log-level <log-level>` is not provided, the log level is `info`. `<log-level>` can be `trace`, `debug`, `info`, `warn`, or `error`.
-
-
-# How to write a model file
+## How to write a model file
 
 A model and its parameters are defined by a YAML file, see for example [gpt-4.1-nano@openai.yaml](examples/gpt-4.1-nano@openai.yaml).  
 It is indicated on the command line with the `--model-file <model_file>` parameter.
@@ -58,7 +50,7 @@ It is indicated on the command line with the `--model-file <model_file>` paramet
 Its content depends on the provider.  
 The provider is indicated on the command line with the `--provider <provider>` parameter.
 
-## OpenAI
+### OpenAI
 | parameter             | description                                              | type   | compulsory   |
 | --------------------- | -------------------------------------------------------- | ------ | ------------ |
 | `modelName`           | name of the model                                        | string | yes          |
@@ -71,7 +63,7 @@ The provider is indicated on the command line with the `--provider <provider>` p
 | `topP`                | top P value of the model                                 | float  | no           |
 | `maxCompletionTokens` | maximum number of tokens the model should generate       | int    | no           |
 
-## Mistral AI
+### Mistral AI
 | parameter           | description                                              | type   | compulsory   |
 | ------------------- | -------------------------------------------------------- | ------ | ------------ |
 | `modelName`         | name of the model                                        | string | yes          |
@@ -82,7 +74,7 @@ The provider is indicated on the command line with the `--provider <provider>` p
 | `topP`              | top P value of the model                                 | float  | no           |
 | `maxTokens`         | maximum number of tokens the model should generate       | int    | no           |
 
-## Anthropic
+### Anthropic
 | parameter           | description                                              | type   | compulsory   |
 | ------------------- | -------------------------------------------------------- | ------ | ------------ |
 | `modelName`         | name of the model                                        | string | yes          |
@@ -93,7 +85,7 @@ The provider is indicated on the command line with the `--provider <provider>` p
 | `topK`              | top K value of the model                                 | int    | no           |
 | `maxTokens`         | maximum number of tokens the model should generate       | int    | no           |
 
-## Google Gemini
+### Google Gemini
 | parameter           | description                                              | type   | compulsory   |
 | ------------------- | -------------------------------------------------------- | ------ | ------------ |
 | `modelName`         | name of the model                                        | string | yes          |
@@ -104,7 +96,7 @@ The provider is indicated on the command line with the `--provider <provider>` p
 | `topK`              | top K value of the model                                 | int    | no           |
 | `maxTokens`         | maximum number of tokens the model should generate       | int    | no           |
 
-## custom
+### custom
 | parameter               | description                                                   | type   | compulsory   |
 | ----------------------- | ------------------------------------------------------------- | ------ | ------------ |
 | `modelName`             | name of the model                                             | string | yes          |
@@ -134,7 +126,7 @@ The following helpers are available:
 - `isModel` (boolean): tests if this is a model message
 - `convertToJsonString` (string): converts a string to a JSON string (including the double quotes) by escaping the special characters
 
-### Example
+#### Example
 - this YAML extract:
     ```yaml
     payloadTemplate: |
@@ -207,11 +199,19 @@ and this HTTP header:
 Authorization: Bearer sec_DEADBEEF
 ```
 
-## mock
+### mock
 
 A mock provider used for testing.
 
-# Example of usage
+## Examples of usage
+
+### Use Claude Sonnet 4 in interactive mode
+```bash
+export $(cat .env)
+java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --provider Anthropic --model-file examples/claude-4-sonnet@anthropic.yaml --chat-mode
+```
+
+### Total mess
 use OpenAI provider
 ```bash
 export $(cat .env)
@@ -257,7 +257,7 @@ java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-p
 
 # Tools
 
-If `--log-file <tools-dir>` is provided, it should be a directory containing Python scripts.  
+If `--tools-dir <tools-dir>` is provided, it should be a directory containing Python scripts.  
 Each script is a tool.
 
 Each script should, when called with the `--description` parameter, return the description of the tool formatted as:
@@ -273,17 +273,16 @@ Each script should
 
 See examples in the [`tools`](tools) directory.
 
-# Experimentations
+## Experiments
 
-Some experiments with SimpleLlmTool.
+Some experiments with SimpleLlmTool…
 
-## Document review
+### Document review
 
 Reviewing a document (e.g. a Markdown file) stored in a GitLab repository and proposing corrections in a GitLab merge request.  
 See the [README](experimentations/document_review/README.md) for more details.
 
-## Extract names to XML
+### Extract names to XML
 
 Extracting names from a text and formatting them as an XML extract (something that I could exploit later on for [my homepage](https://mazure.fr))  
 See the [README](experimentations/extract_names_to_xml_fr/README.md) for more details.  
-
