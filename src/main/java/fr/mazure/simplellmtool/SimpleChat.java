@@ -44,7 +44,7 @@ public class SimpleChat {
             Configuration.set("writer", "file");
             Configuration.set("writer.file", cli.logFile().get().toString());
         }
-        Configuration.set("writer.level", cli.logLevel().orElse(LogLevel.INFO).toString().toLowerCase());
+        Configuration.set("writer.level", cli.logLevel().orElse(LogLevel.WARN).toString().toLowerCase());
 
         final ChatModel model = switch (cli.provider()) {
             case ProviderEnum.OPENAI        -> OpenAiChatModelProvider.createChatModel(OpenAiModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));

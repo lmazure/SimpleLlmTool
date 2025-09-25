@@ -34,7 +34,7 @@ SimpleLlmTool accepts the following parameters on the command line:
 | `--output-file <output-file>`                   | output file (stdout by default)<br>If `<output-file>` already exists, the text is appended to it.|
 | `--error-file <error-file>`                     | error file (stderr by default)<br>If `<error-file>` already exists, the text is appended to it.  |
 | `--log-file <log-file>`                         | log file (stderr by default)<br>If `<log-file>` already exists, the text is appended to it.      |
-| `--log-level <log-level>`                       | log level (info by default)<br>If `--log-level <log-level>` is not provided, the default log level is `info`.<br>`<log-level>` can be `trace`, `debug`, `info`, `warn`, or `error`. |
+| `--log-level <log-level>`                       | log level (info by default)<br>If `--log-level <log-level>` is not provided, the default log level is `warn`.<br>`<log-level>` can be `trace`, `debug`, `info`, `warn`, or `error`. |
 | `--tools-dir <tools-dir>`                       | directory containing the tools (see [below](#tools))<br>If `--tools-dir <tools-dir>` is not provided, no tools are available. |
 | `--provider <provider>`                         | provider<br>`<provider>` can be `OpenAI`, `Mistral AI`, `Anthropic`, `Google Gemini`, `custom`, or `mock` |
 | `--model-file <model_file>`                     | file defining the model and its parameters (see [below](#how-to-write-a-model-file)) |
