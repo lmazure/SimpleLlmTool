@@ -205,10 +205,6 @@ public class CommandLine {
             System.err.println("Unknown argument: " + args[i]);
             displayHelpAndExit(ExitCode.INVALID_COMMAND_LINE.getCode());
         }
-        if (Objects.isNull(userPrompt)) {
-            System.err.println("Missing user prompt");
-            displayHelpAndExit(ExitCode.INVALID_COMMAND_LINE.getCode());
-        }
         if (Objects.isNull(provider)) {
             System.err.println("Missing provider");
             displayHelpAndExit(ExitCode.INVALID_COMMAND_LINE.getCode());
@@ -218,16 +214,16 @@ public class CommandLine {
             displayHelpAndExit(ExitCode.INVALID_COMMAND_LINE.getCode());
         }
         if (chatMode) {
-            if (outputFile != null) {
+            if (Objects.nonNull(outputFile)) {
                 System.err.println("Output file is not allowed in chat mode");
                 displayHelpAndExit(ExitCode.INVALID_COMMAND_LINE.getCode());
             }
-            if (errorFile != null) {
+            if (Objects.nonNull(errorFile)) {
                 System.err.println("Error file is not allowed in chat mode");
                 displayHelpAndExit(ExitCode.INVALID_COMMAND_LINE.getCode());
             }
         } else {
-            if (userPrompt == null) {
+            if (Objects.isNull(userPrompt)) {
                 System.err.println("User prompt is required (except in chat mode where it is optional)");
                 displayHelpAndExit(ExitCode.INVALID_COMMAND_LINE.getCode());
             }
