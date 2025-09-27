@@ -1,10 +1,10 @@
 package fr.mazure.simplellmtool;
 
 import java.io.IOException;
-import java.nio.file.Files;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,8 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dev.langchain4j.data.message.Content;
-import dev.langchain4j.data.message.ImageContent;
-import dev.langchain4j.data.message.PdfFileContent;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.TextContent;
 import dev.langchain4j.data.message.UserMessage;
@@ -38,8 +36,8 @@ public class ChatMode extends BaseMode {
         private static final String COMMAND_EXIT = "/exit";
         private static final String COMMAND_TOOLS_LIST = "/tools list";
         private static final String COMMAND_TOOLS_DETAILS = "/tools details";
-        private static final String COMMAND_ATTACH_IMAGE = "/attach image";
-        private static final String COMMAND_ATTACH_PDF = "/attach pdf";
+        private static final String COMMAND_ATTACH_FILE = "/attach file";
+        private static final String COMMAND_ATTACH_URL = "/attach url";
 
     /**
      * Handles interactive chat processing of chat interactions using a specified ChatModel.
@@ -96,49 +94,24 @@ public class ChatMode extends BaseMode {
                     displayToolList(terminal, toolManager, true);
                     continue;
                 }
-                if (input.startsWith(COMMAND_ATTACH_IMAGE + " ")) {
-                    final String filePath = input.substring(COMMAND_ATTACH_IMAGE.length() + 1).trim();
-                    String fileExtension = filePath.substring(filePath.lastIndexOf('.') + 1).toLowerCase();
-                    if (!fileExtension.equals("jpg") &&
-                        !fileExtension.equals("jpeg") &&
-                        !fileExtension.equals("png") &&
-                        !fileExtension.equals("gif") &&
-                        !fileExtension.equals("webp")) {
-                        displayError(terminal, "Unsupported image file format: " + fileExtension);
-                        continue;
-                    }
-                    if (fileExtension.equals("jpg")) {
-                        fileExtension = "jpeg";
-                    }
-                    byte[] bytes = null;
+                if (input.startsWith(COMMAND_ATTACH_FILE + " ")) {
+                    final String filePath = input.substring(COMMAND_ATTACH_FILE.length() + 1).trim();
                     try {
-                        bytes = Files.readAllBytes(Paths.get(filePath));
-                    } catch (final IOException e) {
-                        displayError(terminal, "Error reading image file: " + e.getMessage());
-                        continue;
+                        attachments.add(AttachmentManager.getFileContent(Paths.get(filePath).toAbsolutePath()));
+                    } catch (final AttachmentManagerException e) {
+                        displayError(terminal, e.getMessage());
                     }
-                    final String base64Data = Base64.getEncoder().encodeToString(bytes);
-                    final ImageContent imageContent = ImageContent.from(base64Data, "image/" + fileExtension);
-                    attachments.add(imageContent);
                     continue;
                 }
-                if (input.equals(COMMAND_ATTACH_PDF)) {
-                    final String filePath = input.substring(COMMAND_ATTACH_PDF.length() + 1).trim();
-                    String fileExtension = filePath.substring(filePath.lastIndexOf('.') + 1).toLowerCase();
-                    if (!fileExtension.equals("pdf")) {
-                        displayError(terminal, "Unsupported PDF file format: " + fileExtension);
-                        continue;
-                    }
-                    byte[] bytes = null;
+                if (input.startsWith(COMMAND_ATTACH_URL + " ")) {
+                    final String url = input.substring(COMMAND_ATTACH_URL.length() + 1).trim();
                     try {
-                        bytes = Files.readAllBytes(Paths.get(filePath));
-                    } catch (final IOException e) {
-                        displayError(terminal, "Error reading PDF file: " + e.getMessage());
-                        continue;
+                        attachments.add(AttachmentManager.getUriContent(new URI(url)));
+                    } catch (final URISyntaxException e) {
+                        displayError(terminal, "Invalid URL:" + e.getMessage());
+                    } catch (final AttachmentManagerException e) {
+                        displayError(terminal, e.getMessage());
                     }
-                    final String base64Data = Base64.getEncoder().encodeToString(bytes);
-                    final PdfFileContent pdfContent = PdfFileContent.from(base64Data);
-                    attachments.add(pdfContent);
                     continue;
                 }
                 if (input.startsWith("/")) {
@@ -172,13 +145,13 @@ public class ChatMode extends BaseMode {
                 Type '%s' to exit
                 Type '%s' to display the list of available tools
                 Type '%s' to display the details of available tools
-                Type '%s' to attach an image file
-                Type '%s' to attach a PDF file
+                Type '%s' to attach a file
+                Type '%s' to attach a URL
                 """.formatted(COMMAND_EXIT,
                               COMMAND_TOOLS_LIST,
                               COMMAND_TOOLS_DETAILS,
-                              COMMAND_ATTACH_IMAGE,
-                              COMMAND_ATTACH_PDF);
+                              COMMAND_ATTACH_FILE,
+                              COMMAND_ATTACH_URL);
         displayMessage(terminal, helpMessage);
     }
 
