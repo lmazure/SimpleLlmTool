@@ -130,13 +130,13 @@ public class BatchModeTest {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
-        final GoogleGeminiModelParameters parameters = new GoogleGeminiModelParameters("gemini-1.5-flash",
-                                                                          Optional.empty(),
-                                                                          "GOOGLE_GEMINI_API_KEY",
-                                                                          Optional.empty(),
-                                                                          Optional.empty(),
-                                                                          Optional.empty(),
-                                                                          Optional.empty());
+        final GoogleGeminiModelParameters parameters = new GoogleGeminiModelParameters("gemini-2.5-flash",
+                                                                                       Optional.empty(),
+                                                                                       "GOOGLE_GEMINI_API_KEY",
+                                                                                       Optional.empty(),
+                                                                                       Optional.empty(),
+                                                                                       Optional.empty(),
+                                                                                       Optional.empty());
         final ChatModel model = GoogleGeminiChatModelProvider.createChatModel(parameters);
         final Optional<String> sysPrompt = Optional.of("You must answer in one word with no punctuation, but using title case.");
         final String userPrompt = "What is the capital of France?";
