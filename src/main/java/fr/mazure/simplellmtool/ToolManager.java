@@ -141,7 +141,6 @@ public class ToolManager {
             args.add(pythonFile.getAbsolutePath());
             args.addAll(arguments);
             final ProcessBuilder pb = new ProcessBuilder(args);
-            System.out.println("python " + pythonFile.getAbsolutePath() + " " + arguments);
             pb.redirectErrorStream(true);
             final Process process = pb.start();
 
