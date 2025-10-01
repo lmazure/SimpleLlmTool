@@ -61,10 +61,10 @@ public class SimpleChat {
             if (cli.chatMode()) {
                 assert output == System.out;
                 assert error == System.err;
-                ChatMode.handleChat(model, cli.sysPrompt(), cli.userPrompt(), toolManager);
+                ChatMode.handleChat(model, cli.sysPrompt(), cli.userPrompt(), cli.attachments(), toolManager);
             } else {
                 assert cli.userPrompt().isPresent();
-                BatchMode.handleBatch(model, cli.sysPrompt(), cli.userPrompt().get(), output, toolManager);
+                BatchMode.handleBatch(model, cli.sysPrompt(), cli.userPrompt().get(), cli.attachments(), output, error, toolManager);
             }
         } catch (final RuntimeException e) {
             error.println("Model failure (" + e.getMessage() + ")");

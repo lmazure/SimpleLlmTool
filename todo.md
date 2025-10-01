@@ -1,13 +1,14 @@
-readme
-- fix the header level
-- add hyperlinks for the "see below"
-
 add image attachment to
-- chat mode
+- X chat mode
 - interface mode
 add PDF attachment to
 - chat mode
 - interface mode
+add unit tests
+- local image
+- remote image https://samplelib.com/lib/preview/jpeg/sample-green-100x75.jpg 
+questions
+- what about HTML attachment?
 
 commands
 - add command `/format json` to redisplay the last LLM answer (which should be JSON) preperly formatted
@@ -16,7 +17,7 @@ commands
   - proper logging of tool calls
   - support tools in `CustomChatModel`
 
-- less
+- less urgent
   - clean up interface mode
     - see if/how I can display Markdown
   - look at HttpBuilder and log in/out payloads for all models

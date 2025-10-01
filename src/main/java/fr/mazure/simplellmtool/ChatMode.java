@@ -26,6 +26,7 @@ import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.TokenUsage;
+import fr.mazure.simplellmtool.CommandLine.Attachment;
 
 /**
  * The ChatMode class handles interactive chat processing.
@@ -45,6 +46,7 @@ public class ChatMode extends BaseMode {
      * @param model The ChatModel to use for processing.
      * @param sysPrompt An optional system prompt.
      * @param userPrompt An optional user prompt.
+     * @param attachments The attachments to send to the model.
      * @param toolManager The ToolManager to use for tool execution.
      *
      * @throws IOException If an I/O error occurs.
@@ -52,6 +54,7 @@ public class ChatMode extends BaseMode {
     static void handleChat(final ChatModel model,
                            final Optional<String> sysPrompt,
                            final Optional<String> userPrompt,
+                           final List<Attachment> initialAttachments,
                            final Optional<ToolManager> toolManager) throws IOException {
 
         // setup terminal
@@ -77,7 +80,12 @@ public class ChatMode extends BaseMode {
 
             // handle chat
             String prefilledText = userPrompt.orElse("");
-            final List<Content> attachments = new ArrayList<>();
+            List<Content> attachments = new ArrayList<>();
+            try {
+                attachments = AttachmentManager.getAttachmentsContent(initialAttachments);
+            } catch (final AttachmentManagerException e) {
+                displayError(terminal, e.getMessage() + "\nAll attachments will be ignored");
+            }
             while (true) {
                 final String input = getUserInput(reader, prefilledText);
                 if (input.isEmpty()) {

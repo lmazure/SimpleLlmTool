@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -59,7 +60,7 @@ public class BatchModeTest {
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, Optional.empty());
+        BatchMode.handleBatch(model, sysPrompt, userPrompt, List.of(), output, System.err, Optional.empty());
 
         // Then
         Assertions.assertEquals("Paris", outputBuffer.toString().trim());
@@ -86,7 +87,7 @@ public class BatchModeTest {
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, Optional.empty());
+        BatchMode.handleBatch(model, sysPrompt, userPrompt, List.of(), output, System.err, Optional.empty());
 
         // Then
         Assertions.assertEquals("Paris", outputBuffer.toString().trim());
@@ -114,7 +115,7 @@ public class BatchModeTest {
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, Optional.empty());
+        BatchMode.handleBatch(model, sysPrompt, userPrompt, List.of(), output, System.err, Optional.empty());
 
         // Then
         Assertions.assertEquals("Paris", outputBuffer.toString().trim());
@@ -142,7 +143,7 @@ public class BatchModeTest {
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, Optional.empty());
+        BatchMode.handleBatch(model, sysPrompt, userPrompt, List.of(), output, System.err, Optional.empty());
 
         // Then
         Assertions.assertEquals("Paris", outputBuffer.toString().trim());
@@ -187,7 +188,7 @@ public class BatchModeTest {
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, Optional.empty());
+        BatchMode.handleBatch(model, sysPrompt, userPrompt, List.of(), output, System.err, Optional.empty());
 
         // Then
         Assertions.assertEquals("Paris", outputBuffer.toString().trim());
@@ -254,7 +255,7 @@ public class BatchModeTest {
         final String userPrompt = "How many days are there between 2021, January 23rd and 2027, September 3rd?";
 
         // When
-        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, Optional.of(toolManager));
+        BatchMode.handleBatch(model, sysPrompt, userPrompt, List.of(), output, System.err, Optional.of(toolManager));
 
         // Then
         Assertions.assertEquals("2414", outputBuffer.toString().trim());

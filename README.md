@@ -31,6 +31,8 @@ SimpleLlmTool accepts the following parameters on the command line:
 | `--system-prompt-file <system-prompt-file>`     | system prompt as the content of a file                                               |
 | `--user-prompt-string <user-prompt-string>`     | user prompt as a string                                                              |
 | `--user-prompt-file <user-prompt-file>`         | user prompt as the content of a file                                                 |
+| `--attachment-file <filename>`                  | attachment file (can be specified multiple times)                                    |
+| `--attachment-url <url>`                        | attachment URL (can be specified multiple times)                                     |
 | `--output-file <output-file>`                   | output file (stdout by default)<br>If `<output-file>` already exists, the text is appended to it.|
 | `--error-file <error-file>`                     | error file (stderr by default)<br>If `<error-file>` already exists, the text is appended to it.  |
 | `--log-file <log-file>`                         | log file (stderr by default)<br>If `<log-file>` already exists, the text is appended to it.      |
