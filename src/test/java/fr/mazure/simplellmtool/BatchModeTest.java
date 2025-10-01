@@ -319,4 +319,68 @@ public class BatchModeTest {
         Assertions.assertEquals(ExitCode.ATTACHMENT_ERROR.getCode(), exitCode);
         Assertions.assertEquals("Invalid attachment: Invalid URL: Illegal character in path at index 23: http://example.com/path with spaces/file.jpg", errorBuffer.toString().trim());
     }
+
+    /**
+     * Test of image file attachement for Anthropic.
+     * @throws MissingEnvironmentVariable
+     */
+    @Test
+    @Tag("e2e")
+    public void testImageFileAttachmentsAnthropic(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+        // Given
+        final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
+        final PrintStream output = new PrintStream(outputBuffer);
+        final ByteArrayOutputStream errorBuffer = new ByteArrayOutputStream();
+        final PrintStream error = new PrintStream(errorBuffer);
+
+        final AnthropicModelParameters parameters = new AnthropicModelParameters("claude-sonnet-4-20250514",
+                                                                                 Optional.empty(),
+                                                                                 "ANTHROPIC_API_KEY",
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty());
+        final ChatModel model = AnthropicChatModelProvider.createChatModel(parameters);
+        final String userPrompt = "Describe the image";
+        final List<Attachment> attachments = List.of(new Attachment(AttachmentSource.FILE, "src/test/data/whiteCrossInRedDisk.jpg"));
+
+        // When
+        final int exitCode = BatchMode.handleBatch(model, Optional.empty(), userPrompt, attachments, output, error, Optional.empty());
+
+        // Then
+        Assertions.assertEquals(ExitCode.SUCCESS.getCode(), exitCode);
+        Assertions.assertTrue(outputBuffer.toString().contains("plus sign"));
+    }
+
+    /**
+     * Test of image URL attachement for Anthropic.
+     * @throws MissingEnvironmentVariable
+     */
+    @Test
+    @Tag("e2e")
+    public void testImageUrlAttachmentsAnthropic(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+        // Given
+        final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
+        final PrintStream output = new PrintStream(outputBuffer);
+        final ByteArrayOutputStream errorBuffer = new ByteArrayOutputStream();
+        final PrintStream error = new PrintStream(errorBuffer);
+
+        final AnthropicModelParameters parameters = new AnthropicModelParameters("claude-sonnet-4-20250514",
+                                                                                 Optional.empty(),
+                                                                                 "ANTHROPIC_API_KEY",
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty());
+        final ChatModel model = AnthropicChatModelProvider.createChatModel(parameters);
+        final String userPrompt = "Describe the image";
+        final List<Attachment> attachments = List.of(new Attachment(AttachmentSource.URL, "https://raw.githubusercontent.com/mazure/SimpleLlmTool/main/src/test/data/whiteCrossInRedDisk.jpg"));
+
+        // When
+        final int exitCode = BatchMode.handleBatch(model, Optional.empty(), userPrompt, attachments, output, error, Optional.empty());
+
+        // Then
+        Assertions.assertEquals(ExitCode.SUCCESS.getCode(), exitCode);
+        Assertions.assertTrue(outputBuffer.toString().contains("plus sign"));
+    }
 }
