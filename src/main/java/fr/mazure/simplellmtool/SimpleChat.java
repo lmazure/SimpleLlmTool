@@ -64,7 +64,8 @@ public class SimpleChat {
                 ChatMode.handleChat(model, cli.sysPrompt(), cli.userPrompt(), cli.attachments(), toolManager);
             } else {
                 assert cli.userPrompt().isPresent();
-                BatchMode.handleBatch(model, cli.sysPrompt(), cli.userPrompt().get(), cli.attachments(), output, error, toolManager);
+                final int exitCode = BatchMode.handleBatch(model, cli.sysPrompt(), cli.userPrompt().get(), cli.attachments(), output, error, toolManager);
+                System.exit(exitCode);
             }
         } catch (final RuntimeException e) {
             error.println("Model failure (" + e.getMessage() + ")");

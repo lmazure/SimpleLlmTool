@@ -47,7 +47,7 @@ public class AttachmentManager {
             if (exception instanceof AttachmentManagerException attachmentManagerException) {
                 throw attachmentManagerException;
             } else if (exception instanceof URISyntaxException uriSyntaxException) {
-                throw new AttachmentManagerException("Invalid URL:" + uriSyntaxException.getMessage());
+                throw new AttachmentManagerException("Invalid URL: " + uriSyntaxException.getMessage());
             } else {
                 throw new IllegalStateException(exception);
             }

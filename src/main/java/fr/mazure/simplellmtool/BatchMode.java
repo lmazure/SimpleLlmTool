@@ -30,8 +30,10 @@ public class BatchMode extends BaseMode {
      * @param output The PrintStream to use for output.
      * @param error The PrintStream to use for error output.
      * @param toolManager The ToolManager to use for tool execution.
+     * 
+     * @return The exit code.
      */
-    static void handleBatch(final ChatModel model,
+    static int handleBatch(final ChatModel model,
                             final Optional<String> sysPrompt,
                             final String userPrompt,
                             final List<Attachment> initialAttachments,
@@ -49,9 +51,8 @@ public class BatchMode extends BaseMode {
         try {
             attachments = AttachmentManager.getAttachmentsContent(initialAttachments);
         } catch (final AttachmentManagerException e) {
-            error.println("Attachment error: " + e.getMessage());
-            e.printStackTrace(error);
-            System.exit(ExitCode.ATTACHMENT_ERROR.getCode());
+            error.println("Invalid attachment: " + e.getMessage());
+            return ExitCode.ATTACHMENT_ERROR.getCode();
         }
 
         final List<Content> contents = new ArrayList<>();
@@ -62,5 +63,6 @@ public class BatchMode extends BaseMode {
         final ChatResponse response = generateResponse(model, memory, toolManager);
         final String answer = response.aiMessage().text();
         output.println(answer);
+        return ExitCode.SUCCESS.getCode();
     }
 }
