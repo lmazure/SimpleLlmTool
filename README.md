@@ -213,6 +213,12 @@ export $(cat .env)
 java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --provider Anthropic --model-file examples/claude-4-sonnet@anthropic.yaml --chat-mode
 ```
 
+### Use Claude Sonnet 4 in bath mode to extract data from a PDF
+```bash
+export $(cat .env)
+java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --provider Anthropic --model-file examples/claude-4-sonnet@anthropic.yaml --attachment-file src/test/data/john.pdf --user-prompt-string "What is John birthday? Write only the date formatted as YYYY-MM-DD."
+```
+
 ### Total mess
 use OpenAI provider
 ```bash

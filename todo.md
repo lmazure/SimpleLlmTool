@@ -1,6 +1,8 @@
-add image attachment to
-- X chat mode
-- interface mode
+- ajouter des pointeurs vers les listes de modèles
+
+- le code ATTACHMENT_ERROR est retourné pour un mauvais nom de modèle
+
+
 add PDF attachment to
 - chat mode
 - interface mode

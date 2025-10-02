@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -275,7 +276,7 @@ public class BatchModeTest {
      * @throws MissingEnvironmentVariable
      */
     @Test
-    public void testInvalidFileAttachments(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+    public void testInvalidFileAttachment(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
@@ -300,7 +301,7 @@ public class BatchModeTest {
      * @throws MissingEnvironmentVariable
      */
     @Test
-    public void testInvalidUrlAttachments(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+    public void testInvalidUrlAttachment(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
@@ -321,12 +322,12 @@ public class BatchModeTest {
     }
 
     /**
-     * Test of image file attachement for Anthropic.
+     * Test of image file attachment for Anthropic.
      * @throws MissingEnvironmentVariable
      */
     @Test
     @Tag("e2e")
-    public void testImageFileAttachmentsAnthropic(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+    public void testImageFileAttachmentAnthropic(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
@@ -353,12 +354,12 @@ public class BatchModeTest {
     }
 
     /**
-     * Test of image URL attachement for Anthropic.
+     * Test of image URL attachment for Anthropic.
      * @throws MissingEnvironmentVariable
      */
     @Test
-    @Tag("e2e")
-    public void testImageUrlAttachmentsAnthropic(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+    //@Tag("e2e")
+    public void testImageUrlAttachmentAnthropic(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
@@ -374,7 +375,7 @@ public class BatchModeTest {
                                                                                  Optional.empty());
         final ChatModel model = AnthropicChatModelProvider.createChatModel(parameters);
         final String userPrompt = "Describe the image";
-        final List<Attachment> attachments = List.of(new Attachment(AttachmentSource.URL, "https://raw.githubusercontent.com/mazure/SimpleLlmTool/main/src/test/data/whiteCrossInRedDisk.jpg"));
+        final List<Attachment> attachments = List.of(new Attachment(AttachmentSource.URL, "https://raw.githubusercontent.com/lmazure/SimpleLlmTool/7-add-attachment-support/src/test/data/whiteCrossInRedDisk.jpg")); //TODO replace by 'main' branch
 
         // When
         final int exitCode = BatchMode.handleBatch(model, Optional.empty(), userPrompt, attachments, output, error, Optional.empty());
@@ -382,5 +383,105 @@ public class BatchModeTest {
         // Then
         Assertions.assertEquals(ExitCode.SUCCESS.getCode(), exitCode);
         Assertions.assertTrue(outputBuffer.toString().contains("plus sign"));
+    }
+
+    /**
+     * Test of PDF file attachment for Anthropic.
+     * @throws MissingEnvironmentVariable
+     */
+    @Test
+    @Tag("e2e")
+    public void testPdfFileAttachmentAnthropic(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+        // Given
+        final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
+        final PrintStream output = new PrintStream(outputBuffer);
+        final ByteArrayOutputStream errorBuffer = new ByteArrayOutputStream();
+        final PrintStream error = new PrintStream(errorBuffer);
+
+        final AnthropicModelParameters parameters = new AnthropicModelParameters("claude-sonnet-4-20250514",
+                                                                                 Optional.empty(),
+                                                                                 "ANTHROPIC_API_KEY",
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty());
+        final ChatModel model = AnthropicChatModelProvider.createChatModel(parameters);
+        final String userPrompt = "What is John birthday? Write only the date formatted as YYYY-MM-DD.";
+        final List<Attachment> attachments = List.of(new Attachment(AttachmentSource.FILE, "src/test/data/john.pdf"));
+
+        // When
+        final int exitCode = BatchMode.handleBatch(model, Optional.empty(), userPrompt, attachments, output, error, Optional.empty());
+
+        // Then
+        Assertions.assertEquals(ExitCode.SUCCESS.getCode(), exitCode);
+        Assertions.assertEquals("1941-03-07", outputBuffer.toString().trim());
+    }
+
+    /**
+     * Test of PDF URL attachment for Anthropic.
+     * @throws MissingEnvironmentVariable
+     */
+    @Disabled("Bug in LangChain4j")
+    @Test
+    @Tag("e2e")
+    public void testPdfUrlAttachmentAnthropic(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+        // Given
+        final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
+        final PrintStream output = new PrintStream(outputBuffer);
+        final ByteArrayOutputStream errorBuffer = new ByteArrayOutputStream();
+        final PrintStream error = new PrintStream(errorBuffer);
+
+        final AnthropicModelParameters parameters = new AnthropicModelParameters("claude-sonnet-4-20250514",
+                                                                                 Optional.empty(),
+                                                                                 "ANTHROPIC_API_KEY",
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty());
+        final ChatModel model = AnthropicChatModelProvider.createChatModel(parameters);
+        final String userPrompt = "What is John birthday? Write only the date formatted as YYYY-MM-DD.";
+        final List<Attachment> attachments = List.of(new Attachment(AttachmentSource.URL, "https://raw.githubusercontent.com/lmazure/SimpleLlmTool/7-add-attachment-support/src/test/data/john.pdf")); //TODO replace by 'main' branch
+
+        // When
+        final int exitCode = BatchMode.handleBatch(model, Optional.empty(), userPrompt, attachments, output, error, Optional.empty());
+
+        // Then
+        Assertions.assertEquals(ExitCode.SUCCESS.getCode(), exitCode);
+        Assertions.assertEquals("1941-03-07", outputBuffer.toString().trim());
+    }
+
+
+    /**
+     * Test of PDF URL attachment for OpenAI.
+     * @throws MissingEnvironmentVariable
+     */
+    @Test
+    @Tag("e2e")
+    public void testPdfUrlAttachmentOpenAI(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+        // Given
+        final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
+        final PrintStream output = new PrintStream(outputBuffer);
+        final ByteArrayOutputStream errorBuffer = new ByteArrayOutputStream();
+        final PrintStream error = new PrintStream(errorBuffer);
+
+        final OpenAiModelParameters parameters = new OpenAiModelParameters("gpt-5-mini-2025-08-07",
+                                                                           Optional.empty(),
+                                                                           "OPENAI_API_KEY",
+                                                                           Optional.empty(),
+                                                                           Optional.empty(),
+                                                                           Optional.empty(),
+                                                                           Optional.empty(),
+                                                                           Optional.empty(),
+                                                                           Optional.empty());
+        final ChatModel model = OpenAiChatModelProvider.createChatModel(parameters);
+        final String userPrompt = "What is John birthday? Write only the date formatted as YYYY-MM-DD.";
+        final List<Attachment> attachments = List.of(new Attachment(AttachmentSource.URL, "https://raw.githubusercontent.com/lmazure/SimpleLlmTool/7-add-attachment-support/src/test/data/john.pdf")); //TODO replace by 'main' branch
+
+        // When
+        final int exitCode = BatchMode.handleBatch(model, Optional.empty(), userPrompt, attachments, output, error, Optional.empty());
+
+        // Then
+        Assertions.assertEquals(ExitCode.SUCCESS.getCode(), exitCode);
+        Assertions.assertEquals("1941-03-07", outputBuffer.toString().trim());
     }
 }
