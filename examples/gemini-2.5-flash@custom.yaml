@@ -1,0 +1,46 @@
+url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+modelName: UNUSED
+apiKeyEnvVar: GOOGLE_GEMINI_API_KEY
+payloadTemplate: |
+        {
+          {{#each messages}}{{#if (isSystem role)}}"system_instruction": {
+            "parts": [
+              {
+                "text": {{convertToJsonString content}}
+              }
+            ]
+          },{{/if}}{{/each}}
+          "contents": [
+            {{#each messages}}{{#if (isUser role)}}{
+              "role": "user",
+              "parts": [
+                {
+                  "text": {{convertToJsonString content}}
+                }
+              ]
+            }{{#unless @last}},
+            {{/unless}}{{/if}}{{#if (isModel role)}}{
+              "role": "model",
+              "parts": [
+                {
+                  "text": {{convertToJsonString content}}
+                }
+              ]
+            }{{#unless @last}},
+            {{/unless}}{{/if}}{{/each}}
+          ],
+          "generationConfig": {
+            "stopSequences": [
+              "Title"
+            ],
+            "temperature": 1.0,
+            "topP": 0.8,
+            "topK": 10
+          }
+        }
+httpHeaders:
+  x-goog-api-key: "{{apiKey}}"
+answerPath: candidates[0].content.parts[0].text
+inputTokenPath: usageMetadata.promptTokenCount
+outputTokenPath: usageMetadata.candidatesTokenCount
+finishReasonPath: candidates[0].finishReason

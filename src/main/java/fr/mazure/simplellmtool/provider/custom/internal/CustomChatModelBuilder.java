@@ -13,6 +13,7 @@ public class CustomChatModelBuilder {
     private String answerPath;
     private String inputTokenPath;
     private String outputTokenPath;
+    private String finishReasonPath;
     private boolean logRequests = false;
     private boolean logResponses = false;
 
@@ -77,6 +78,14 @@ public class CustomChatModelBuilder {
      */
     public CustomChatModelBuilder outputTokenPath(final String outputTokenPath) {
         this.outputTokenPath = outputTokenPath;
+        return this;
+    }
+
+    /**
+     * Sets the JSON path to the field containing the finish reason
+     */
+    public CustomChatModelBuilder finishReasonPath(final String finishReasonPath) {
+        this.finishReasonPath = finishReasonPath;
         return this;
     }
 
@@ -149,6 +158,9 @@ public class CustomChatModelBuilder {
         if (outputTokenPath == null || outputTokenPath.trim().isEmpty()) {
             throw new IllegalArgumentException("Output token path is required");
         }
+        if (finishReasonPath == null || finishReasonPath.trim().isEmpty()) {
+            throw new IllegalArgumentException("Finish reason path is required");
+        }
     }
 
     // Getters for the CustomChatModel constructor
@@ -160,6 +172,7 @@ public class CustomChatModelBuilder {
     Map<String, String> getHttpHeaders() { return httpHeaders; }
     String getInputTokenPath() { return inputTokenPath; }
     String getOutputTokenPath() { return outputTokenPath; }
+    String getFinishReasonPath() { return finishReasonPath; }
     boolean isLogRequests() { return logRequests; }
     boolean isLogResponses() { return logResponses; }
 }

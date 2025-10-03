@@ -42,6 +42,7 @@ public class CustomModelParametersTest {
                 answerPath: path_to_answer
                 inputTokenPath: path_to_number_of_input_tokens
                 outputTokenPath: path_to_number_of_output_tokens
+                finishReasonPath: path_to_finish_reason
                 """;
         final Path tempConfigPath = tempDir.resolve("valid-custom-config.yaml");
         Files.writeString(tempConfigPath, configContent);
@@ -58,6 +59,7 @@ public class CustomModelParametersTest {
         Assertions.assertEquals("path_to_answer", parameters.getAnswerPath());
         Assertions.assertEquals("path_to_number_of_input_tokens", parameters.getInputTokenPath());
         Assertions.assertEquals("path_to_number_of_output_tokens", parameters.getOutputTokenPath());
+        Assertions.assertEquals("path_to_finish_reason", parameters.getFinishReasonPath());
     }
 
     /**
@@ -80,6 +82,7 @@ public class CustomModelParametersTest {
                 answerPath: path_to_answer
                 inputTokenPath: path_to_number_of_input_tokens
                 outputTokenPath: path_to_number_of_output_tokens
+                finishReasonPath: path_to_finish_reason
                 """;
         final Path tempConfigPath = tempDir.resolve(("minimal-custom-config.yaml"));
         Files.writeString(tempConfigPath, configContent);
@@ -96,6 +99,7 @@ public class CustomModelParametersTest {
         Assertions.assertEquals("path_to_answer", parameters.getAnswerPath());
         Assertions.assertEquals("path_to_number_of_input_tokens", parameters.getInputTokenPath());
         Assertions.assertEquals("path_to_number_of_output_tokens", parameters.getOutputTokenPath());
+        Assertions.assertEquals("path_to_finish_reason", parameters.getFinishReasonPath());
     }
 
     /**
@@ -118,6 +122,7 @@ public class CustomModelParametersTest {
                 answerPath: path_to_answer
                 inputTokenPath: path_to_number_of_input_tokens
                 outputTokenPath: path_to_number_of_output_tokens
+                finishReasonPath: path_to_finish_reason
                 """;
         final Path tempConfigPath = tempDir.resolve(("minimal-custom-config.yaml"));
         Files.writeString(tempConfigPath, configContent);
@@ -134,6 +139,7 @@ public class CustomModelParametersTest {
         Assertions.assertEquals("path_to_answer", parameters.getAnswerPath());
         Assertions.assertEquals("path_to_number_of_input_tokens", parameters.getInputTokenPath());
         Assertions.assertEquals("path_to_number_of_output_tokens", parameters.getOutputTokenPath());
+        Assertions.assertEquals("path_to_finish_reason", parameters.getFinishReasonPath());
     }
 
     /**
@@ -166,6 +172,7 @@ public class CustomModelParametersTest {
                 answerPath: path_to_answer
                 inputTokenPath: path_to_number_of_input_tokens
                 outputTokenPath: path_to_number_of_output_tokens
+                finishReasonPath: path_to_finish_reason
                 """);
 
         // When/Then

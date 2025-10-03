@@ -20,6 +20,7 @@ public class CustomChatModelProvider implements ModelProvider {
                               .httpHeaders(parameters.getHttpHeaders())
                               .inputTokenPath(parameters.getInputTokenPath())
                               .outputTokenPath(parameters.getOutputTokenPath())
+                              .finishReasonPath(parameters.getFinishReasonPath())
                               .logRequests(true)
                               .logResponses(true)
                               .build();

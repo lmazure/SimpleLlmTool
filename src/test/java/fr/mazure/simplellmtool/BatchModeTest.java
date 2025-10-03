@@ -190,7 +190,8 @@ public class BatchModeTest {
                                                                            Map.of("Authorization", "Bearer {{apiKey}}"),
                                                                            "choices[0].message.content",
                                                                            "usage.prompt_tokens",
-                                                                           "usage.completion_tokens");
+                                                                           "usage.completion_tokens",
+                                                                           "choices[0].finish_reason"); // TODO fix this!
         final ChatModel model = CustomChatModelProvider.createChatModel(parameters);
         final Optional<String> sysPrompt = Optional.of("You must answer in one word.");
         final String userPrompt = "What is the capital of France?";
@@ -358,7 +359,7 @@ public class BatchModeTest {
      * @throws MissingEnvironmentVariable
      */
     @Test
-    //@Tag("e2e")
+    @Tag("e2e")
     public void testImageUrlAttachmentAnthropic(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();

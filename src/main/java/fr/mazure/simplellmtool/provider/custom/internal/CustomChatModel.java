@@ -22,6 +22,7 @@ import dev.langchain4j.http.client.jdk.JdkHttpClientBuilder;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.TokenUsage;
 
 public class CustomChatModel implements ChatModel {
@@ -36,6 +37,7 @@ public class CustomChatModel implements ChatModel {
     private final String answerPath;
     private final String inputTokenPath;
     private final String outputTokenPath;
+    private final String finishReasonPath;
     private final boolean logRequests;
     private final boolean logResponses;
 
@@ -51,6 +53,7 @@ public class CustomChatModel implements ChatModel {
         this.answerPath = builder.getAnswerPath();
         this.inputTokenPath = builder.getInputTokenPath();
         this.outputTokenPath = builder.getOutputTokenPath();
+        this.finishReasonPath = builder.getFinishReasonPath();
         this.logRequests = builder.isLogRequests();
         this.logResponses = builder.isLogResponses();
 
@@ -92,6 +95,8 @@ public class CustomChatModel implements ChatModel {
             throw new RuntimeException("API call failed: " + e.statusCode() + " " + e.getMessage());
         } catch (final IOException e) {
             throw new RuntimeException("Failed to parse answer: " + e.getMessage());
+        } catch (final JsonPathExtractorException e) {
+            throw new RuntimeException("Failed to extract path " + e.getPath() + " from answer");
         }
     }
 
@@ -135,7 +140,7 @@ public class CustomChatModel implements ChatModel {
         };
     }
 
-    private ChatResponse parseApiResponse(final String responseBody) throws IOException {
+    private ChatResponse parseApiResponse(final String responseBody) throws IOException, JsonPathExtractorException {
         final String generatedText = JsonPathExtractor.extract(responseBody, answerPath);
 
         final AiMessage aiMessage = AiMessage.from(generatedText);
@@ -144,9 +149,13 @@ public class CustomChatModel implements ChatModel {
         final Integer outputTokens = Integer.parseInt(JsonPathExtractor.extract(responseBody, outputTokenPath));
         final TokenUsage tokenUsage = new TokenUsage(inputTokens, outputTokens);
 
+        final String finishReason = JsonPathExtractor.extract(responseBody, finishReasonPath);
+        final FinishReason finishReasonEnum = FinishReason.valueOf(finishReason.toUpperCase()); //TODO this will not work!
+
         return ChatResponse.builder()
                            .aiMessage(aiMessage)
                            .tokenUsage(tokenUsage)
+                           .finishReason(finishReasonEnum)
                            .build();
     }
 }

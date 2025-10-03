@@ -26,6 +26,7 @@ import fr.mazure.simplellmtool.provider.base.ParameterMap;
  * @param answerPath          the path to the answer in the API response
  * @param inputTokenPath      the path to the input token count in the API response
  * @param outputTokenPath     the path to the output token count in the API response
+ * @param finishReasonPath    the path to the finish reason in the API response
  */
 public class CustomModelParameters extends ModelParameters {
 
@@ -34,6 +35,7 @@ public class CustomModelParameters extends ModelParameters {
     private final String answerPath;
     private final String inputTokenPath;
     private final String outputTokenPath;
+    private final String finishReasonPath;
 
     public CustomModelParameters(final String modelName,
                                  final URL url,
@@ -42,13 +44,15 @@ public class CustomModelParameters extends ModelParameters {
                                  final Map<String, String> httpHeaders,
                                  final String answerPath,
                                  final String inputTokenPath,
-                                 final String outputTokenPath) {
+                                 final String outputTokenPath,
+                                 final String finishReasonPath) {
         super(modelName, Optional.of(url), apiKeyEnvVar);
         this.payloadTemplate = payloadTemplate;
         this.httpHeaders = httpHeaders;
         this.answerPath = answerPath;
         this.inputTokenPath = inputTokenPath;
         this.outputTokenPath = outputTokenPath;
+        this.finishReasonPath = finishReasonPath;
     }
 
     public String getPayloadTemplate() {
@@ -69,6 +73,10 @@ public class CustomModelParameters extends ModelParameters {
 
     public String getOutputTokenPath() {
         return outputTokenPath;
+    }
+
+    public String getFinishReasonPath() {
+        return finishReasonPath;
     }
 
     /**
@@ -93,7 +101,8 @@ public class CustomModelParameters extends ModelParameters {
                                              parameterMap.getMap("httpHeaders"),
                                              parameterMap.getString("answerPath"),
                                              parameterMap.getString("inputTokenPath"),
-                                             parameterMap.getString("outputTokenPath"));
+                                             parameterMap.getString("outputTokenPath"),
+                                             parameterMap.getString("finishReasonPath"));
         }
     }
 }
