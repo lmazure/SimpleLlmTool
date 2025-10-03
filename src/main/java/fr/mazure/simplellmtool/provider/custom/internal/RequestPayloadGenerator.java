@@ -33,28 +33,28 @@ public class RequestPayloadGenerator {
             // Register boolean helpers for each role
             handlebars.registerHelper("isSystem", new Helper<Role>() {
                 @Override
-                public Boolean apply(Role role, Options options) {
+                public Boolean apply(final Role role, final Options options) {
                     return Role.SYSTEM.equals(role);
                 }
             });
 
             handlebars.registerHelper("isUser", new Helper<Role>() {
                 @Override
-                public Boolean apply(Role role, Options options) {
+                public Boolean apply(final Role role, final Options options) {
                     return Role.USER.equals(role);
                 }
             });
 
             handlebars.registerHelper("isModel", new Helper<Role>() {
                 @Override
-                public Boolean apply(Role role, Options options) {
+                public Boolean apply(final Role role, final Options options) {
                     return Role.MODEL.equals(role);
                 }
             });
 
             handlebars.registerHelper("convertToJsonString", new Helper<String>() {
                 @Override
-                public String apply(String text, Options options) {
+                public String apply(final String text, final Options options) {
                     return jsonConverter(text);
                 }
             });

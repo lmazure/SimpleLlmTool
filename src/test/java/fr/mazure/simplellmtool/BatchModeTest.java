@@ -8,16 +8,19 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import dev.langchain4j.model.chat.ChatModel;
-
+import fr.mazure.simplellmtool.CommandLine.Attachment;
+import fr.mazure.simplellmtool.CommandLine.AttachmentSource;
 import fr.mazure.simplellmtool.provider.anthropic.AnthropicChatModelProvider;
 import fr.mazure.simplellmtool.provider.anthropic.AnthropicModelParameters;
 import fr.mazure.simplellmtool.provider.base.MissingEnvironmentVariable;
@@ -27,6 +30,8 @@ import fr.mazure.simplellmtool.provider.googlegemini.GoogleGeminiChatModelProvid
 import fr.mazure.simplellmtool.provider.googlegemini.GoogleGeminiModelParameters;
 import fr.mazure.simplellmtool.provider.mistralai.MistralAiChatModelProvider;
 import fr.mazure.simplellmtool.provider.mistralai.MistralAiModelParameters;
+import fr.mazure.simplellmtool.provider.mock.MockChatModelProvider;
+import fr.mazure.simplellmtool.provider.mock.MockModelParameters;
 import fr.mazure.simplellmtool.provider.openai.OpenAiChatModelProvider;
 import fr.mazure.simplellmtool.provider.openai.OpenAiModelParameters;
 
@@ -59,9 +64,10 @@ public class BatchModeTest {
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, Optional.empty());
+        final int exitCode = BatchMode.handleBatch(model, sysPrompt, userPrompt, List.of(), output, System.err, Optional.empty());
 
         // Then
+        Assertions.assertEquals(ExitCode.SUCCESS.getCode(), exitCode);
         Assertions.assertEquals("Paris", outputBuffer.toString().trim());
     }
 
@@ -86,9 +92,10 @@ public class BatchModeTest {
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, Optional.empty());
+        final int exitCode = BatchMode.handleBatch(model, sysPrompt, userPrompt, List.of(), output, System.err, Optional.empty());
 
         // Then
+        Assertions.assertEquals(ExitCode.SUCCESS.getCode(), exitCode);
         Assertions.assertEquals("Paris", outputBuffer.toString().trim());
     }
 
@@ -114,9 +121,10 @@ public class BatchModeTest {
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, Optional.empty());
+        final int exitCode = BatchMode.handleBatch(model, sysPrompt, userPrompt, List.of(), output, System.err, Optional.empty());
 
         // Then
+        Assertions.assertEquals(ExitCode.SUCCESS.getCode(), exitCode);
         Assertions.assertEquals("Paris", outputBuffer.toString().trim());
     }
 
@@ -130,21 +138,22 @@ public class BatchModeTest {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
-        final GoogleGeminiModelParameters parameters = new GoogleGeminiModelParameters("gemini-1.5-flash",
-                                                                          Optional.empty(),
-                                                                          "GOOGLE_GEMINI_API_KEY",
-                                                                          Optional.empty(),
-                                                                          Optional.empty(),
-                                                                          Optional.empty(),
-                                                                          Optional.empty());
+        final GoogleGeminiModelParameters parameters = new GoogleGeminiModelParameters("gemini-2.5-flash",
+                                                                                       Optional.empty(),
+                                                                                       "GOOGLE_GEMINI_API_KEY",
+                                                                                       Optional.empty(),
+                                                                                       Optional.empty(),
+                                                                                       Optional.empty(),
+                                                                                       Optional.empty());
         final ChatModel model = GoogleGeminiChatModelProvider.createChatModel(parameters);
         final Optional<String> sysPrompt = Optional.of("You must answer in one word with no punctuation, but using title case.");
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, Optional.empty());
+        final int exitCode = BatchMode.handleBatch(model, sysPrompt, userPrompt, List.of(), output, System.err, Optional.empty());
 
         // Then
+        Assertions.assertEquals(ExitCode.SUCCESS.getCode(), exitCode);
         Assertions.assertEquals("Paris", outputBuffer.toString().trim());
     }
 
@@ -187,9 +196,10 @@ public class BatchModeTest {
         final String userPrompt = "What is the capital of France?";
 
         // When
-        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, Optional.empty());
+        final int exitCode = BatchMode.handleBatch(model, sysPrompt, userPrompt, List.of(), output, System.err, Optional.empty());
 
         // Then
+        Assertions.assertEquals(ExitCode.SUCCESS.getCode(), exitCode);
         Assertions.assertEquals("Paris", outputBuffer.toString().trim());
     }
 
@@ -254,9 +264,224 @@ public class BatchModeTest {
         final String userPrompt = "How many days are there between 2021, January 23rd and 2027, September 3rd?";
 
         // When
-        BatchMode.handleBatch(model, sysPrompt, userPrompt, output, Optional.of(toolManager));
+        final int exitCode = BatchMode.handleBatch(model, sysPrompt, userPrompt, List.of(), output, System.err, Optional.of(toolManager));
 
         // Then
+        Assertions.assertEquals(ExitCode.SUCCESS.getCode(), exitCode);
         Assertions.assertEquals("2414", outputBuffer.toString().trim());
     }
-  }
+
+    /**
+     * Management of invalid file attachment.
+     * @throws MissingEnvironmentVariable
+     */
+    @Test
+    public void testInvalidFileAttachment(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+        // Given
+        final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
+        final PrintStream output = new PrintStream(outputBuffer);
+        final ByteArrayOutputStream errorBuffer = new ByteArrayOutputStream();
+        final PrintStream error = new PrintStream(errorBuffer);
+
+        final ChatModel model = MockChatModelProvider.createChatModel(new MockModelParameters());
+        final Optional<String> sysPrompt = Optional.of("You are a helpful assistant.");
+        final String userPrompt = "What is the capital of France?";
+        final List<Attachment> attachments = List.of(new Attachment(AttachmentSource.FILE, "invalid_file.jpg"));
+
+        // When
+        final int exitCode = BatchMode.handleBatch(model, sysPrompt, userPrompt, attachments, output, error, Optional.empty());
+
+        // Then
+        Assertions.assertEquals(ExitCode.ATTACHMENT_ERROR.getCode(), exitCode);
+        Assertions.assertEquals("Invalid attachment: Error reading file: invalid_file.jpg", errorBuffer.toString().trim());
+    }
+
+    /**
+     * Management of invalid URL attachment.
+     * @throws MissingEnvironmentVariable
+     */
+    @Test
+    public void testInvalidUrlAttachment(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+        // Given
+        final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
+        final PrintStream output = new PrintStream(outputBuffer);
+        final ByteArrayOutputStream errorBuffer = new ByteArrayOutputStream();
+        final PrintStream error = new PrintStream(errorBuffer);
+
+        final ChatModel model = MockChatModelProvider.createChatModel(new MockModelParameters());
+        final Optional<String> sysPrompt = Optional.of("You are a helpful assistant.");
+        final String userPrompt = "What is the capital of France?";
+        final List<Attachment> attachments = List.of(new Attachment(AttachmentSource.URL, "http://example.com/path with spaces/file.jpg"));
+
+        // When
+        final int exitCode = BatchMode.handleBatch(model, sysPrompt, userPrompt, attachments, output, error, Optional.empty());
+
+        // Then
+        Assertions.assertEquals(ExitCode.ATTACHMENT_ERROR.getCode(), exitCode);
+        Assertions.assertEquals("Invalid attachment: Invalid URL: Illegal character in path at index 23: http://example.com/path with spaces/file.jpg", errorBuffer.toString().trim());
+    }
+
+    /**
+     * Test of image file attachment for Anthropic.
+     * @throws MissingEnvironmentVariable
+     */
+    @Test
+    @Tag("e2e")
+    public void testImageFileAttachmentAnthropic(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+        // Given
+        final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
+        final PrintStream output = new PrintStream(outputBuffer);
+        final ByteArrayOutputStream errorBuffer = new ByteArrayOutputStream();
+        final PrintStream error = new PrintStream(errorBuffer);
+
+        final AnthropicModelParameters parameters = new AnthropicModelParameters("claude-sonnet-4-20250514",
+                                                                                 Optional.empty(),
+                                                                                 "ANTHROPIC_API_KEY",
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty());
+        final ChatModel model = AnthropicChatModelProvider.createChatModel(parameters);
+        final String userPrompt = "Describe the image";
+        final List<Attachment> attachments = List.of(new Attachment(AttachmentSource.FILE, "src/test/data/whiteCrossInRedDisk.jpg"));
+
+        // When
+        final int exitCode = BatchMode.handleBatch(model, Optional.empty(), userPrompt, attachments, output, error, Optional.empty());
+
+        // Then
+        Assertions.assertEquals(ExitCode.SUCCESS.getCode(), exitCode);
+        Assertions.assertTrue(outputBuffer.toString().contains("plus sign"));
+    }
+
+    /**
+     * Test of image URL attachment for Anthropic.
+     * @throws MissingEnvironmentVariable
+     */
+    @Test
+    //@Tag("e2e")
+    public void testImageUrlAttachmentAnthropic(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+        // Given
+        final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
+        final PrintStream output = new PrintStream(outputBuffer);
+        final ByteArrayOutputStream errorBuffer = new ByteArrayOutputStream();
+        final PrintStream error = new PrintStream(errorBuffer);
+
+        final AnthropicModelParameters parameters = new AnthropicModelParameters("claude-sonnet-4-20250514",
+                                                                                 Optional.empty(),
+                                                                                 "ANTHROPIC_API_KEY",
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty());
+        final ChatModel model = AnthropicChatModelProvider.createChatModel(parameters);
+        final String userPrompt = "Describe the image";
+        final List<Attachment> attachments = List.of(new Attachment(AttachmentSource.URL, "https://raw.githubusercontent.com/lmazure/SimpleLlmTool/main/src/test/data/whiteCrossInRedDisk.jpg"));
+
+        // When
+        final int exitCode = BatchMode.handleBatch(model, Optional.empty(), userPrompt, attachments, output, error, Optional.empty());
+
+        // Then
+        Assertions.assertEquals(ExitCode.SUCCESS.getCode(), exitCode);
+        Assertions.assertTrue(outputBuffer.toString().contains("plus sign"));
+    }
+
+    /**
+     * Test of PDF file attachment for Anthropic.
+     * @throws MissingEnvironmentVariable
+     */
+    @Test
+    @Tag("e2e")
+    public void testPdfFileAttachmentAnthropic(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+        // Given
+        final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
+        final PrintStream output = new PrintStream(outputBuffer);
+        final ByteArrayOutputStream errorBuffer = new ByteArrayOutputStream();
+        final PrintStream error = new PrintStream(errorBuffer);
+
+        final AnthropicModelParameters parameters = new AnthropicModelParameters("claude-sonnet-4-20250514",
+                                                                                 Optional.empty(),
+                                                                                 "ANTHROPIC_API_KEY",
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty());
+        final ChatModel model = AnthropicChatModelProvider.createChatModel(parameters);
+        final String userPrompt = "What is John birthday? Write only the date formatted as YYYY-MM-DD.";
+        final List<Attachment> attachments = List.of(new Attachment(AttachmentSource.FILE, "src/test/data/john.pdf"));
+
+        // When
+        final int exitCode = BatchMode.handleBatch(model, Optional.empty(), userPrompt, attachments, output, error, Optional.empty());
+
+        // Then
+        Assertions.assertEquals(ExitCode.SUCCESS.getCode(), exitCode);
+        Assertions.assertEquals("1941-03-07", outputBuffer.toString().trim());
+    }
+
+    /**
+     * Test of PDF URL attachment for Anthropic.
+     * @throws MissingEnvironmentVariable
+     */
+    @Disabled("Bug in LangChain4j?")
+    @Test
+    @Tag("e2e")
+    public void testPdfUrlAttachmentAnthropic(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+        // Given
+        final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
+        final PrintStream output = new PrintStream(outputBuffer);
+        final ByteArrayOutputStream errorBuffer = new ByteArrayOutputStream();
+        final PrintStream error = new PrintStream(errorBuffer);
+
+        final AnthropicModelParameters parameters = new AnthropicModelParameters("claude-sonnet-4-20250514",
+                                                                                 Optional.empty(),
+                                                                                 "ANTHROPIC_API_KEY",
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty(),
+                                                                                 Optional.empty());
+        final ChatModel model = AnthropicChatModelProvider.createChatModel(parameters);
+        final String userPrompt = "What is John birthday? Write only the date formatted as YYYY-MM-DD.";
+        final List<Attachment> attachments = List.of(new Attachment(AttachmentSource.URL, "https://raw.githubusercontent.com/lmazure/SimpleLlmTool/main/src/test/data/john.pdf"));
+
+        // When
+        final int exitCode = BatchMode.handleBatch(model, Optional.empty(), userPrompt, attachments, output, error, Optional.empty());
+
+        // Then
+        Assertions.assertEquals(ExitCode.SUCCESS.getCode(), exitCode);
+        Assertions.assertEquals("1941-03-07", outputBuffer.toString().trim());
+    }
+
+    /**
+     * Test of PDF URL attachment for OpenAI.
+     * @throws MissingEnvironmentVariable
+     */
+    @Disabled("Bug in LangChain4j?")
+    @Test
+    @Tag("e2e")
+    public void testPdfUrlAttachmentOpenAI(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+        // Given
+        final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
+        final PrintStream output = new PrintStream(outputBuffer);
+        final ByteArrayOutputStream errorBuffer = new ByteArrayOutputStream();
+        final PrintStream error = new PrintStream(errorBuffer);
+
+        final OpenAiModelParameters parameters = new OpenAiModelParameters("gpt-5-mini-2025-08-07",
+                                                                           Optional.empty(),
+                                                                           "OPENAI_API_KEY",
+                                                                           Optional.empty(),
+                                                                           Optional.empty(),
+                                                                           Optional.empty(),
+                                                                           Optional.empty(),
+                                                                           Optional.empty(),
+                                                                           Optional.empty());
+        final ChatModel model = OpenAiChatModelProvider.createChatModel(parameters);
+        final String userPrompt = "What is John birthday? Write only the date formatted as YYYY-MM-DD.";
+        final List<Attachment> attachments = List.of(new Attachment(AttachmentSource.URL, "https://raw.githubusercontent.com/lmazure/SimpleLlmTool/main/src/test/data/john.pdf"));
+
+        // When
+        final int exitCode = BatchMode.handleBatch(model, Optional.empty(), userPrompt, attachments, output, error, Optional.empty());
+
+        // Then
+        Assertions.assertEquals(ExitCode.SUCCESS.getCode(), exitCode);
+        Assertions.assertEquals("1941-03-07", outputBuffer.toString().trim());
+    }
+}

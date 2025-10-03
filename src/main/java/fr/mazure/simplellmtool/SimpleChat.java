@@ -44,7 +44,7 @@ public class SimpleChat {
             Configuration.set("writer", "file");
             Configuration.set("writer.file", cli.logFile().get().toString());
         }
-        Configuration.set("writer.level", cli.logLevel().orElse(LogLevel.INFO).toString().toLowerCase());
+        Configuration.set("writer.level", cli.logLevel().orElse(LogLevel.WARN).toString().toLowerCase());
 
         final ChatModel model = switch (cli.provider()) {
             case ProviderEnum.OPENAI        -> OpenAiChatModelProvider.createChatModel(OpenAiModelParameters.loadFromFile(cli.modelFile(), cli.overridingModelName()));
@@ -61,10 +61,11 @@ public class SimpleChat {
             if (cli.chatMode()) {
                 assert output == System.out;
                 assert error == System.err;
-                ChatMode.handleChat(model, cli.sysPrompt(), cli.userPrompt(), toolManager);
+                ChatMode.handleChat(model, cli.sysPrompt(), cli.userPrompt(), cli.attachments(), toolManager);
             } else {
                 assert cli.userPrompt().isPresent();
-                BatchMode.handleBatch(model, cli.sysPrompt(), cli.userPrompt().get(), output, toolManager);
+                final int exitCode = BatchMode.handleBatch(model, cli.sysPrompt(), cli.userPrompt().get(), cli.attachments(), output, error, toolManager);
+                System.exit(exitCode);
             }
         } catch (final RuntimeException e) {
             error.println("Model failure (" + e.getMessage() + ")");

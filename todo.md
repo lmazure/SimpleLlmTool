@@ -1,17 +1,25 @@
-- be able to package without running paying tests
+- ajouter des pointeurs vers les listes de modèles
+
+- le code ATTACHMENT_ERROR est retourné pour un mauvais nom de modèle
+
+
+add PDF attachment to
+- chat mode
+- interface mode
+add unit tests
+- local image
+- remote image https://samplelib.com/lib/preview/jpeg/sample-green-100x75.jpg 
+questions
+- what about HTML attachment?
 
 commands
-- add command to list `/tools dlist` to list tools with their parameters
 - add command `/format json` to redisplay the last LLM answer (which should be JSON) preperly formatted
 
 - tools
   - proper logging of tool calls
   - support tools in `CustomChatModel`
 
-- do not run expensive test while daily coding
-- add pointers between READMEs
-
-- less
+- less urgent
   - clean up interface mode
     - see if/how I can display Markdown
   - look at HttpBuilder and log in/out payloads for all models

@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -14,11 +16,18 @@ import java.util.stream.Collectors;
  */
 public class CommandLine {
 
+    public enum AttachmentSource {
+        FILE,
+        URL;
+    }
+
+    public record Attachment(AttachmentSource source, String path) {}
     /**
      * Parameters for the chat application.
      *
      * @param sysPrompt the optional system prompt to send to the model
      * @param userPrompt the optional user prompt to send to the model
+     * @param attachments the attachments to send to the model
      * @param outputFile the optional file to write output to
      * @param errorFile the optional file to write errors to
      * @param logFile the optional file to write logs to
@@ -31,6 +40,7 @@ public class CommandLine {
      */
     public record Parameters(Optional<String> sysPrompt,
                              Optional<String> userPrompt,
+                             List<Attachment> attachments,
                              Optional<Path> outputFile,
                              Optional<Path> errorFile,
                              Optional<Path> logFile,
@@ -50,6 +60,7 @@ public class CommandLine {
     public static Parameters parseCommandLine(final String[] args) {
         String sysPrompt = null;
         String userPrompt = null;
+        List<Attachment> attachments = new ArrayList<>();
         Path outputFile = null;
         Path errorFile = null;
         Path logFile = null;
@@ -109,6 +120,24 @@ public class CommandLine {
                     displayHelpAndExit(i);
                 }
                 userPrompt = slurpFile(Paths.get( args[i + 1]));
+                i++;
+                continue;
+            }
+            if (args[i].equals("--attachment-file")) {
+                if ((i + 1 ) >= args.length) {
+                    System.err.println("Missing argument for --attachment-file");
+                    System.exit(ExitCode.INVALID_COMMAND_LINE.getCode());
+                }
+                attachments.add(new Attachment(AttachmentSource.FILE, args[i + 1]));
+                i++;
+                continue;
+            }
+            if (args[i].equals("--attachment-url")) {
+                if ((i + 1 ) >= args.length) {
+                    System.err.println("Missing argument for --attachment-url");
+                    System.exit(ExitCode.INVALID_COMMAND_LINE.getCode());
+                }
+                attachments.add(new Attachment(AttachmentSource.URL, args[i + 1]));
                 i++;
                 continue;
             }
@@ -205,10 +234,6 @@ public class CommandLine {
             System.err.println("Unknown argument: " + args[i]);
             displayHelpAndExit(ExitCode.INVALID_COMMAND_LINE.getCode());
         }
-        if (Objects.isNull(userPrompt)) {
-            System.err.println("Missing user prompt");
-            displayHelpAndExit(ExitCode.INVALID_COMMAND_LINE.getCode());
-        }
         if (Objects.isNull(provider)) {
             System.err.println("Missing provider");
             displayHelpAndExit(ExitCode.INVALID_COMMAND_LINE.getCode());
@@ -218,22 +243,23 @@ public class CommandLine {
             displayHelpAndExit(ExitCode.INVALID_COMMAND_LINE.getCode());
         }
         if (chatMode) {
-            if (outputFile != null) {
+            if (Objects.nonNull(outputFile)) {
                 System.err.println("Output file is not allowed in chat mode");
                 displayHelpAndExit(ExitCode.INVALID_COMMAND_LINE.getCode());
             }
-            if (errorFile != null) {
+            if (Objects.nonNull(errorFile)) {
                 System.err.println("Error file is not allowed in chat mode");
                 displayHelpAndExit(ExitCode.INVALID_COMMAND_LINE.getCode());
             }
         } else {
-            if (userPrompt == null) {
+            if (Objects.isNull(userPrompt)) {
                 System.err.println("User prompt is required (except in chat mode where it is optional)");
                 displayHelpAndExit(ExitCode.INVALID_COMMAND_LINE.getCode());
             }
         }
         return new Parameters(Optional.ofNullable(sysPrompt),
                               Optional.ofNullable(userPrompt),
+                              attachments,
                               Optional.ofNullable(outputFile),
                               Optional.ofNullable(errorFile),
                               Optional.ofNullable(logFile),
@@ -251,6 +277,7 @@ public class CommandLine {
                            executableName +
                            " {--user-prompt-string <user-prompt-string>|--user-prompt-file <user-prompt-file>}\n" +
                            "    [--system-prompt-string <system-prompt-string>]  [--system-prompt-file <system-prompt-file>]\n" +
+                           "    [--attachment-file <filename>] [--attachment-url <url>]\n" +
                            "    [--provider <provider>] [--model-file <model-file>] [--model-name <model-name>]\n" +
                            "    [--output-file <output-file>] [--error-file <error-file>] [--log-file <log-file>]\n" +
                            "    [--log-level <log-level>] [--chat-mode] [--help]");
@@ -260,6 +287,8 @@ public class CommandLine {
             --system-prompt-file <system-prompt-file>     system prompt as the content of a file
             --user-prompt-string <user-prompt-string>     user prompt as a string
             --user-prompt-file <user-prompt-file>         user prompt as the content of a file
+            --attachment-file <filename>                  attachment file (can be specified multiple times)
+            --attachment-url <url>                        attachment URL (can be specified multiple times)
             --model-name <model-name>                     model name
             --output-file <output-file>                   output file (stdout by default)
             --error-file <error-file>                     error file (stderr by default)
