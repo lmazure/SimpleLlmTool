@@ -118,6 +118,9 @@ The provider is indicated on the command line with the `--provider <provider>` p
 | `inputTokenPath`        | JSON path to the field containing the number of input tokens  | string | yes          |
 | `outputTokenPath`       | JSON path to the field containing the number of output tokens | string | yes          |
 | `finishReasonPath`      | JSON path to the field containing the finish reason           | string | yes          |
+| `finishReasonMappings`  | mappings of the finish reason of the model                    | list   | yes          |
+| - model reason          | finish reason as provided by the model                        | string | yes          |
+| - reason                | either `DONE` or `MAX_TOKEN`                                  | string | yes          |
 
 † The HTTP header `Content-Type: application/json` is added automatically.
 
@@ -134,6 +137,10 @@ The following helpers are available:
 - `isUser` (boolean): tests if this is a user message (a.k.a user prompt)
 - `isModel` (boolean): tests if this is a model message
 - `convertToJsonString` (string): converts a string to a JSON string (including the double quotes) by escaping the special characters
+
+Possible finish reasons:
+- `DONE`: the full text has been produced
+- `MAX_TOKENS`: the max number of tokens has been reached
 
 #### Example 1 - OpenAI
 (see [this document](https://platform.openai.com/docs/api-reference/chat/create?lang=curl))

@@ -26,6 +26,7 @@ import fr.mazure.simplellmtool.provider.anthropic.AnthropicModelParameters;
 import fr.mazure.simplellmtool.provider.base.MissingEnvironmentVariable;
 import fr.mazure.simplellmtool.provider.custom.CustomChatModelProvider;
 import fr.mazure.simplellmtool.provider.custom.CustomModelParameters;
+import fr.mazure.simplellmtool.provider.custom.internal.CustomChatModel;
 import fr.mazure.simplellmtool.provider.googlegemini.GoogleGeminiChatModelProvider;
 import fr.mazure.simplellmtool.provider.googlegemini.GoogleGeminiModelParameters;
 import fr.mazure.simplellmtool.provider.mistralai.MistralAiChatModelProvider;
@@ -191,7 +192,8 @@ public class BatchModeTest {
                                                                            "choices[0].message.content",
                                                                            "usage.prompt_tokens",
                                                                            "usage.completion_tokens",
-                                                                           "choices[0].finish_reason"); // TODO fix this!
+                                                                           "choices[0].finish_reason",
+                                                                           Map.of("stop", CustomChatModel.FinishingReason.DONE)); // TODO fix this and the previous line!
         final ChatModel model = CustomChatModelProvider.createChatModel(parameters);
         final Optional<String> sysPrompt = Optional.of("You must answer in one word.");
         final String userPrompt = "What is the capital of France?";

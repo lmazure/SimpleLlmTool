@@ -1,15 +1,11 @@
-- afficher la finishing reason en mode chat et batch
-- ajouter le support de la finishing reason dans le custom AI server
+- afficher la finishing reason en mode batch
+- compléter et tester gpt-4.1-nano@custom.yaml + corriger le test testBasicCustom
+- corriger le parsing de la finishReason dans parseApiResponse (mettre un switch case qui throw sur une valeur non prévue en indiquant celle-ci)
 
 - le code ATTACHMENT_ERROR est retourné pour un mauvais nom de modèle
 
+- understand why attaching PDF URL does not work
 
-add PDF attachment to
-- chat mode
-- interface mode
-add unit tests
-- local image
-- remote image https://samplelib.com/lib/preview/jpeg/sample-green-100x75.jpg 
 questions
 - what about HTML attachment?
 
@@ -29,7 +25,7 @@ commands
   - throw a BadParamaterValue exception when a Handlebars template is incorrect
   - analyse token count evaluation
 
-How to manage the token count for `gemini-2.5-flash@custom.yaml`
+How to manage the token count for `gemini-2.5-flash@custom.yaml`, it seems we will need a formula
 ```
   "candidates": [
     {

@@ -31,8 +31,8 @@ public class ParameterMap {
         return url.get();
     }
 
-    public Map<String, String> getMap(final String parameterName) throws MissingModelParameter, InvalidModelParameter {
-        final Optional<Map<String, String>> map = getOptionalMap(parameterName);
+    public Map<String, String> getStringMap(final String parameterName) throws MissingModelParameter, InvalidModelParameter {
+        final Optional<Map<String, String>> map = getOptionalStringMap(parameterName);
         if (map.isEmpty()) {
             throw new MissingModelParameter(parameterName);
         }
@@ -56,7 +56,7 @@ public class ParameterMap {
         return Optional.of(url);
     }
 
-    public Optional<Map<String, String>> getOptionalMap(final String parameterName) throws InvalidModelParameter {
+    public Optional<Map<String, String>> getOptionalStringMap(final String parameterName) throws InvalidModelParameter {
         if (!data.containsKey(parameterName)) {
             return Optional.empty();
         }

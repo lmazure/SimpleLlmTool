@@ -15,6 +15,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import fr.mazure.simplellmtool.provider.base.InvalidModelParameter;
 import fr.mazure.simplellmtool.provider.base.MissingModelParameter;
+import fr.mazure.simplellmtool.provider.custom.internal.CustomChatModel;
 
 /**
  * Tests for the {@link CustomModelParameters} class.
@@ -43,6 +44,9 @@ public class CustomModelParametersTest {
                 inputTokenPath: path_to_number_of_input_tokens
                 outputTokenPath: path_to_number_of_output_tokens
                 finishReasonPath: path_to_finish_reason
+                finishReasonMappings:
+                  string_for_stop: DONE
+                  string_for_max_tokens: MAX_TOKENS
                 """;
         final Path tempConfigPath = tempDir.resolve("valid-custom-config.yaml");
         Files.writeString(tempConfigPath, configContent);
@@ -60,6 +64,7 @@ public class CustomModelParametersTest {
         Assertions.assertEquals("path_to_number_of_input_tokens", parameters.getInputTokenPath());
         Assertions.assertEquals("path_to_number_of_output_tokens", parameters.getOutputTokenPath());
         Assertions.assertEquals("path_to_finish_reason", parameters.getFinishReasonPath());
+        Assertions.assertEquals(Map.of("string_for_stop", CustomChatModel.FinishingReason.DONE, "string_for_max_tokens", CustomChatModel.FinishingReason.MAX_TOKENS), parameters.getFinishReasonMappings());
     }
 
     /**
@@ -83,6 +88,9 @@ public class CustomModelParametersTest {
                 inputTokenPath: path_to_number_of_input_tokens
                 outputTokenPath: path_to_number_of_output_tokens
                 finishReasonPath: path_to_finish_reason
+                finishReasonMappings:
+                  string_for_stop: DONE
+                  string_for_max_tokens: MAX_TOKENS
                 """;
         final Path tempConfigPath = tempDir.resolve(("minimal-custom-config.yaml"));
         Files.writeString(tempConfigPath, configContent);
@@ -100,6 +108,7 @@ public class CustomModelParametersTest {
         Assertions.assertEquals("path_to_number_of_input_tokens", parameters.getInputTokenPath());
         Assertions.assertEquals("path_to_number_of_output_tokens", parameters.getOutputTokenPath());
         Assertions.assertEquals("path_to_finish_reason", parameters.getFinishReasonPath());
+        Assertions.assertEquals(Map.of("string_for_stop", CustomChatModel.FinishingReason.DONE, "string_for_max_tokens", CustomChatModel.FinishingReason.MAX_TOKENS), parameters.getFinishReasonMappings());
     }
 
     /**
@@ -123,6 +132,9 @@ public class CustomModelParametersTest {
                 inputTokenPath: path_to_number_of_input_tokens
                 outputTokenPath: path_to_number_of_output_tokens
                 finishReasonPath: path_to_finish_reason
+                finishReasonMappings:
+                  string_for_stop: DONE
+                  string_for_max_tokens: MAX_TOKENS
                 """;
         final Path tempConfigPath = tempDir.resolve(("minimal-custom-config.yaml"));
         Files.writeString(tempConfigPath, configContent);
@@ -140,6 +152,7 @@ public class CustomModelParametersTest {
         Assertions.assertEquals("path_to_number_of_input_tokens", parameters.getInputTokenPath());
         Assertions.assertEquals("path_to_number_of_output_tokens", parameters.getOutputTokenPath());
         Assertions.assertEquals("path_to_finish_reason", parameters.getFinishReasonPath());
+        Assertions.assertEquals(Map.of("string_for_stop", CustomChatModel.FinishingReason.DONE, "string_for_max_tokens", CustomChatModel.FinishingReason.MAX_TOKENS), parameters.getFinishReasonMappings());
     }
 
     /**
@@ -151,7 +164,8 @@ public class CustomModelParametersTest {
         final Path nonExistentPath = Paths.get("non-existent-file.yaml");
 
         // When/Then
-        Assertions.assertThrows(IOException.class, () -> CustomModelParameters.loadFromFile(nonExistentPath, Optional.empty()));
+        final Exception exception = Assertions.assertThrows(IOException.class, () -> CustomModelParameters.loadFromFile(nonExistentPath, Optional.empty()));
+        Assertions.assertTrue(exception.getMessage().contains("non-existent-file.yaml"));
     }
 
     /**
@@ -169,13 +183,50 @@ public class CustomModelParametersTest {
                 apiKeyEnvVar: CUSTOM_API_KEY
                 url: invalid-url
                 payloadTemplate: the_template
+                httpHeaders:
+                  Authorization: Bearer {{apiKey}}
                 answerPath: path_to_answer
                 inputTokenPath: path_to_number_of_input_tokens
                 outputTokenPath: path_to_number_of_output_tokens
                 finishReasonPath: path_to_finish_reason
+                finishReasonMappings:
+                  string_for_stop: DONE
+                  string_for_max_tokens: MAX_TOKENS
                 """);
 
         // When/Then
-        Assertions.assertThrows(InvalidModelParameter.class, () -> CustomModelParameters.loadFromFile(invalidConfigPath, Optional.empty()));
+        final Exception exception = Assertions.assertThrows(InvalidModelParameter.class, () -> CustomModelParameters.loadFromFile(invalidConfigPath, Optional.empty()));
+        Assertions.assertEquals("Invalid model parameter (should be of type URL): url has value \"invalid-url\"", exception.getMessage());
+    }
+
+    /**
+     * Test loading a file with invalid finish reason mappings.
+     *
+     * @param tempDir temporary directory for test files
+     * @throws IOException if there is an error creating or writing to the file
+     */
+    @Test
+    public void testLoadFromFileWithInvalidFinishReasonMappings(@TempDir final Path tempDir) throws IOException {
+        // Given
+        final Path invalidConfigPath = tempDir.resolve("invalid-finish-reason-mappings-config.yaml");
+        Files.writeString(invalidConfigPath, """
+                modelName: custom-medium-latest
+                apiKeyEnvVar: CUSTOM_API_KEY
+                url: https://api.custom.ai/v1
+                payloadTemplate: the_template
+                httpHeaders:
+                  Authorization: Bearer {{apiKey}}
+                answerPath: path_to_answer
+                inputTokenPath: path_to_number_of_input_tokens
+                outputTokenPath: path_to_number_of_output_tokens
+                finishReasonPath: path_to_finish_reason
+                finishReasonMappings:
+                  string_for_stop: DONE
+                  string_for_max_tokens: MAX_TOKEN
+                """);
+
+        // When/Then
+        final Exception exception = Assertions.assertThrows(InvalidModelParameter.class, () -> CustomModelParameters.loadFromFile(invalidConfigPath, Optional.empty()));
+        Assertions.assertEquals("Invalid model parameter (should be of type FinishingReason): finishReasonMappings has value \"MAX_TOKEN\"", exception.getMessage());
     }
 }
