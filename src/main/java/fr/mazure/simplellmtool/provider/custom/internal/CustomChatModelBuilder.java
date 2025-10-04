@@ -3,6 +3,8 @@ package fr.mazure.simplellmtool.provider.custom.internal;
 
 import java.util.Map;
 
+import fr.mazure.simplellmtool.provider.custom.internal.CustomChatModel.FinishingReason;
+
 public class CustomChatModelBuilder {
 
     private String modelName;
@@ -13,6 +15,8 @@ public class CustomChatModelBuilder {
     private String answerPath;
     private String inputTokenPath;
     private String outputTokenPath;
+    private String finishReasonPath;
+    private Map<String, FinishingReason> finishReasonMappings;
     private boolean logRequests = false;
     private boolean logResponses = false;
 
@@ -81,6 +85,22 @@ public class CustomChatModelBuilder {
     }
 
     /**
+     * Sets the JSON path to the field containing the finish reason
+     */
+    public CustomChatModelBuilder finishReasonPath(final String finishReasonPath) {
+        this.finishReasonPath = finishReasonPath;
+        return this;
+    }
+
+    /**
+     * Sets the map of finish reason values to their corresponding FinishReason enum values
+     */
+    public CustomChatModelBuilder finishReasonMappings(final Map<String, FinishingReason> finishReasonMappings) {
+        this.finishReasonMappings = finishReasonMappings;
+        return this;
+    }
+
+    /**
      * Enables request logging
      */
     public CustomChatModelBuilder logRequests(final boolean logRequests) {
@@ -125,41 +145,49 @@ public class CustomChatModelBuilder {
      * Validates required parameters before building
      */
     private void validateParameters() {
-        if (modelName == null || modelName.trim().isEmpty()) {
+        if (this.modelName == null || this.modelName.trim().isEmpty()) {
             throw new IllegalArgumentException("Model name is required");
         }
-        if (apiKey == null || apiKey.trim().isEmpty()) {
+        if (this.apiKey == null || this.apiKey.trim().isEmpty()) {
             throw new IllegalArgumentException("API key is required");
         }
-        if (baseUrl == null || baseUrl.trim().isEmpty()) {
+        if (this.baseUrl == null || this.baseUrl.trim().isEmpty()) {
             throw new IllegalArgumentException("Base URL is required");
         }
-        if (payloadTemplate == null || payloadTemplate.trim().isEmpty()) {
+        if (this.payloadTemplate == null || this.payloadTemplate.trim().isEmpty()) {
             throw new IllegalArgumentException("Payload template is required");
         }
-        if (httpHeaders == null || httpHeaders.isEmpty()) {
+        if (this.httpHeaders == null || this.httpHeaders.isEmpty()) {
             throw new IllegalArgumentException("HTTP headers are required");
         }
-        if (answerPath == null || answerPath.trim().isEmpty()) {
+        if (this.answerPath == null || this.answerPath.trim().isEmpty()) {
             throw new IllegalArgumentException("Answer path is required");
         }
-        if (inputTokenPath == null || inputTokenPath.trim().isEmpty()) {
+        if (this.inputTokenPath == null || this.inputTokenPath.trim().isEmpty()) {
             throw new IllegalArgumentException("Input token path is required");
         }
-        if (outputTokenPath == null || outputTokenPath.trim().isEmpty()) {
+        if (this.outputTokenPath == null || this.outputTokenPath.trim().isEmpty()) {
             throw new IllegalArgumentException("Output token path is required");
+        }
+        if (this.finishReasonPath == null || this.finishReasonPath.trim().isEmpty()) {
+            throw new IllegalArgumentException("Finish reason path is required");
+        }
+        if (this.finishReasonMappings == null || this.finishReasonMappings.isEmpty()) {
+            throw new IllegalArgumentException("Finish reason mappings are required");
         }
     }
 
     // Getters for the CustomChatModel constructor
-    String getModelName() { return modelName; }
-    String getApiKey() { return apiKey; }
-    String getBaseUrl() { return baseUrl; }
-    String getPayloadTemplate() { return payloadTemplate; }
-    String getAnswerPath() { return answerPath; }
-    Map<String, String> getHttpHeaders() { return httpHeaders; }
-    String getInputTokenPath() { return inputTokenPath; }
-    String getOutputTokenPath() { return outputTokenPath; }
-    boolean isLogRequests() { return logRequests; }
-    boolean isLogResponses() { return logResponses; }
+    String getModelName() { return this.modelName; }
+    String getApiKey() { return this.apiKey; }
+    String getBaseUrl() { return this.baseUrl; }
+    String getPayloadTemplate() { return this.payloadTemplate; }
+    String getAnswerPath() { return this.answerPath; }
+    Map<String, String> getHttpHeaders() { return this.httpHeaders; }
+    String getInputTokenPath() { return this.inputTokenPath; }
+    String getOutputTokenPath() { return this.outputTokenPath; }
+    String getFinishReasonPath() { return this.finishReasonPath; }
+    Map<String, FinishingReason> getFinishReasonMappings() { return this.finishReasonMappings;}
+    boolean isLogRequests() { return this.logRequests; }
+    boolean isLogResponses() { return this.logResponses; }
 }

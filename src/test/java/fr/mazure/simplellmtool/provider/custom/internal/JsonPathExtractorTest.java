@@ -59,49 +59,49 @@ class JsonPathExtractorTest {
     }
 
     @Test
-    void basicScalarString() throws IOException {
+    void basicScalarString() throws IOException, JsonPathExtractorException {
         Assertions.assertEquals("b",
                                 JsonPathExtractor.extract("{\"a\": \"b\"}",
                                                           "a"));
     }
 
     @Test
-    void basicScalarInteger() throws IOException {
+    void basicScalarInteger() throws IOException, JsonPathExtractorException {
         Assertions.assertEquals("62",
                                 JsonPathExtractor.extract("{\"a\": 62}",
                                                           "a"));
     }
 
     @Test
-    void basicArrayString() throws IOException {
+    void basicArrayString() throws IOException, JsonPathExtractorException {
         Assertions.assertEquals("bb",
                                 JsonPathExtractor.extract("[ \"aa\", \"bb\", \"cc\" ]",
                                                           "[1]"));
     }
 
     @Test
-    void basicArrayInteger() throws IOException {
+    void basicArrayInteger() throws IOException, JsonPathExtractorException {
         Assertions.assertEquals("22",
                                 JsonPathExtractor.extract("[ 11, 22, 33 ]",
                                                           "[1]"));
     }
 
     @Test
-    void arrayInArray() throws IOException {
+    void arrayInArray() throws IOException, JsonPathExtractorException {
         Assertions.assertEquals("dd",
                                 JsonPathExtractor.extract("[ \"aa\", [ \"bb\", \"cc\", \"dd\", \"ee\" ], \"ff\" ]",
                                                           "[1][2]"));
     }
 
     @Test
-    void dictInDict() throws IOException {
+    void dictInDict() throws IOException, JsonPathExtractorException {
         Assertions.assertEquals("ee",
                                 JsonPathExtractor.extract("{ \"aa\": { \"bb\": \"cc\", \"dd\": \"ee\", \"ff\": \"gg\" }, \"hh\": \"ii\" }",
                                                           "aa.dd"));
     }
 
     @Test
-    void dictInArray() throws IOException {
+    void dictInArray() throws IOException, JsonPathExtractorException {
         Assertions.assertEquals("jj",
                                 JsonPathExtractor.extract("[ { \"aa\": \"bb\", \"cc\": \"dd\", \"ee\": \"ff\" }, { \"gg\": \"hh\", \"ii\": \"jj\", \"kk\": \"ll\" } ]",
                                                           "[1].ii"));
@@ -109,7 +109,7 @@ class JsonPathExtractorTest {
     }
 
     @Test
-    void arrayInDict() throws IOException {
+    void arrayInDict() throws IOException, JsonPathExtractorException {
         Assertions.assertEquals("ff",
                                 JsonPathExtractor.extract("{ \"aa\": \"bb\", \"cc\": [ \"dd\", \"ee\", \"ff\" ], \"gg\": \"hh\" }",
                                                           "cc[2]"));
@@ -117,14 +117,14 @@ class JsonPathExtractorTest {
     }
 
     @Test
-    void realWorld() throws IOException {
+    void realWorld() throws IOException, JsonPathExtractorException {
         Assertions.assertEquals("Fiat",
                                 JsonPathExtractor.extract("{\"name\":\"John\", \"age\":30, \"cars\":[\"Ford\", \"BMW\", \"Fiat\"]}",
                                                           "cars[2]"));
     }
 
     @Test
-    void realWorld2() throws IOException {
+    void realWorld2() throws IOException, JsonPathExtractorException {
         Assertions.assertEquals("2017",
                                 JsonPathExtractor.extract("{\"name\":\"John\", \"age\":30, \"cars\":[ { \"model\":\"Ford\", \"year\":2017 }, { \"model\":\"BMW\", \"year\":2018 }, { \"model\":\"Fiat\", \"year\":2019 } ]}",
                                                           "cars[0].year"));

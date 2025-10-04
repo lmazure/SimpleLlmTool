@@ -25,6 +25,7 @@ import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.TokenUsage;
 import fr.mazure.simplellmtool.CommandLine.Attachment;
 
@@ -132,7 +133,7 @@ public class ChatMode extends BaseMode {
                 memory.add(UserMessage.from(contents));
                 final ChatResponse chatResponse = generateResponse(model, memory, toolManager);
                 displayAnswer(terminal, chatResponse.aiMessage().text());
-                logTokenUsage(chatResponse.tokenUsage());
+                logUsage(chatResponse.finishReason(), chatResponse.tokenUsage());
                 prefilledText = "";
                 attachments.clear();
             }
@@ -203,7 +204,12 @@ public class ChatMode extends BaseMode {
         terminal.writer().println(displayedAnswer.toAnsi());
     }
 
-    private static void logTokenUsage(final TokenUsage tokenUsage) {
+    private static void logUsage(final FinishReason finishReason,
+                                 final TokenUsage tokenUsage) {
+        if (finishReason != null) {
+            logger.info("Finish reason: " + finishReason.toString());
+        }
+
         if (tokenUsage != null) {
             final Integer inputTokens = tokenUsage.inputTokenCount();
             final Integer outputTokens = tokenUsage.outputTokenCount();

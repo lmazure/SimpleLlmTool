@@ -22,9 +22,19 @@ import dev.langchain4j.http.client.jdk.JdkHttpClientBuilder;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.TokenUsage;
 
 public class CustomChatModel implements ChatModel {
+
+    public enum FinishingReason {
+        DONE(FinishReason.STOP),
+        MAX_TOKENS(FinishReason.LENGTH);
+        public final FinishReason reason;
+        private FinishingReason(final FinishReason reason) {
+            this.reason = reason;
+        }
+    }
 
     private final String modelName;
     private final String apiKey;
@@ -36,6 +46,8 @@ public class CustomChatModel implements ChatModel {
     private final String answerPath;
     private final String inputTokenPath;
     private final String outputTokenPath;
+    private final String finishReasonPath;
+    private final Map<String, FinishingReason> finishReasonMappings;
     private final boolean logRequests;
     private final boolean logResponses;
 
@@ -51,6 +63,8 @@ public class CustomChatModel implements ChatModel {
         this.answerPath = builder.getAnswerPath();
         this.inputTokenPath = builder.getInputTokenPath();
         this.outputTokenPath = builder.getOutputTokenPath();
+        this.finishReasonPath = builder.getFinishReasonPath();
+        this.finishReasonMappings = builder.getFinishReasonMappings();
         this.logRequests = builder.isLogRequests();
         this.logResponses = builder.isLogResponses();
 
@@ -61,7 +75,7 @@ public class CustomChatModel implements ChatModel {
         final HttpClientBuilder httpClientBuilder = new JdkHttpClientBuilder();
         final HttpClient client = httpClientBuilder.connectTimeout(connectTimeout).readTimeout(readTimeout).build();
 
-        if (logRequests || logResponses) {
+        if (this.logRequests || this.logResponses) {
             return new LoggingHttpClient(client, this.logRequests, this.logResponses);
         } else {
             return client;
@@ -92,6 +106,8 @@ public class CustomChatModel implements ChatModel {
             throw new RuntimeException("API call failed: " + e.statusCode() + " " + e.getMessage());
         } catch (final IOException e) {
             throw new RuntimeException("Failed to parse answer: " + e.getMessage());
+        } catch (final JsonPathExtractorException e) {
+            throw new RuntimeException("Failed to extract path " + e.getPath() + " from answer");
         }
     }
 
@@ -135,18 +151,26 @@ public class CustomChatModel implements ChatModel {
         };
     }
 
-    private ChatResponse parseApiResponse(final String responseBody) throws IOException {
-        final String generatedText = JsonPathExtractor.extract(responseBody, answerPath);
+    private ChatResponse parseApiResponse(final String responseBody) throws IOException, JsonPathExtractorException {
+        final String generatedText = JsonPathExtractor.extract(responseBody, this.answerPath);
 
         final AiMessage aiMessage = AiMessage.from(generatedText);
 
-        final Integer inputTokens = Integer.parseInt(JsonPathExtractor.extract(responseBody, inputTokenPath));
-        final Integer outputTokens = Integer.parseInt(JsonPathExtractor.extract(responseBody, outputTokenPath));
+        final Integer inputTokens = Integer.parseInt(JsonPathExtractor.extract(responseBody, this.inputTokenPath));
+        final Integer outputTokens = Integer.parseInt(JsonPathExtractor.extract(responseBody, this.outputTokenPath));
         final TokenUsage tokenUsage = new TokenUsage(inputTokens, outputTokens);
+
+        final String finishReason = JsonPathExtractor.extract(responseBody, finishReasonPath);
+        final FinishingReason reason = this.finishReasonMappings.get(finishReason);
+        if (reason == null) {
+            throw new IllegalArgumentException("Unexpected finish reason: " + finishReason + " (it should be present in the finishReasonMappings property)");
+        }
+        final FinishReason finishReasonEnum = reason.reason;
 
         return ChatResponse.builder()
                            .aiMessage(aiMessage)
                            .tokenUsage(tokenUsage)
+                           .finishReason(finishReasonEnum)
                            .build();
     }
 }

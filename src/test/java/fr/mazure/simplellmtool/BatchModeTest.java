@@ -26,6 +26,7 @@ import fr.mazure.simplellmtool.provider.anthropic.AnthropicModelParameters;
 import fr.mazure.simplellmtool.provider.base.MissingEnvironmentVariable;
 import fr.mazure.simplellmtool.provider.custom.CustomChatModelProvider;
 import fr.mazure.simplellmtool.provider.custom.CustomModelParameters;
+import fr.mazure.simplellmtool.provider.custom.internal.CustomChatModel;
 import fr.mazure.simplellmtool.provider.googlegemini.GoogleGeminiChatModelProvider;
 import fr.mazure.simplellmtool.provider.googlegemini.GoogleGeminiModelParameters;
 import fr.mazure.simplellmtool.provider.mistralai.MistralAiChatModelProvider;
@@ -190,7 +191,9 @@ public class BatchModeTest {
                                                                            Map.of("Authorization", "Bearer {{apiKey}}"),
                                                                            "choices[0].message.content",
                                                                            "usage.prompt_tokens",
-                                                                           "usage.completion_tokens");
+                                                                           "usage.completion_tokens",
+                                                                           "choices[0].finish_reason",
+                                                                           Map.of("stop", CustomChatModel.FinishingReason.DONE)); // TODO fix this and the previous line!
         final ChatModel model = CustomChatModelProvider.createChatModel(parameters);
         final Optional<String> sysPrompt = Optional.of("You must answer in one word.");
         final String userPrompt = "What is the capital of France?";
@@ -214,7 +217,7 @@ public class BatchModeTest {
         final String pythonScript = """
                 import sys
                 from datetime import datetime
-                
+
                 def parse_date(date_string):
                     try:
                         return datetime.strptime(date_string, "%Y-%m-%d")
@@ -232,13 +235,13 @@ public class BatchModeTest {
                     if len(sys.argv) != 3:
                         print("Usage: python date_diff.py <start_date> <end_date>")
                         sys.exit(1)
-                    
+
                     start_date_str = sys.argv[1]
                     end_date_str = sys.argv[2]
 
                     start_date = parse_date(start_date_str)
                     end_date = parse_date(end_date_str)
-                    
+
                     days_difference = (end_date - start_date).days
                     print(days_difference)
 
@@ -358,7 +361,7 @@ public class BatchModeTest {
      * @throws MissingEnvironmentVariable
      */
     @Test
-    //@Tag("e2e")
+    @Tag("e2e")
     public void testImageUrlAttachmentAnthropic(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();

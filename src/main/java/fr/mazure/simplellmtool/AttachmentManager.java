@@ -56,13 +56,13 @@ public class AttachmentManager {
 
     /*
      * Returns the content of a file
-     * 
+     *
      * @param filePath The path of the file
-     * 
+     *
      * @return The content of the file
-     * 
+     *
      * @throws AttachmentManagerException If the file is not a supported type or
-     * 
+     *
      */
     public static Content getFileContent(final Path filePath) throws AttachmentManagerException {
         final String fileExtension = getExtension(filePath.toString() );
@@ -78,11 +78,11 @@ public class AttachmentManager {
 
     /*
      * Returns the content of a URI
-     * 
+     *
      * @param uri The URI of the file
-     * 
+     *
      * @return The content of the file
-     * 
+     *
      * @throws AttachmentManagerException If the URL is not a supported type
      */
     public static Content getUriContent(final URI uri) throws AttachmentManagerException {
@@ -99,11 +99,11 @@ public class AttachmentManager {
 
     /*
      * Returns the type of an attachment
-     * 
+     *
      * @param extension The extension of the file
-     * 
+     *
      * @return The type of the attachment
-     * 
+     *
      * @throws AttachmentManagerException If the file is not a supported type
      */
     private static AttachmentType getAttachmentType(final String extension) throws AttachmentManagerException {
@@ -118,12 +118,12 @@ public class AttachmentManager {
 
     /*
      * Returns the content of an image file
-     * 
+     *
      * @param filePath The path of the file
      * @param fileExtension The extension of the file
-     * 
+     *
      * @return The content of the file
-     * 
+     *
      * @throws AttachmentManagerException If the file cannot be read
      */
     private static Content getImageFileContent(final Path filePath,
@@ -137,12 +137,12 @@ public class AttachmentManager {
 
     /*
      * Returns the content of an audio file
-     * 
+     *
      * @param filePath The path of the file
      * @param fileExtension The extension of the file
-     * 
+     *
      * @return The content of the file
-     * 
+     *
      * @throws AttachmentManagerException If the file cannot be read
      */
     private static Content getAudioFileContent(final Path filePath,
@@ -154,12 +154,12 @@ public class AttachmentManager {
 
     /*
      * Returns the content of a video file
-     * 
+     *
      * @param filePath The path of the file
      * @param fileExtension The extension of the file
-     * 
+     *
      * @return The content of the file
-     * 
+     *
      * @throws AttachmentManagerException If the file cannot be read
      */
     private static Content getVideoFileContent(final Path filePath,
@@ -170,11 +170,11 @@ public class AttachmentManager {
 
     /*
      * Returns the content of a PDF file
-     * 
+     *
      * @param filePath The path of the file
-     * 
+     *
      * @return The content of the file
-     * 
+     *
      * @throws AttachmentManagerException If the file cannot be read
      */
     private static Content getPdfFileContent(final Path filePath) throws AttachmentManagerException {
@@ -184,9 +184,9 @@ public class AttachmentManager {
 
     /*
      * Returns the extension of a filename or URL
-     * 
+     *
      * @param filename The filename or URL
-     * 
+     *
      * @return The extension of the filename or URL
      */
     private static String getExtension(final String filename) {
@@ -195,11 +195,11 @@ public class AttachmentManager {
 
     /*
      * Returns the content of a file as a base64 string
-     * 
+     *
      * @param filePath The path of the file
-     * 
+     *
      * @return The content of the file as a base64 string
-     * 
+     *
      * @throws AttachmentManagerException If the file cannot be read
      */
     private static String getFileContentAsBase64(final Path filePath) throws AttachmentManagerException {

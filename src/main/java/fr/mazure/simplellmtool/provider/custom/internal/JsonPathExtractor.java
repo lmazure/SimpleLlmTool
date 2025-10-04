@@ -22,25 +22,43 @@ public class JsonPathExtractor {
     }
 
     public static String extract(final String json,
-                                 final String path) throws IOException {
+                                 final String path) throws IOException, JsonPathExtractorException {
         final JsonNode rootNode = objectMapper.readTree(json);
         return extract(rootNode, split(path), 0).asText();
     }
 
     private static JsonNode extract(final JsonNode node,
                                     final List<String> pathParts,
-                                    final int startIndex) {
+                                    final int startIndex) throws JsonPathExtractorException {
         if (startIndex == pathParts.size()) {
             return node;
         }
         final String part = pathParts.get(startIndex);
         if (part.startsWith("[")) {
-        	// array index (e.g. "[1]")
+            // array index (e.g. "[1]")
             final int index = Integer.parseInt(part.substring(1, part.length() - 1));
-            return extract(node.get(index), pathParts, startIndex + 1);
+            final JsonNode n = node.get(index);
+            if (n == null) {
+                throw new JsonPathExtractorException("Index " + index + " not found in array", part);
+            }
+            try {
+                return extract(n, pathParts, startIndex + 1);
+            } catch (final JsonPathExtractorException e) {
+                final String sep = e.getPath().startsWith("[") ? "" : ".";
+                throw new JsonPathExtractorException(e.getMessage(), part + sep + e.getPath());
+            }
         } else {
             // name of a scalar field (e.g. "foo")
-            return extract(node.get(part), pathParts, startIndex + 1);
+            final JsonNode n = node.get(part);
+            if (n == null) {
+                throw new JsonPathExtractorException("'" + part + "' field not found", part);
+            }
+            try {
+                return extract(n, pathParts, startIndex + 1);
+            } catch (final JsonPathExtractorException e) {
+                final String sep = e.getPath().startsWith("[") ? "" : ".";
+                throw new JsonPathExtractorException(e.getMessage(), part + sep + e.getPath());
+            }
         }
     }
 

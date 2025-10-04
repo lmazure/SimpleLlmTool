@@ -1,14 +1,11 @@
-- ajouter des pointeurs vers les listes de modèles
+- afficher la finishing reason en mode batch
+- compléter et tester gpt-4.1-nano@custom.yaml + corriger le test testBasicCustom
+- corriger le parsing de la finishReason dans parseApiResponse (mettre un switch case qui throw sur une valeur non prévue en indiquant celle-ci)
 
 - le code ATTACHMENT_ERROR est retourné pour un mauvais nom de modèle
 
+- understand why attaching PDF URL does not work
 
-add PDF attachment to
-- chat mode
-- interface mode
-add unit tests
-- local image
-- remote image https://samplelib.com/lib/preview/jpeg/sample-green-100x75.jpg 
 questions
 - what about HTML attachment?
 
@@ -19,9 +16,44 @@ commands
   - proper logging of tool calls
   - support tools in `CustomChatModel`
 
+- aupport of attachments in `CustomChatModel`
+
 - less urgent
   - clean up interface mode
     - see if/how I can display Markdown
   - look at HttpBuilder and log in/out payloads for all models
   - throw a BadParamaterValue exception when a Handlebars template is incorrect
   - analyse token count evaluation
+
+How to manage the token count for `gemini-2.5-flash@custom.yaml`, it seems we will need a formula
+```
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "I do not have a name. I am a large language model, trained by Google."
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 6,
+    "candidatesTokenCount": 18,
+    "totalTokenCount": 290,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 6
+      }
+    ],
+    "thoughtsTokenCount": 266
+  },
+  "modelVersion": "gemini-2.5-flash",
+  "responseId": "CijgaNeAA7Xm7M8PpYSfoQ4"
+}
+```
