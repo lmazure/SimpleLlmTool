@@ -30,7 +30,7 @@ public class BatchMode extends BaseMode {
      * @param output The PrintStream to use for output.
      * @param error The PrintStream to use for error output.
      * @param toolManager The ToolManager to use for tool execution.
-     * 
+     *
      * @return The exit code.
      */
     static int handleBatch(final ChatModel model,

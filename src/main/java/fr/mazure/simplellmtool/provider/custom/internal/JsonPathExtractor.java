@@ -35,7 +35,7 @@ public class JsonPathExtractor {
         }
         final String part = pathParts.get(startIndex);
         if (part.startsWith("[")) {
-        	// array index (e.g. "[1]")
+            // array index (e.g. "[1]")
             final int index = Integer.parseInt(part.substring(1, part.length() - 1));
             final JsonNode n = node.get(index);
             if (n == null) {

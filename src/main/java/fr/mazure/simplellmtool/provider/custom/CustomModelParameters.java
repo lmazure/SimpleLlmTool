@@ -117,7 +117,6 @@ public class CustomModelParameters extends ModelParameters {
         }
     }
 
-    
     static private Map<String, CustomChatModel.FinishingReason> getFinishReasonMappings(final ParameterMap parameterMap) throws MissingModelParameter, InvalidModelParameter {
         final String parameterName = "finishReasonMappings";
         final Map<String, String> map = parameterMap.getStringMap(parameterName);

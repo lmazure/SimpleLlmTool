@@ -217,7 +217,7 @@ public class BatchModeTest {
         final String pythonScript = """
                 import sys
                 from datetime import datetime
-                
+
                 def parse_date(date_string):
                     try:
                         return datetime.strptime(date_string, "%Y-%m-%d")
@@ -235,13 +235,13 @@ public class BatchModeTest {
                     if len(sys.argv) != 3:
                         print("Usage: python date_diff.py <start_date> <end_date>")
                         sys.exit(1)
-                    
+
                     start_date_str = sys.argv[1]
                     end_date_str = sys.argv[2]
 
                     start_date = parse_date(start_date_str)
                     end_date = parse_date(end_date_str)
-                    
+
                     days_difference = (end_date - start_date).days
                     print(days_difference)
 
