@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
  */
 class JsonPathExtractorTest {
 
+    @SuppressWarnings("static-method")
     @Test
     void validPath() {
         Assertions.assertTrue(JsonPathExtractor.isPathValid("a"));
@@ -33,6 +34,7 @@ class JsonPathExtractorTest {
         Assertions.assertTrue(JsonPathExtractor.isPathValid("[7].node.field[1].subn0de[0][1984].truc"));
     }
 
+    @SuppressWarnings("static-method")
     @Test
     void invalidPath() {
         Assertions.assertFalse(JsonPathExtractor.isPathValid(""));
@@ -58,6 +60,7 @@ class JsonPathExtractorTest {
         Assertions.assertFalse(JsonPathExtractor.isPathValid("node[]"));
     }
 
+    @SuppressWarnings("static-method")
     @Test
     void basicScalarString() throws IOException, JsonPathExtractorException {
         Assertions.assertEquals("b",
@@ -65,6 +68,7 @@ class JsonPathExtractorTest {
                                                           "a"));
     }
 
+    @SuppressWarnings("static-method")
     @Test
     void basicScalarInteger() throws IOException, JsonPathExtractorException {
         Assertions.assertEquals("62",
@@ -72,6 +76,7 @@ class JsonPathExtractorTest {
                                                           "a"));
     }
 
+    @SuppressWarnings("static-method")
     @Test
     void basicArrayString() throws IOException, JsonPathExtractorException {
         Assertions.assertEquals("bb",
@@ -79,6 +84,7 @@ class JsonPathExtractorTest {
                                                           "[1]"));
     }
 
+    @SuppressWarnings("static-method")
     @Test
     void basicArrayInteger() throws IOException, JsonPathExtractorException {
         Assertions.assertEquals("22",
@@ -86,6 +92,7 @@ class JsonPathExtractorTest {
                                                           "[1]"));
     }
 
+    @SuppressWarnings("static-method")
     @Test
     void arrayInArray() throws IOException, JsonPathExtractorException {
         Assertions.assertEquals("dd",
@@ -93,6 +100,7 @@ class JsonPathExtractorTest {
                                                           "[1][2]"));
     }
 
+    @SuppressWarnings("static-method")
     @Test
     void dictInDict() throws IOException, JsonPathExtractorException {
         Assertions.assertEquals("ee",
@@ -100,6 +108,7 @@ class JsonPathExtractorTest {
                                                           "aa.dd"));
     }
 
+    @SuppressWarnings("static-method")
     @Test
     void dictInArray() throws IOException, JsonPathExtractorException {
         Assertions.assertEquals("jj",
@@ -108,6 +117,7 @@ class JsonPathExtractorTest {
 
     }
 
+    @SuppressWarnings("static-method")
     @Test
     void arrayInDict() throws IOException, JsonPathExtractorException {
         Assertions.assertEquals("ff",
@@ -116,6 +126,7 @@ class JsonPathExtractorTest {
 
     }
 
+    @SuppressWarnings("static-method")
     @Test
     void realWorld() throws IOException, JsonPathExtractorException {
         Assertions.assertEquals("Fiat",
@@ -123,6 +134,7 @@ class JsonPathExtractorTest {
                                                           "cars[2]"));
     }
 
+    @SuppressWarnings("static-method")
     @Test
     void realWorld2() throws IOException, JsonPathExtractorException {
         Assertions.assertEquals("2017",

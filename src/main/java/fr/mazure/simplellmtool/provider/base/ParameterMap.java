@@ -40,10 +40,10 @@ public class ParameterMap {
     }
 
     public Optional<URL> getOptionalUrl(final String parameterName) throws InvalidModelParameter {
-        if (!data.containsKey(parameterName)) {
+        if (!this.data.containsKey(parameterName)) {
             return Optional.empty();
         }
-        final Object value = data.get(parameterName);
+        final Object value = this.data.get(parameterName);
         if (!(value instanceof String stringValue)) {
             throw new InvalidModelParameter(parameterName, "URL", value.toString());
         }
@@ -57,10 +57,10 @@ public class ParameterMap {
     }
 
     public Optional<Map<String, String>> getOptionalStringMap(final String parameterName) throws InvalidModelParameter {
-        if (!data.containsKey(parameterName)) {
+        if (!this.data.containsKey(parameterName)) {
             return Optional.empty();
         }
-        final Object value = data.get(parameterName);
+        final Object value = this.data.get(parameterName);
         if (value instanceof Map<?, ?> mapValue) {
             try {
                 @SuppressWarnings("unchecked")
@@ -69,16 +69,15 @@ public class ParameterMap {
             } catch (final ClassCastException e) {
                 throw new InvalidModelParameter(parameterName, "Map<String, String>", value.toString());
             }
-        } else {
-            throw new InvalidModelParameter(parameterName, "Map<String, String>", value.toString());
         }
+        throw new InvalidModelParameter(parameterName, "Map<String, String>", value.toString());
     }
 
     public Optional<String> getOptionalString(final String parameterName) throws InvalidModelParameter {
-        if (!data.containsKey(parameterName)) {
+        if (!this.data.containsKey(parameterName)) {
             return Optional.empty();
         }
-        final Object value = data.get(parameterName);
+        final Object value = this.data.get(parameterName);
         if (value instanceof String stringValue) {
             return Optional.of(stringValue);
         }
@@ -86,10 +85,10 @@ public class ParameterMap {
     }
 
     public Optional<Double> getOptionalDouble(final String parameterName) throws InvalidModelParameter {
-        if (!data.containsKey(parameterName)) {
+        if (!this.data.containsKey(parameterName)) {
             return Optional.empty();
         }
-        final Object value = data.get(parameterName);
+        final Object value = this.data.get(parameterName);
         if (value instanceof Double doubleValue) {
             return Optional.of(doubleValue);
         }
@@ -97,10 +96,10 @@ public class ParameterMap {
     }
 
     public Optional<Integer> getOptionalInteger(final String parameterName) throws InvalidModelParameter {
-        if (!data.containsKey(parameterName)) {
+        if (!this.data.containsKey(parameterName)) {
             return Optional.empty();
         }
-        final Object value = data.get(parameterName);
+        final Object value = this.data.get(parameterName);
         if (value instanceof Integer integerValue) {
             return Optional.of(integerValue);
         }
@@ -108,10 +107,10 @@ public class ParameterMap {
     }
 
     public Optional<Boolean> getOptionalBoolean(final String parameterName) throws InvalidModelParameter {
-        if (!data.containsKey(parameterName)) {
+        if (!this.data.containsKey(parameterName)) {
             return Optional.empty();
         }
-        final Object value = data.get(parameterName);
+        final Object value = this.data.get(parameterName);
         if (value instanceof Boolean booleanValue) {
             return Optional.of(booleanValue);
         }

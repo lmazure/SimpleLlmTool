@@ -6,6 +6,9 @@ import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel.GoogleAiGeminiChat
 import fr.mazure.simplellmtool.provider.base.MissingEnvironmentVariable;
 import fr.mazure.simplellmtool.provider.base.ModelProvider;
 
+/**
+ * The Google Gemini model provider.
+ */
 public class GoogleGeminiChatModelProvider implements ModelProvider {
 
     public static ChatModel createChatModel(final GoogleGeminiModelParameters parameters) throws MissingEnvironmentVariable {
@@ -36,8 +39,8 @@ public class GoogleGeminiChatModelProvider implements ModelProvider {
             builder.maxOutputTokens(parameters.getMaxTokens().get());
         }
 
-        return builder.logRequests(true)
-                      .logResponses(true)
+        return builder.logRequests(Boolean.TRUE)
+                      .logResponses(Boolean.TRUE)
                       .build();
     }
 }

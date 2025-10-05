@@ -5,6 +5,9 @@ import fr.mazure.simplellmtool.provider.base.MissingEnvironmentVariable;
 import fr.mazure.simplellmtool.provider.base.ModelProvider;
 import fr.mazure.simplellmtool.provider.custom.internal.CustomChatModel;
 
+/**
+ * The custom model provider.
+ */
 public class CustomChatModelProvider implements ModelProvider {
 
     public static ChatModel createChatModel(final CustomModelParameters parameters) throws MissingEnvironmentVariable {
@@ -22,8 +25,8 @@ public class CustomChatModelProvider implements ModelProvider {
                               .outputTokenPath(parameters.getOutputTokenPath())
                               .finishReasonPath(parameters.getFinishReasonPath())
                               .finishReasonMappings(parameters.getFinishReasonMappings())
-                              .logRequests(true)
-                              .logResponses(true)
+                              .logRequests(Boolean.TRUE)
+                              .logResponses(Boolean.TRUE)
                               .build();
     }
 }

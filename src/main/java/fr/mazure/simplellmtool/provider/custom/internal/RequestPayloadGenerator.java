@@ -34,21 +34,21 @@ public class RequestPayloadGenerator {
             handlebars.registerHelper("isSystem", new Helper<Role>() {
                 @Override
                 public Boolean apply(final Role role, final Options options) {
-                    return Role.SYSTEM.equals(role);
+                    return Boolean.valueOf(Role.SYSTEM.equals(role));
                 }
             });
 
             handlebars.registerHelper("isUser", new Helper<Role>() {
                 @Override
                 public Boolean apply(final Role role, final Options options) {
-                    return Role.USER.equals(role);
+                    return Boolean.valueOf(Role.USER.equals(role));
                 }
             });
 
             handlebars.registerHelper("isModel", new Helper<Role>() {
                 @Override
                 public Boolean apply(final Role role, final Options options) {
-                    return Role.MODEL.equals(role);
+                    return Boolean.valueOf(Role.MODEL.equals(role));
                 }
             });
 
@@ -113,7 +113,7 @@ public class RequestPayloadGenerator {
                 default:
                     if (c < 0x20) {
                         // Only escape control characters (0x00-0x1F)
-                        escaped.append(String.format("\\u%04x", (int) c));
+                        escaped.append(String.format("\\u%04x", Integer.valueOf(c)));
                     } else {
                         // Preserve all other characters including emojis
                         escaped.append(c);

@@ -27,7 +27,7 @@ public class ToolManager {
 
     public ToolManager(final Path toolsDir) {
         this.toolsDir = toolsDir;
-        toolList = initToolList(toolsDir);
+        this.toolList = initToolList(toolsDir);
     }
     public List<Tool> getToolList() {
         return this.toolList;

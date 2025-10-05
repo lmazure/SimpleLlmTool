@@ -47,18 +47,17 @@ public class JsonPathExtractor {
                 final String sep = e.getPath().startsWith("[") ? "" : ".";
                 throw new JsonPathExtractorException(e.getMessage(), part + sep + e.getPath());
             }
-        } else {
-            // name of a scalar field (e.g. "foo")
-            final JsonNode n = node.get(part);
-            if (n == null) {
-                throw new JsonPathExtractorException("'" + part + "' field not found", part);
-            }
-            try {
-                return extract(n, pathParts, startIndex + 1);
-            } catch (final JsonPathExtractorException e) {
-                final String sep = e.getPath().startsWith("[") ? "" : ".";
-                throw new JsonPathExtractorException(e.getMessage(), part + sep + e.getPath());
-            }
+        }
+        // name of a scalar field (e.g. "foo")
+        final JsonNode n = node.get(part);
+        if (n == null) {
+            throw new JsonPathExtractorException("'" + part + "' field not found", part);
+        }
+        try {
+            return extract(n, pathParts, startIndex + 1);
+        } catch (final JsonPathExtractorException e) {
+            final String sep = e.getPath().startsWith("[") ? "" : ".";
+            throw new JsonPathExtractorException(e.getMessage(), part + sep + e.getPath());
         }
     }
 

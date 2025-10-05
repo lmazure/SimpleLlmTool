@@ -20,7 +20,7 @@ import fr.mazure.simplellmtool.provider.custom.internal.CustomChatModel;
 /**
  * Tests for the {@link CustomModelParameters} class.
  */
-public class CustomModelParametersTest {
+class CustomModelParametersTest {
 
     /**
      * Test loading a valid configuration file with all parameters.
@@ -30,8 +30,9 @@ public class CustomModelParametersTest {
      * @throws MissingModelParameter if a compulsory parameter is missing
      * @throws InvalidModelParameter if a parameter has an incorrect value
      */
+    @SuppressWarnings("static-method")
     @Test
-    public void testLoadFromFileWithAllParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
+    void testLoadFromFileWithAllParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
         // Given
         final String configContent = """
                 modelName: custom-large-latest
@@ -74,8 +75,9 @@ public class CustomModelParametersTest {
      * @throws MissingModelParameter if a compulsory parameter is missing
      * @throws InvalidModelParameter if a parameter has an incorrect value
      */
+    @SuppressWarnings("static-method")
     @Test
-    public void testLoadFromFileWithMinimalParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
+    void testLoadFromFileWithMinimalParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
         // Given
         final String configContent = """
                 modelName: custom-small-latest
@@ -118,8 +120,9 @@ public class CustomModelParametersTest {
      * @throws MissingModelParameter if a compulsory parameter is missing
      * @throws InvalidModelParameter if a parameter has an incorrect value
      */
+    @SuppressWarnings("static-method")
     @Test
-    public void testLoadFromFileWithOverriddenModelName(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
+    void testLoadFromFileWithOverriddenModelName(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
         // Given
         final String configContent = """
                 modelName: custom-small-latest
@@ -158,8 +161,9 @@ public class CustomModelParametersTest {
     /**
      * Test loading a non-existent file.
      */
+    @SuppressWarnings("static-method")
     @Test
-    public void testLoadFromNonExistentFile() {
+    void testLoadFromNonExistentFile() {
         // Given
         final Path nonExistentPath = Paths.get("non-existent-file.yaml");
 
@@ -174,8 +178,9 @@ public class CustomModelParametersTest {
      * @param tempDir temporary directory for test files
      * @throws IOException if there is an error creating or writing to the file
      */
+    @SuppressWarnings("static-method")
     @Test
-    public void testLoadFromFileWithInvalidUrl(@TempDir final Path tempDir) throws IOException {
+    void testLoadFromFileWithInvalidUrl(@TempDir final Path tempDir) throws IOException {
         // Given
         final Path invalidConfigPath = tempDir.resolve("invalid-url-config.yaml");
         Files.writeString(invalidConfigPath, """
@@ -205,8 +210,9 @@ public class CustomModelParametersTest {
      * @param tempDir temporary directory for test files
      * @throws IOException if there is an error creating or writing to the file
      */
+    @SuppressWarnings("static-method")
     @Test
-    public void testLoadFromFileWithInvalidFinishReasonMappings(@TempDir final Path tempDir) throws IOException {
+    void testLoadFromFileWithInvalidFinishReasonMappings(@TempDir final Path tempDir) throws IOException {
         // Given
         final Path invalidConfigPath = tempDir.resolve("invalid-finish-reason-mappings-config.yaml");
         Files.writeString(invalidConfigPath, """

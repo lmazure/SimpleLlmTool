@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
  */
 class RequestPayloadGeneratorTest {
 
+    @SuppressWarnings("static-method")
     @Test
     @DisplayName("Should generate OpenAI payload with multiple messages")
     void testGenerateMultipleMessagesForOpenAi() {
@@ -81,6 +82,7 @@ class RequestPayloadGeneratorTest {
         Assertions.assertEquals(expectedResult, result);
     }
 
+    @SuppressWarnings("static-method")
     @Test
     @DisplayName("Should generate Google's Gemini payload with multiple messages")
     void testGenerateMultipleMessagesForGoogleGemini() {
@@ -201,6 +203,7 @@ class RequestPayloadGeneratorTest {
         Assertions.assertEquals(expectedResult, result);
     }
 
+    @SuppressWarnings("static-method")
     @Test
     @DisplayName("Should manage model name")
     void testGenerateModelName() {
@@ -269,6 +272,7 @@ class RequestPayloadGeneratorTest {
         Assertions.assertEquals(expectedResult, result);
     }
 
+    @SuppressWarnings("static-method")
     @Test
     @DisplayName("Should handle API key in HTTP headers")
     void testGenerateApiKet() {
@@ -288,6 +292,7 @@ class RequestPayloadGeneratorTest {
         Assertions.assertEquals("Bearer: my-secret-API-key", result);
     }
 
+    @SuppressWarnings("static-method")
     @Test
     @DisplayName("Does not modify special characters in API key in HTTP headers")
     void testGenerateAPiKeyWithoutChangingCharacters() {
@@ -307,6 +312,7 @@ class RequestPayloadGeneratorTest {
         Assertions.assertEquals("Bearer: &é~\"#'{([-|è`_\\ç^à@)]", result);
     }
 
+    @SuppressWarnings("static-method")
     @Test
     @DisplayName("Should handle empty messages list")
     void testGenerateEmptyMessages() {
@@ -321,6 +327,7 @@ class RequestPayloadGeneratorTest {
         Assertions.assertEquals("Messages: ", result);
     }
 
+    @SuppressWarnings("static-method")
     @Test
     @DisplayName("Should handle template without message placeholders")
     void testGenerateTemplateWithoutPlaceholders() {
@@ -337,6 +344,7 @@ class RequestPayloadGeneratorTest {
         Assertions.assertEquals("This is a static template without placeholders", result);
     }
 
+    @SuppressWarnings("static-method")
     @Test
     @DisplayName("Should handle special characters in messages")
     void testGenerateWithSpecialCharacters() {
@@ -353,6 +361,7 @@ class RequestPayloadGeneratorTest {
         Assertions.assertEquals("Message: \"Hello \\\"world\\\" with 'quotes' and \\n newlines\"", result);
     }
 
+    @SuppressWarnings("static-method")
     @Test
     @DisplayName("Should throw runtime exception for invalid template syntax")
     void testGenerateInvalidTemplate() {
@@ -370,6 +379,7 @@ class RequestPayloadGeneratorTest {
         Assertions.assertEquals("Failed to process Handlebars template", exception.getMessage());
     }
 
+    @SuppressWarnings("static-method")
     @Test
     @DisplayName("Should handle empty template")
     void testGenerateEmptyTemplate() {

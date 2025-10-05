@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
@@ -48,8 +47,8 @@ public class CustomChatModel implements ChatModel {
     private final String outputTokenPath;
     private final String finishReasonPath;
     private final Map<String, FinishingReason> finishReasonMappings;
-    private final boolean logRequests;
-    private final boolean logResponses;
+    private final Boolean logRequests;
+    private final Boolean logResponses;
 
     private final HttpClient httpClient;
 
@@ -75,11 +74,10 @@ public class CustomChatModel implements ChatModel {
         final HttpClientBuilder httpClientBuilder = new JdkHttpClientBuilder();
         final HttpClient client = httpClientBuilder.connectTimeout(connectTimeout).readTimeout(readTimeout).build();
 
-        if (this.logRequests || this.logResponses) {
+        if (this.logRequests.booleanValue() || this.logResponses.booleanValue()) {
             return new LoggingHttpClient(client, this.logRequests, this.logResponses);
-        } else {
-            return client;
         }
+        return client;
     }
 
     /**
@@ -91,12 +89,7 @@ public class CustomChatModel implements ChatModel {
 
     @Override
     public ChatResponse doChat(final ChatRequest chatRequest) {
-        String requestBody;
-        try {
-            requestBody = buildRequestBody(chatRequest);
-        } catch (final IOException e) {
-            throw new RuntimeException("Failed to build request body: " + e.getMessage());
-        }
+        final String requestBody = buildRequestBody(chatRequest);
         final HttpRequest request = buildRequest(chatRequest, requestBody);
 
         try {
@@ -111,7 +104,7 @@ public class CustomChatModel implements ChatModel {
         }
     }
 
-    private String buildRequestBody(final ChatRequest chatRequest) throws IOException {
+    private String buildRequestBody(final ChatRequest chatRequest) {
         return RequestPayloadGenerator.generate(this.payloadTemplate,
                                                 convertMessages(chatRequest.messages()),
                                                 this.modelName,
@@ -122,10 +115,10 @@ public class CustomChatModel implements ChatModel {
                                      final String requestBody) {
         final Builder httpRequestBuilder = HttpRequest.builder()
                                                       .method(HttpMethod.POST)
-                                                      .url(url)
+                                                      .url(this.url)
                                                       .addHeader("Content-Type", "application/json")
                                                       .body(requestBody);
-        for (final Map.Entry<String, String> entry : httpHeaders.entrySet()) {
+        for (final Map.Entry<String, String> entry : this.httpHeaders.entrySet()) {
             final String valueTemplate = entry.getValue();
             final String value = RequestPayloadGenerator.generate(valueTemplate,
                                                                   convertMessages(chatRequest.messages()),
@@ -139,7 +132,7 @@ public class CustomChatModel implements ChatModel {
     private List<MessageRound> convertMessages(final List<ChatMessage> messages) {
         return messages.stream()
                        .map(this::convertMessage)
-                       .collect(Collectors.toList());
+                       .toList();
     }
 
     private MessageRound convertMessage(final ChatMessage message) {
@@ -156,11 +149,11 @@ public class CustomChatModel implements ChatModel {
 
         final AiMessage aiMessage = AiMessage.from(generatedText);
 
-        final Integer inputTokens = Integer.parseInt(JsonPathExtractor.extract(responseBody, this.inputTokenPath));
-        final Integer outputTokens = Integer.parseInt(JsonPathExtractor.extract(responseBody, this.outputTokenPath));
+        final Integer inputTokens = Integer.valueOf(JsonPathExtractor.extract(responseBody, this.inputTokenPath));
+        final Integer outputTokens = Integer.valueOf(JsonPathExtractor.extract(responseBody, this.outputTokenPath));
         final TokenUsage tokenUsage = new TokenUsage(inputTokens, outputTokens);
 
-        final String finishReason = JsonPathExtractor.extract(responseBody, finishReasonPath);
+        final String finishReason = JsonPathExtractor.extract(responseBody, this.finishReasonPath);
         final FinishingReason reason = this.finishReasonMappings.get(finishReason);
         if (reason == null) {
             throw new IllegalArgumentException("Unexpected finish reason: " + finishReason + " (it should be present in the finishReasonMappings property)");

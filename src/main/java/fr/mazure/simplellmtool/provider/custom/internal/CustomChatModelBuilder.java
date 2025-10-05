@@ -17,8 +17,8 @@ public class CustomChatModelBuilder {
     private String outputTokenPath;
     private String finishReasonPath;
     private Map<String, FinishingReason> finishReasonMappings;
-    private boolean logRequests = false;
-    private boolean logResponses = false;
+    private Boolean logRequests = Boolean.FALSE;
+    private Boolean logResponses = Boolean.FALSE;
 
     public CustomChatModelBuilder() {
         // Default constructor
@@ -103,7 +103,7 @@ public class CustomChatModelBuilder {
     /**
      * Enables request logging
      */
-    public CustomChatModelBuilder logRequests(final boolean logRequests) {
+    public CustomChatModelBuilder logRequests(final Boolean logRequests) {
         this.logRequests = logRequests;
         return this;
     }
@@ -111,7 +111,7 @@ public class CustomChatModelBuilder {
     /**
      * Enables response logging
      */
-    public CustomChatModelBuilder logResponses(final boolean logResponses) {
+    public CustomChatModelBuilder logResponses(final Boolean logResponses) {
         this.logResponses = logResponses;
         return this;
     }
@@ -188,6 +188,6 @@ public class CustomChatModelBuilder {
     String getOutputTokenPath() { return this.outputTokenPath; }
     String getFinishReasonPath() { return this.finishReasonPath; }
     Map<String, FinishingReason> getFinishReasonMappings() { return this.finishReasonMappings;}
-    boolean isLogRequests() { return this.logRequests; }
-    boolean isLogResponses() { return this.logResponses; }
+    Boolean isLogRequests() { return this.logRequests; }
+    Boolean isLogResponses() { return this.logResponses; }
 }

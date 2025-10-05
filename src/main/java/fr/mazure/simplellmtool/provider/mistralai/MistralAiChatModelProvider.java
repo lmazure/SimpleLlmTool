@@ -6,6 +6,9 @@ import dev.langchain4j.model.mistralai.MistralAiChatModel.MistralAiChatModelBuil
 import fr.mazure.simplellmtool.provider.base.MissingEnvironmentVariable;
 import fr.mazure.simplellmtool.provider.base.ModelProvider;
 
+/**
+ * The Mistral AI model provider.
+ */
 public class MistralAiChatModelProvider implements ModelProvider {
 
     public static ChatModel createChatModel(final MistralAiModelParameters parameters) throws MissingEnvironmentVariable {
@@ -32,7 +35,7 @@ public class MistralAiChatModelProvider implements ModelProvider {
             builder.maxTokens(parameters.getMaxTokens().get());
         }
 
-        return builder.logRequests(true)
-                      .logResponses(true)
+        return builder.logRequests(Boolean.TRUE)
+                      .logResponses(Boolean.TRUE)
                       .build();    }
 }
