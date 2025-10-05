@@ -1,4 +1,4 @@
-- afficher la finishing reason en mode batch
+- afficher (en log info) les tokens et la finishing reason en mode batch
 - compléter et tester gpt-4.1-nano@custom.yaml + corriger le test testBasicCustom
 - corriger le parsing de la finishReason dans parseApiResponse (mettre un switch case qui throw sur une valeur non prévue en indiquant celle-ci)
 

@@ -348,65 +348,7 @@ x-goog-api-key: sec_DEADBEEF
 
 A mock provider used for testing.
 
-## Examples of usage
-
-### Use Claude Sonnet 4 in interactive mode
-```bash
-export $(cat .env)
-java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --provider Anthropic --model-file examples/claude-4-sonnet@anthropic.yaml --chat-mode
-```
-
-### Use Claude Sonnet 4 in batch mode to extract data from a PDF
-```bash
-export $(cat .env)
-java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --provider Anthropic --model-file examples/claude-4-sonnet@anthropic.yaml --attachment-file src/test/data/john.pdf --user-prompt-string "What is John birthday? Write only the date formatted as YYYY-MM-DD."
-```
-
-### Total mess
-use OpenAI provider
-```bash
-export $(cat .env)
-source tools/.venv/Scripts/Activate
-java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider OpenAI --model-file examples/gpt-4.1-nano@openai.yaml
-```
-
-use Mistral AI provider
-```bash
-export $(cat .env)
-source tools/.venv/Scripts/Activate
-java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Why is the sky blue?" --system-prompt-string "You are a scientific." --provider "Mistral AI" --model-file examples/mistral-large-latest@mistralai.yaml
-```
-
-use Anthropic provider
-```bash
-export $(cat .env)
-source tools/.venv/Scripts/Activate
-java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider Anthropic --model-file examples/claude-4-sonnet@anthropic.yaml
-java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "What is the weather in Paris?" --system-prompt-string "You always provide an English anwer, followed by a precise translation in French" --provider Anthropic --model-file examples/claude-4-sonnet@anthropic.yaml --tools-dir tools
-```
-
-use Google Gemini provider
-```bash
-export $(cat .env)
-source tools/.venv/Scripts/Activate
-java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider "Google Gemini" --model-file examples/gemini-2.5-flash@google.yaml
-```
-
-use custom provider
-```bash
-export $(cat .env)
-source tools/.venv/Scripts/Activate
-java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider custom --model-file examples/gpt-4.1-nano@custom.yaml
-```
-
-use mock provider
-```bash
-export $(cat .env)
-source tools/.venv/Scripts/Activate
-java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar --user-prompt-string "Hello!" --system-prompt-string "You are a humorist. You always answer with jokes." --provider mock --model-file non-existing-file.yaml
-```
-
-# Tools
+## How to set up tools
 
 If `--tools-dir <tools-dir>` is provided, it should be a directory containing Python scripts.  
 Each script is a tool.
@@ -423,6 +365,38 @@ Each script should
 - if in error, output an error message and have an exit code not equal to 0
 
 See examples in the [`tools`](tools) directory.
+
+## Examples of usage
+
+### Use Claude Sonnet 4 in interactive mode
+```bash
+export $(cat .env)
+java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar \
+     --provider Anthropic \
+     --model-file examples/claude-4-sonnet@anthropic.yaml \
+     --chat-mode
+```
+
+### Use Claude Sonnet 4 in batch mode to extract data from a PDF
+```bash
+export $(cat .env)
+java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar \
+    --provider Anthropic \
+    --model-file examples/claude-4-sonnet@anthropic.yaml \
+    --attachment-file src/test/data/john.pdf \
+    --user-prompt-string "What is John birthday? Write only the date formatted as YYYY-MM-DD."
+```
+
+### Use Claude Sonnet 4 in batch mode with tool calling
+```bash
+export $(cat .env)
+java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar \
+    --provider Anthropic \
+    --model-file examples/claude-4-sonnet@anthropic.yaml \
+    --tools-dir tools \
+    --system-prompt-string "You always provide an English anwer, followed by a precise translation in French" \
+    --user-prompt-string "What is the weather in Paris?"
+```
 
 ## Experiments
 
