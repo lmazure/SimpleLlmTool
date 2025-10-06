@@ -141,4 +141,43 @@ class JsonPathExtractorTest {
                                 JsonPathExtractor.extract("{\"name\":\"John\", \"age\":30, \"cars\":[ { \"model\":\"Ford\", \"year\":2017 }, { \"model\":\"BMW\", \"year\":2018 }, { \"model\":\"Fiat\", \"year\":2019 } ]}",
                                                           "cars[0].year"));
     }
+
+
+    @SuppressWarnings("static-method")
+    @Test
+    void handleInvalidArrayIndex() {
+        final Exception exception = Assertions.assertThrows(JsonPathExtractorException.class,
+                                                            () -> JsonPathExtractor.extract("{\"name\":\"John\", \"age\":30, \"cars\":[ { \"model\":\"Ford\", \"year\":2017 }, { \"model\":\"BMW\", \"year\":2018 }, { \"model\":\"Fiat\", \"year\":2019 } ]}",
+                                                                                            "cars[4].year.dummy.field"));
+        Assertions.assertEquals("Failed to extract JSON path 'cars[4].year.dummy.field', error occurred when retrieving element 'cars[4]'", exception.getMessage());
+    }
+
+
+    @SuppressWarnings("static-method")
+    @Test
+    void handleInvalidField() {
+        final Exception exception = Assertions.assertThrows(JsonPathExtractorException.class,
+                                                            () -> JsonPathExtractor.extract("{\"name\":\"John\", \"age\":30, \"cars\":[ { \"model\":\"Ford\", \"year\":2017 }, { \"model\":\"BMW\", \"year\":2018 }, { \"model\":\"Fiat\", \"year\":2019 } ]}",
+                                                                                            "cars.year.dummy.field"));
+        Assertions.assertEquals("Failed to extract JSON path 'cars.year.dummy.field', error occurred when retrieving element 'cars.year'", exception.getMessage());
+    }
+
+    @SuppressWarnings("static-method")
+    @Test
+    void handleInvalidField2() {
+        final Exception exception = Assertions.assertThrows(JsonPathExtractorException.class,
+                                                            () -> JsonPathExtractor.extract("{\"name\":\"John\", \"age\":30, \"cars\":[ { \"model\":\"Ford\", \"year\":2017 }, { \"model\":\"BMW\", \"year\":2018 }, { \"model\":\"Fiat\", \"year\":2019 } ]}",
+                                                                                            "cars[0].years.dummy.field"));
+        Assertions.assertEquals("Failed to extract JSON path 'cars[0].years.dummy.field', error occurred when retrieving element 'cars[0].years'", exception.getMessage());
+    }
+
+
+    @SuppressWarnings("static-method")
+    @Test
+    void handleInvalidField3() {
+        final Exception exception = Assertions.assertThrows(JsonPathExtractorException.class,
+                                                            () -> JsonPathExtractor.extract("{\"name\":\"John\", \"age\":30, \"cars\":[ { \"model\":\"Ford\", \"year\":2017 }, { \"model\":\"BMW\", \"year\":2018 }, { \"model\":\"Fiat\", \"year\":2019 } ]}",
+                                                                                            "car[0].year.dummy.field"));
+        Assertions.assertEquals("Failed to extract JSON path 'car[0].year.dummy.field', error occurred when retrieving element 'car'", exception.getMessage());
+    }
 }

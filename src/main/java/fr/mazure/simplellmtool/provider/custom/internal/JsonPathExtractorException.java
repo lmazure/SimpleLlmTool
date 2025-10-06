@@ -5,15 +5,8 @@ package fr.mazure.simplellmtool.provider.custom.internal;
  */
 public class JsonPathExtractorException extends Exception {
 
-    private final String path;
-
     public JsonPathExtractorException(final String message,
-                                      final String path) {
-        super(message);
-        this.path = path;
-    }
-
-    public String getPath() {
-        return this.path;
+                                      final Throwable cause) {
+        super(message, cause);
     }
 }

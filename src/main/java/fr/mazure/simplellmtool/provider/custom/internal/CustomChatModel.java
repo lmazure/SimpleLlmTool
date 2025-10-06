@@ -100,7 +100,7 @@ public class CustomChatModel implements ChatModel {
         } catch (final IOException e) {
             throw new RuntimeException("Failed to parse answer: " + e.getMessage());
         } catch (final JsonPathExtractorException e) {
-            throw new RuntimeException("Failed to extract path " + e.getPath() + " from answer");
+            throw new RuntimeException("Failed to extract generated text from answer: " + e.getMessage());
         }
     }
 
