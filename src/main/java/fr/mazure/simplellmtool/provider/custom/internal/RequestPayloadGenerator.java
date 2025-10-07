@@ -6,6 +6,17 @@ import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.Template;
 
+import dev.langchain4j.agent.tool.ToolSpecification;
+import dev.langchain4j.model.chat.request.json.JsonArraySchema;
+import dev.langchain4j.model.chat.request.json.JsonBooleanSchema;
+import dev.langchain4j.model.chat.request.json.JsonEnumSchema;
+import dev.langchain4j.model.chat.request.json.JsonIntegerSchema;
+import dev.langchain4j.model.chat.request.json.JsonNumberSchema;
+import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
+import dev.langchain4j.model.chat.request.json.JsonSchemaElement;
+import dev.langchain4j.model.chat.request.json.JsonStringSchema;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,12 +29,14 @@ public class RequestPayloadGenerator {
      * @param handlebarsTemplate the Handlebars template string to evaluate
      * @param messages the list of message rounds to use as template data
      * @param modelName the name of the model
+     * @param tools the list of tools
      * @param apiKey the API key
      * @return the evaluated template as a string
      */
     public static String generate(final String handlebarsTemplate,
                                   final List<MessageRound> messages,
                                   final String modelName,
+                                  final List<ToolSpecification> tools,
                                   final String apiKey) {
         try {
             final Handlebars handlebars = new Handlebars();
@@ -59,11 +72,40 @@ public class RequestPayloadGenerator {
                 }
             });
 
+            handlebars.registerHelper("isStringType", new Helper<String>() {
+                @Override
+                public Boolean apply(final String type, final Options options) {
+                    return Boolean.valueOf("string".equals(type));
+                }
+            });
+
+            handlebars.registerHelper("isIntegerType", new Helper<String>() {
+                @Override
+                public Boolean apply(final String type, final Options options) {
+                    return Boolean.valueOf("integer".equals(type));
+                }
+            });
+
+            handlebars.registerHelper("isNumberType", new Helper<String>() {
+                @Override
+                public Boolean apply(final String type, final Options options) {
+                    return Boolean.valueOf("number".equals(type));
+                }
+            });
+
+            handlebars.registerHelper("isBooleanType", new Helper<String>() {
+                @Override
+                public Boolean apply(final String type, final Options options) {
+                    return Boolean.valueOf("boolean".equals(type));
+                }
+            });
+
             final Template template = handlebars.compileInline(handlebarsTemplate);
 
             final Map<String, Object> context = new HashMap<>();
             context.put("messages", messages);
             context.put("modelName", modelName);
+            context.put("tools", convertToolSpecifications(tools));
             context.put("apiKey", apiKey);
 
             return template.apply(context);
@@ -123,5 +165,69 @@ public class RequestPayloadGenerator {
         }
 
         return "\"" + escaped.toString() + "\"";
+    }
+
+    /**
+     * Convert ToolSpecifications to a structure that matches the Handlebars template expectations.
+     * The template expects tools with: name, description, parameters, and requiredParameters.
+     *
+     * @param toolSpecifications the list of tool specifications from langchain4j
+     * @return a list of maps representing tools in the expected format
+     */
+    private static List<Map<String, Object>> convertToolSpecifications(final List<ToolSpecification> ktools) {
+        final List<Map<String, Object>> tools = new ArrayList<>();
+
+        for (final ToolSpecification spec : ktools) {
+            final Map<String, Object> tool = new HashMap<>();
+            tool.put("name", spec.name());
+            tool.put("description", spec.description());
+
+            // Extract parameters from the JSON schema
+            final List<Map<String, Object>> parameters = new ArrayList<>();
+            final List<Map<String, Object>> requiredParameters = new ArrayList<>();
+
+            final JsonObjectSchema schema = spec.parameters();
+
+            final Map<String, JsonSchemaElement> properties = schema.properties();
+
+            for (final Map.Entry<String, JsonSchemaElement> entry : properties.entrySet()) {
+                final String paramName = entry.getKey();
+                final JsonSchemaElement element = entry.getValue();
+                final String description = element.description();
+                final String type = getTypeFromElement(element);
+                final List<String> requiredParams = schema.required();
+                final boolean isRequired = requiredParams != null && requiredParams.contains(paramName);
+
+                final Map<String, Object> parameterMap = new HashMap<>();
+                parameterMap.put("name", paramName);
+                parameterMap.put("description", description);
+                parameterMap.put("type", type);
+                parameters.add(parameterMap);
+
+                if (isRequired) {
+                    requiredParameters.add(parameterMap);
+                }
+            }
+
+            tool.put("parameters", parameters);
+            tool.put("requiredParameters", requiredParameters);
+            tools.add(tool);
+        }
+
+        return tools;
+    }
+
+    private static String getTypeFromElement(JsonSchemaElement element) {
+        return switch (element) {
+            case JsonStringSchema _ -> "string";
+            case JsonIntegerSchema _ -> "integer";
+            case JsonNumberSchema _ -> "number";
+            case JsonBooleanSchema _ -> "boolean";
+            case JsonObjectSchema _ -> throw new IllegalArgumentException("type 'object' is not supported");
+            case JsonArraySchema _ -> throw new IllegalArgumentException("type 'array' is not supported");
+            case JsonEnumSchema _ -> throw new IllegalArgumentException("type 'enum' is not supported");
+            case null -> throw new IllegalArgumentException("element cannot be null");
+            default -> throw new IllegalArgumentException("type '" + element.getClass().getSimpleName() + "' is not supported");
+        };
     }
 }

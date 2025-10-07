@@ -5,6 +5,10 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.SystemMessage;
@@ -89,8 +93,13 @@ public class CustomChatModel implements ChatModel {
 
     @Override
     public ChatResponse doChat(final ChatRequest chatRequest) {
-        final String requestBody = buildRequestBody(chatRequest);
-        final HttpRequest request = buildRequest(chatRequest, requestBody);
+        final List<ToolSpecification> toolSpecifications = chatRequest.toolSpecifications();
+        final String requestBody = buildRequestBody(chatRequest, toolSpecifications);
+        final String jsonError = isValidJson(requestBody);
+        if (jsonError != null) {
+            throw new IllegalArgumentException("The generated payload is invalid JSON: " + jsonError + "\n" + addLineNumbers(requestBody));
+        }
+        final HttpRequest request = buildRequest(chatRequest, requestBody, toolSpecifications);
 
         try {
             final SuccessfulHttpResponse response = this.httpClient.execute(request);
@@ -104,15 +113,18 @@ public class CustomChatModel implements ChatModel {
         }
     }
 
-    private String buildRequestBody(final ChatRequest chatRequest) {
+    private String buildRequestBody(final ChatRequest chatRequest,
+                                    final List<ToolSpecification> toolSpecifications) {
         return RequestPayloadGenerator.generate(this.payloadTemplate,
                                                 convertMessages(chatRequest.messages()),
                                                 this.modelName,
+                                                toolSpecifications,
                                                 this.apiKey);
     }
 
     private HttpRequest buildRequest(final ChatRequest chatRequest,
-                                     final String requestBody) {
+                                     final String requestBody,
+                                     final List<ToolSpecification> toolSpecifications) {
         final Builder httpRequestBuilder = HttpRequest.builder()
                                                       .method(HttpMethod.POST)
                                                       .url(this.url)
@@ -123,6 +135,7 @@ public class CustomChatModel implements ChatModel {
             final String value = RequestPayloadGenerator.generate(valueTemplate,
                                                                   convertMessages(chatRequest.messages()),
                                                                   this.modelName,
+                                                                  toolSpecifications,
                                                                   this.apiKey);
             httpRequestBuilder.addHeader(entry.getKey(), value);
         }
@@ -165,5 +178,42 @@ public class CustomChatModel implements ChatModel {
                            .tokenUsage(tokenUsage)
                            .finishReason(finishReasonEnum)
                            .build();
+    }
+
+    /**
+     * Checks if the provided JSON string is valid.
+     *
+     * @param json the JSON string to validate
+     * @return null if the JSON is valid, or an error message if it is invalid
+     */
+    private static String isValidJson(final String json) {
+        try {
+            new ObjectMapper().readTree(json);
+            return null;
+        } catch (final JsonProcessingException e) {
+            return e.getMessage();
+        }
+    }
+
+    private static String addLineNumbers(final String input) {
+        if (input == null) {
+            return null;
+        }
+        
+        final String[] lines = input.split("\n", -1);
+        final StringBuilder result = new StringBuilder();
+        
+        for (int i = 0; i < lines.length; i++) {
+            result.append(String.format("%03d", Integer.valueOf(i + 1)))
+                  .append(" ")
+                  .append(lines[i]);
+            
+            // Add newline except after the last line (if input didn't end with newline)
+            if (i < lines.length - 1) {
+                result.append("\n");
+            }
+        }
+        
+        return result.toString();
     }
 }

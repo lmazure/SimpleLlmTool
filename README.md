@@ -218,7 +218,7 @@ Authorization: Bearer sec_DEADBEEF
 ```
 
 #### Example 2 - Gemini
-(see [this document](hhttps://ai.google.dev/gemini-api/docs#rest))
+(see [this document](hhttps://ai.google.dev/gemini-api/docs#rest) and [this one for tools](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/function-calling#rest))
 
 - this YAML extract:
     ```yaml

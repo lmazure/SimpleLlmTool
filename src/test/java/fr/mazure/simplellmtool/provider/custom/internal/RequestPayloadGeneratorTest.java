@@ -43,7 +43,7 @@ class RequestPayloadGeneratorTest {
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", List.of(), "my-secret-API-key");
 
         // Then
         final String expectedResult = """
@@ -136,7 +136,7 @@ class RequestPayloadGeneratorTest {
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", List.of(), "my-secret-API-key");
 
         // Then
         final String expectedResult = """
@@ -233,7 +233,7 @@ class RequestPayloadGeneratorTest {
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", List.of(), "my-secret-API-key");
 
         // Then
         final String expectedResult = """
@@ -286,7 +286,7 @@ class RequestPayloadGeneratorTest {
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", List.of(), "my-secret-API-key");
 
         // Then
         Assertions.assertEquals("Bearer: my-secret-API-key", result);
@@ -306,7 +306,7 @@ class RequestPayloadGeneratorTest {
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "&é~\"#'{([-|è`_\\ç^à@)]");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", List.of(), "&é~\"#'{([-|è`_\\ç^à@)]");
 
         // Then
         Assertions.assertEquals("Bearer: &é~\"#'{([-|è`_\\ç^à@)]", result);
@@ -321,7 +321,7 @@ class RequestPayloadGeneratorTest {
         final List<MessageRound> messages = Collections.emptyList();
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", List.of(), "my-secret-API-key");
 
         // Then
         Assertions.assertEquals("Messages: ", result);
@@ -338,7 +338,7 @@ class RequestPayloadGeneratorTest {
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", List.of(), "my-secret-API-key");
 
         // Then
         Assertions.assertEquals("This is a static template without placeholders", result);
@@ -355,7 +355,7 @@ class RequestPayloadGeneratorTest {
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", List.of(), "my-secret-API-key");
 
         // Then
         Assertions.assertEquals("Message: \"Hello \\\"world\\\" with 'quotes' and \\n newlines\"", result);
@@ -374,7 +374,7 @@ class RequestPayloadGeneratorTest {
         // When & Then
         RuntimeException exception = Assertions.assertThrows(
             RuntimeException.class,
-            () -> RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key")
+            () -> RequestPayloadGenerator.generate(template, messages, "my-model-name", List.of(), "my-secret-API-key")
         );
         Assertions.assertEquals("Failed to process Handlebars template", exception.getMessage());
     }
@@ -390,7 +390,7 @@ class RequestPayloadGeneratorTest {
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", List.of(),   "my-secret-API-key");
 
         // Then
         Assertions.assertEquals("", result);

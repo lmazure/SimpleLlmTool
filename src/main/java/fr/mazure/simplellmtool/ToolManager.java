@@ -19,7 +19,13 @@ import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 
 public class ToolManager {
 
-    public record ToolParameter(String name, String description) {}
+    public enum ToolParameterType {
+        STRING,
+        INTEGER,
+        NUMBER,
+        BOOLEAN
+    }
+    public record ToolParameter(String name, String description, ToolParameterType type, boolean required) {}
     public record Tool(String name, String description, List<ToolParameter> parameters) {}
 
     private final Path toolsDir;
@@ -115,7 +121,7 @@ public class ToolManager {
             while ((line = bufferedReader.readLine()) != null) {
                 final String[] parts = line.split("\t");
                 if (parts.length == 2) {
-                    parameters.add(new ToolParameter(parts[0].trim(), parts[1].trim()));
+                    parameters.add(new ToolParameter(parts[0].trim(), parts[1].trim(), ToolParameterType.STRING, true));
                 } else {
                     throw new RuntimeException("incorrect parameter description for " + toolName);
                 }
