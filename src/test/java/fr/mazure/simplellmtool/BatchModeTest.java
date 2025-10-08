@@ -48,6 +48,7 @@ class BatchModeTest {
     @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
+    @Tag("e2e_openai")
     void testBasicOpenAi() throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
@@ -80,6 +81,7 @@ class BatchModeTest {
     @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
+    @Tag("e2e_mistralai")
     void testBasicMistralAi() throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
@@ -109,6 +111,7 @@ class BatchModeTest {
     @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
+    @Tag("e2e_anthropic")
     void testBasicAnthropic() throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
@@ -139,6 +142,7 @@ class BatchModeTest {
     @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
+    @Tag("e2e_google_gemini")
     void testBasicGemini() throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
@@ -171,6 +175,7 @@ class BatchModeTest {
     @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
+    @Tag("e2e_openai")
     void testBasicCustom() throws MalformedURLException, URISyntaxException, MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
@@ -218,6 +223,7 @@ class BatchModeTest {
     @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
+    @Tag("e2e_openai")
     void testToolOpenAi(@TempDir final Path tempDir) throws IOException, MissingEnvironmentVariable {
         // Given
         final String pythonScript = """
@@ -339,6 +345,7 @@ class BatchModeTest {
     @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
+    @Tag("e2e_anthropic")
     void testImageFileAttachmentAnthropic() throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
@@ -372,6 +379,7 @@ class BatchModeTest {
     @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
+    @Tag("e2e_anthropic")
     void testImageUrlAttachmentAnthropic() throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
@@ -405,6 +413,7 @@ class BatchModeTest {
     @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
+    @Tag("e2e_anthropic")
     void testPdfFileAttachmentAnthropic() throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
@@ -439,6 +448,7 @@ class BatchModeTest {
     @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
+    @Tag("e2e_anthropic")
     void testPdfUrlAttachmentAnthropic() throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
@@ -473,6 +483,7 @@ class BatchModeTest {
     @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
+    @Tag("e2e_openai")
     void testPdfUrlAttachmentOpenAI() throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();

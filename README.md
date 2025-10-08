@@ -21,6 +21,34 @@ SimpleLlmTool has two objectives:
    mvn clean package -Dgroups='!e2e'
    ```
 
+   If you want to run only the end-to-end tests with OpenAI, you can run
+   ```bash
+   mvn clean package -Dgroups='e2e_openai'
+   ```
+
+   The same can be done for the other providers:
+   ```bash
+   mvn clean package -Dgroups='e2e_mistralai'
+   mvn clean package -Dgroups='e2e_anthropic'
+   mvn clean package -Dgroups='e2e_google_gemini'
+   ```
+
+   A test is tagged with `e2e` if and only if it is tagged `e2e_openai`, `e2e_mistralai`, `e2e_anthropic`, or `e2e_google_gemini`. So, the two following commands are equivalent:
+   ```bash
+   mvn clean package -Dgroups='e2e_openai,e2e_mistralai,e2e_anthropic,e2e_google_gemini'
+   mvn clean package -Dgroups='e2e'
+   ```
+
+   If you want to run only the end-to-end tests with OpenAI and Mistral AI, you can run
+   ```bash
+   mvn clean package -Dgroups='e2e_openai,e2e_mistralai'
+   ```
+
+   If you want to run only all tests except the ones accessing OpenAI or Mistral AI, you can run
+   ```bash
+   mvn clean package -Dgroups='!e2e_openai & !e2e_mistralai'
+   ```
+
 ## How to run SimpleLlmTool
 
 SimpleLlmTool accepts the following parameters on the command line:
