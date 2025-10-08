@@ -8,6 +8,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import dev.langchain4j.agent.tool.ToolSpecification;
+import fr.mazure.simplellmtool.ToolManager;
+
 /**
  * Tests for the {@link RequestPayloadGenerator} class.
  */
@@ -200,6 +203,183 @@ class RequestPayloadGeneratorTest {
                   }
                 }
                 """;
+        Assertions.assertEquals(expectedResult, result);
+    }
+
+    @SuppressWarnings("static-method")
+    @Test
+    @DisplayName("Should generate Google's Gemini payload with multiple tools")
+    void testGenerateMultipleToolsForGoogleGemini() {
+        // Given
+        final String template = """
+        {
+          {{#each messages}}{{#if (isSystem role)}}"system_instruction": {
+            "parts": [
+              {
+                "text": {{convertToJsonString content}}
+              }
+            ]
+          },{{/if}}{{/each}}
+          "contents": [
+            {{#each messages}}{{#if (isUser role)}}{
+              "role": "user",
+              "parts": [
+                {
+                  "text": {{convertToJsonString content}}
+                }
+              ]
+            }{{#unless @last}},
+            {{/unless}}{{/if}}{{#if (isModel role)}}{
+              "role": "model",
+              "parts": [
+                {
+                  "text": {{convertToJsonString content}}
+                }
+              ]
+            }{{#unless @last}},
+            {{/unless}}{{/if}}{{/each}}
+          ],
+          "tools": [
+            {
+              "function_declarations": [
+                {{#each tools}}{
+                  "name": {{convertToJsonString name}},
+                  "description": {{convertToJsonString description}},
+                  "parameters": {
+                    "type": "object",
+                    "properties": {
+                      {{#each parameters}}{{convertToJsonString name}}: {
+                        "type": {{#if (isStringType type)}}"string"{{/if}}{{#if (isIntegerType type)}}"integer"{{/if}}{{#if (isNumberType type)}}"number"{{/if}}{{#if (isBooleanType type)}}"boolean"{{/if}},
+                        "description": {{convertToJsonString description}}
+                      }{{#unless @last}},
+                      {{/unless}}{{/each}}
+                    },
+                    "required": [
+                      {{#each requiredParameters}}{{convertToJsonString name}}{{#unless @last}},
+                      {{/unless}}{{/each}}
+                    ]
+                  }
+                }{{#unless @last}},
+                {{/unless}}{{/each}}
+              ]
+            }
+          ],
+          "generationConfig": {
+            "stopSequences": [
+              "Title"
+            ],
+            "temperature": 1.0,
+            "topP": 0.8,
+            "topK": 10
+          }
+        }
+        """;
+
+        final List<MessageRound> messages = Arrays.asList(
+            new MessageRound(Role.SYSTEM, "You are a helpful assistant"),
+            new MessageRound(Role.USER, "What is the weather?")
+        );
+
+        final ToolManager.Tool getWeatherTool = new ToolManager.Tool("getWeather",
+                                                                     "Get the weather",
+                                                                     List.of(new ToolManager.ToolParameter("city", "The city to get the weather for", ToolManager.ToolParameterType.STRING, true)));
+        final ToolManager.Tool fooTool = new ToolManager.Tool("foo",
+                                                              "Perform foo",
+                                                              List.of(new ToolManager.ToolParameter("alpha", "first argument", ToolManager.ToolParameterType.STRING, true),
+                                                                      new ToolManager.ToolParameter("beta", "second argument", ToolManager.ToolParameterType.INTEGER, true),
+                                                                      new ToolManager.ToolParameter("gamma", "third argument", ToolManager.ToolParameterType.NUMBER, false),
+                                                                      new ToolManager.ToolParameter("delta", "fourth argument", ToolManager.ToolParameterType.BOOLEAN, true)));
+
+        final List<ToolSpecification> tools = List.of(
+          ToolManager.getSpecification(getWeatherTool),
+          ToolManager.getSpecification(fooTool)
+        );
+        
+        // When
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", tools, "my-secret-API-key");
+
+        // Then
+        final String expectedResult = """
+        {
+          "system_instruction": {
+            "parts": [
+              {
+                "text": "You are a helpful assistant"
+              }
+            ]
+          },
+          "contents": [
+            {
+              "role": "user",
+              "parts": [
+                {
+                  "text": "What is the weather?"
+                }
+              ]
+            }
+          ],
+          "tools": [
+            {
+              "function_declarations": [
+                {
+                  "name": "getWeather",
+                  "description": "Get the weather",
+                  "parameters": {
+                    "type": "object",
+                    "properties": {
+                      "city": {
+                        "type": "string",
+                        "description": "The city to get the weather for"
+                      }
+                    },
+                    "required": [
+                      "city"
+                    ]
+                  }
+                },
+                {
+                  "name": "foo",
+                  "description": "Perform foo",
+                  "parameters": {
+                    "type": "object",
+                    "properties": {
+                      "alpha": {
+                        "type": "string",
+                        "description": "first argument"
+                      },
+                      "beta": {
+                        "type": "integer",
+                        "description": "second argument"
+                      },
+                      "gamma": {
+                        "type": "number",
+                        "description": "third argument"
+                      },
+                      "delta": {
+                        "type": "boolean",
+                        "description": "fourth argument"
+                      }
+                    },
+                    "required": [
+                      "alpha",
+                      "beta",
+                      "delta"
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "generationConfig": {
+            "stopSequences": [
+              "Title"
+            ],
+            "temperature": 1.0,
+            "topP": 0.8,
+            "topK": 10
+          }
+        }
+        """;
         Assertions.assertEquals(expectedResult, result);
     }
 

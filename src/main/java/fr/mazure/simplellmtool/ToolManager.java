@@ -35,6 +35,7 @@ public class ToolManager {
         this.toolsDir = toolsDir;
         this.toolList = initToolList(toolsDir);
     }
+
     public List<Tool> getToolList() {
         return this.toolList;
     }
@@ -47,16 +48,22 @@ public class ToolManager {
         return specifications;
     }
 
-    private static ToolSpecification getSpecification(final Tool tool) {
+    public static ToolSpecification getSpecification(final Tool tool) {
         final ToolSpecification.Builder builder = ToolSpecification.builder()
                                                                    .name(tool.name())
                                                                    .description(tool.description());
 
         final JsonObjectSchema.Builder jsonBuilder = JsonObjectSchema.builder();
         for (final ToolParameter parameter: tool.parameters()) {
-            jsonBuilder.addStringProperty(parameter.name(), parameter.description)
-                       .required(parameter.name());
+            switch (parameter.type()) {
+                case STRING -> jsonBuilder.addStringProperty(parameter.name(), parameter.description);
+                case INTEGER -> jsonBuilder.addIntegerProperty(parameter.name(), parameter.description);
+                case NUMBER -> jsonBuilder.addNumberProperty(parameter.name(), parameter.description);
+                case BOOLEAN -> jsonBuilder.addBooleanProperty(parameter.name(), parameter.description);
+                default -> throw new IllegalArgumentException("type " + parameter.type() + " is not supported");
+            }
         }
+        jsonBuilder.required(tool.parameters().stream().filter(ToolParameter::required).map(ToolParameter::name).toList());
 
         builder.parameters(jsonBuilder.build());
         return builder.build();

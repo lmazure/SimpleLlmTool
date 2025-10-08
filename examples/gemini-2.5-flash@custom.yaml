@@ -38,31 +38,14 @@ payloadTemplate: |
                   "parameters": {
                     "type": "object",
                     "properties": {
-                      {{#each parameters}}
-                          {{convertToJsonString name}}: {
-                            "type": 
-                            {{#if (isStringType type)}}
-                              "string"
-                            {{/if}}
-                            {{#if (isIntegerType type)}}
-                              "integer"
-                            {{/if}}
-                            {{#if (isNumberType type)}}
-                              "number"
-                            {{/if}}
-                            {{#if (isBooleanType type)}}
-                              "boolean"
-                            {{/if}}
-                            ,
-                            "description": {{convertToJsonString description}}
-                          }
-                        {{#unless @last}},
-                        {{/unless}}{{/each}}
+                      {{#each parameters}}{{convertToJsonString name}}: {
+                        "type": {{#if (isStringType type)}}"string"{{/if}}{{#if (isIntegerType type)}}"integer"{{/if}}{{#if (isNumberType type)}}"number"{{/if}}{{#if (isBooleanType type)}}"boolean"{{/if}},
+                        "description": {{convertToJsonString description}}
+                      }{{#unless @last}},
+                      {{/unless}}{{/each}}
                     },
                     "required": [
-                      {{#each requiredParameters}}
-                        {{convertToJsonString name}}
-                      {{#unless @last}},
+                      {{#each requiredParameters}}{{convertToJsonString name}}{{#unless @last}},
                       {{/unless}}{{/each}}
                     ]
                   }
