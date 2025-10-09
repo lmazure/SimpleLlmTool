@@ -2,6 +2,31 @@ support of tools in `CustomChatModel`
 examples\gemini-2.5-flash@custom.yaml  
 java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar     --provider custom     --model-file examples/gemini-2.5-flash@custom.yaml     --tools-dir tools     --system-prompt-string "You always provide an English anwer, followed by a precise translation in French"     --user-prompt-string "What is the weather in Paris?" --log-level info  
 
+les informations sont dans https://claude.ai/chat/ef53a9ee-b967-4941-9381-e2d7e1b09f90
+
+**déharcodé "get_weather" du template*ù*
+
+
+dans la partie context de 
+on peut factoriser
+{{#unless @last}},
+            {{/unless}}
+
+
+gérer les types des paramètres
++ ajouter l'UT correspondant
+
+gérer l'optionnel des paramètres
++ ajouter l'UT correspondant
+
+ajouter des tests
+
+modifier examples\gpt-4.1-nano@custom.yaml pour qu'il prenne en compte ci-dessus
+
+
+----------------------------------------
+
+
 
 
 - afficher (en log info) les tokens et la finishing reason en mode batch

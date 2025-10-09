@@ -37,12 +37,12 @@ class RequestPayloadGeneratorTest {
             """;
 
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(Role.SYSTEM, "You are a helpful assistant"),
-            new MessageRound(Role.USER, "What is the weather?"),
-            new MessageRound(Role.MODEL, "I don't have access to weather data"),
-            new MessageRound(Role.USER, "What day is it?"),
-            new MessageRound(Role.MODEL, "April fools' day"),
-            new MessageRound(Role.USER, "So, tell me a joke!")
+            new MessageRound(Role.SYSTEM, "You are a helpful assistant", List.of()),
+            new MessageRound(Role.USER, "What is the weather?", List.of()),
+            new MessageRound(Role.MODEL, "I don't have access to weather data", List.of()),
+            new MessageRound(Role.USER, "What day is it?", List.of()),
+            new MessageRound(Role.MODEL, "April fools' day", List.of()),
+            new MessageRound(Role.USER, "So, tell me a joke!", List.of())
         );
 
         // When
@@ -130,12 +130,12 @@ class RequestPayloadGeneratorTest {
                 """;
 
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(Role.SYSTEM, "You are a helpful assistant"),
-            new MessageRound(Role.USER, "What is the weather?"),
-            new MessageRound(Role.MODEL, "I don't have access to weather data"),
-            new MessageRound(Role.USER, "What day is it?"),
-            new MessageRound(Role.MODEL, "April fools' day"),
-            new MessageRound(Role.USER, "So, tell me a joke!")
+            new MessageRound(Role.SYSTEM, "You are a helpful assistant", List.of()),
+            new MessageRound(Role.USER, "What is the weather?", List.of()),
+            new MessageRound(Role.MODEL, "I don't have access to weather data", List.of()),
+            new MessageRound(Role.USER, "What day is it?", List.of()),
+            new MessageRound(Role.MODEL, "April fools' day", List.of()),
+            new MessageRound(Role.USER, "So, tell me a joke!", List.of())
         );
 
         // When
@@ -276,8 +276,8 @@ class RequestPayloadGeneratorTest {
         """;
 
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(Role.SYSTEM, "You are a helpful assistant"),
-            new MessageRound(Role.USER, "What is the weather?")
+            new MessageRound(Role.SYSTEM, "You are a helpful assistant", List.of()),
+            new MessageRound(Role.USER, "What is the weather?", List.of())
         );
 
         final ToolManager.Tool getWeatherTool = new ToolManager.Tool("getWeather",
@@ -404,12 +404,12 @@ class RequestPayloadGeneratorTest {
             """;
 
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(Role.SYSTEM, "You are a helpful assistant"),
-            new MessageRound(Role.USER, "What is the weather?"),
-            new MessageRound(Role.MODEL, "I don't have access to weather data"),
-            new MessageRound(Role.USER, "What day is it?"),
-            new MessageRound(Role.MODEL, "April fools' day"),
-            new MessageRound(Role.USER, "So, tell me a joke!")
+            new MessageRound(Role.SYSTEM, "You are a helpful assistant", List.of()),
+            new MessageRound(Role.USER, "What is the weather?", List.of()),
+            new MessageRound(Role.MODEL, "I don't have access to weather data", List.of()),
+            new MessageRound(Role.USER, "What day is it?", List.of()),
+            new MessageRound(Role.MODEL, "April fools' day", List.of()),
+            new MessageRound(Role.USER, "So, tell me a joke!", List.of())
         );
 
         // When
@@ -460,9 +460,9 @@ class RequestPayloadGeneratorTest {
         final String template = "Bearer: {{apiKey}}";
 
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(Role.SYSTEM, "You are a helpful assistant"),
-            new MessageRound(Role.USER, "What is the weather?"),
-            new MessageRound(Role.MODEL, "I don't have access to weather data")
+            new MessageRound(Role.SYSTEM, "You are a helpful assistant", List.of()),
+            new MessageRound(Role.USER, "What is the weather?", List.of()),
+            new MessageRound(Role.MODEL, "I don't have access to weather data", List.of())
         );
 
         // When
@@ -480,9 +480,9 @@ class RequestPayloadGeneratorTest {
         final String template = "Bearer: {{apiKey}}";
 
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(Role.SYSTEM, "You are a helpful assistant"),
-            new MessageRound(Role.USER, "What is the weather?"),
-            new MessageRound(Role.MODEL, "I don't have access to weather data")
+            new MessageRound(Role.SYSTEM, "You are a helpful assistant", List.of()),
+            new MessageRound(Role.USER, "What is the weather?", List.of()),
+            new MessageRound(Role.MODEL, "I don't have access to weather data", List.of())
         );
 
         // When
@@ -514,7 +514,7 @@ class RequestPayloadGeneratorTest {
         // Given
         final String template = "This is a static template without placeholders";
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(Role.USER, "Hello")
+            new MessageRound(Role.USER, "Hello", List.of())
         );
 
         // When
@@ -531,7 +531,7 @@ class RequestPayloadGeneratorTest {
         // Given
         final String template = "Message: {{#messages}}{{convertToJsonString content}}{{/messages}}";
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(Role.USER, "Hello \"world\" with 'quotes' and \n newlines")
+            new MessageRound(Role.USER, "Hello \"world\" with 'quotes' and \n newlines", List.of())
         );
 
         // When
@@ -548,7 +548,7 @@ class RequestPayloadGeneratorTest {
         // Given
         final String template = "Hello {{#messages}}{{role}"; // Missing closing tag
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(Role.USER, "Hello")
+            new MessageRound(Role.USER, "Hello", List.of())
         );
 
         // When & Then
@@ -566,7 +566,7 @@ class RequestPayloadGeneratorTest {
         // Given
         final String template = "";
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(Role.USER, "Hello")
+            new MessageRound(Role.USER, "Hello", List.of())
         );
 
         // When

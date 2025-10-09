@@ -65,6 +65,13 @@ public class RequestPayloadGenerator {
                 }
             });
 
+            handlebars.registerHelper("isTool", new Helper<Role>() {
+                @Override
+                public Boolean apply(final Role role, final Options options) {
+                    return Boolean.valueOf(Role.TOOL.equals(role));
+                }
+            });
+
             handlebars.registerHelper("convertToJsonString", new Helper<String>() {
                 @Override
                 public String apply(final String text, final Options options) {
@@ -103,7 +110,7 @@ public class RequestPayloadGenerator {
             final Template template = handlebars.compileInline(handlebarsTemplate);
 
             final Map<String, Object> context = new HashMap<>();
-            context.put("messages", messages);
+            context.put("messages", convertMessageRounds(messages));
             context.put("modelName", modelName);
             context.put("tools", convertToolSpecifications(tools));
             context.put("apiKey", apiKey);
@@ -165,6 +172,43 @@ public class RequestPayloadGenerator {
         }
 
         return "\"" + escaped.toString() + "\"";
+    }
+
+    private static List<Map<String, Object>> convertMessageRounds(final List<MessageRound> rounds) {
+        final List<Map<String, Object>> tools = new ArrayList<>();
+
+        for (final MessageRound round:rounds) {
+            final Map<String, Object> tool = new HashMap<>();
+            tool.put("role", round.role());
+            tool.put("content", round.content());
+            tool.put("toolCalls", convertMessageRoundToolCalls(round.toolCalls()));
+            tools.add(tool);
+        }
+        return tools;
+    }
+
+    private static List<Map<String, Object>> convertMessageRoundToolCalls(final List<MessageRoundToolCall> toolCalls) {
+        final List<Map<String, Object>> tools = new ArrayList<>();
+
+        for (final MessageRoundToolCall toolCall : toolCalls) {
+            final Map<String, Object> tool = new HashMap<>();
+            tool.put("toolName", toolCall.toolName());
+            tool.put("toolParameters", convertMessageRoundToolParameters(toolCall.toolParameters()));
+            tools.add(tool);
+        }
+        return tools;
+    }
+
+    private static List<Map<String, Object>> convertMessageRoundToolParameters(final List<MessageRoundToolPamameter> parameters) {
+        final List<Map<String, Object>> tools = new ArrayList<>();
+
+        for (final MessageRoundToolPamameter parameter : parameters) {
+            final Map<String, Object> tool = new HashMap<>();
+            tool.put("parameterName", parameter.parameterName());
+            tool.put("parameterValue", parameter.parameterValue());
+            tools.add(tool);
+        }
+        return tools;
     }
 
     /**

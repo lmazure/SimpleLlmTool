@@ -22,8 +22,33 @@ payloadTemplate: |
             {{/unless}}{{/if}}{{#if (isModel role)}}{
               "role": "model",
               "parts": [
-                {
+                {{#if content}}{
                   "text": {{convertToJsonString content}}
+                }{{/if}}
+                {{#each toolCalls}}{
+                "functionCall": {
+                "name": {{convertToJsonString toolName}},
+                  "args": {
+                    {{#each toolParameters}}
+                    {{convertToJsonString parameterName}}: {{convertToJsonString parameterValue}}
+                    {{#unless @last}},
+                    {{/unless}}{{/each}}
+                  }
+                }
+                {{#unless @last}},
+                {{/unless}} } {{/each}}
+              ]
+            }{{#unless @last}},
+            {{/unless}}{{/if}}{{#if (isTool role)}}{
+              "role": "function",
+              "parts": [
+                {
+                  "functionResponse": {
+                    "name": "get_weather",
+                    "response": {
+                      "result": {{convertToJsonString content}}
+                    }
+                  }
                 }
               ]
             }{{#unless @last}},
