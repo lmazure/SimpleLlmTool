@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -162,7 +164,7 @@ public class CustomChatModel implements ChatModel {
             case AiMessage aiMessage -> buildModelMessageRound(aiMessage);
             case SystemMessage systemMessage -> new MessageRound(Role.SYSTEM, systemMessage.text(), List.of());
             case ToolExecutionResultMessage toolExecutionResultMessage -> new MessageRound(Role.TOOL, toolExecutionResultMessage.text(), List.of());
-            default -> throw new IllegalArgumentException("Unsupported message type: " + message.getClass()); // TODO: we will have to support tools
+            default -> throw new IllegalArgumentException("Unsupported message type: " + message.getClass());
         };
     }
 
@@ -181,7 +183,7 @@ public class CustomChatModel implements ChatModel {
                 if (argumentsJson != null && !argumentsJson.isEmpty()) {
                     Map<String, Object> argumentsMap = objectMapper.readValue(
                         argumentsJson, 
-                        new TypeReference<Map<String, Object>>() {}
+                        new TypeReference<Map<String, Object>>() { /* empty */}
                     );
                     
                     // Convert each entry to a MessageRoundToolPamameter
@@ -288,24 +290,9 @@ private ChatResponse parseApiResponse(final String responseBody) throws IOExcept
     }
 
     private static String addLineNumbers(final String input) {
-        if (input == null) {
-            return null;
-        }
-        
-        final String[] lines = input.split("\n", -1);
-        final StringBuilder result = new StringBuilder();
-        
-        for (int i = 0; i < lines.length; i++) {
-            result.append(String.format("%03d", Integer.valueOf(i + 1)))
-                  .append(" ")
-                  .append(lines[i]);
-            
-            // Add newline except after the last line (if input didn't end with newline)
-            if (i < lines.length - 1) {
-                result.append("\n");
-            }
-        }
-        
-        return result.toString();
+        final AtomicInteger counter = new AtomicInteger();
+        return input.lines()
+                    .map(line -> "%03d %s".formatted(Integer.valueOf(counter.incrementAndGet()), line))
+                    .collect(Collectors.joining("\n"));
     }
 }
