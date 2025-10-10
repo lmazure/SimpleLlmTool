@@ -4,8 +4,6 @@ java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar     --pr
 
 les informations sont dans https://claude.ai/chat/ef53a9ee-b967-4941-9381-e2d7e1b09f90
 
-**déharcodé "get_weather" du template*ù*
-
 
 dans la partie context de 
 on peut factoriser

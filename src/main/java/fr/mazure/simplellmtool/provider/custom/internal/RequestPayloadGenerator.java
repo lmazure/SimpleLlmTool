@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class RequestPayloadGenerator {
 
@@ -177,11 +178,14 @@ public class RequestPayloadGenerator {
     private static List<Map<String, Object>> convertMessageRounds(final List<MessageRound> rounds) {
         final List<Map<String, Object>> tools = new ArrayList<>();
 
-        for (final MessageRound round:rounds) {
+        for (final MessageRound round: rounds) {
             final Map<String, Object> tool = new HashMap<>();
             tool.put("role", round.role());
             tool.put("content", round.content());
             tool.put("toolCalls", convertMessageRoundToolCalls(round.toolCalls()));
+            if (Objects.nonNull(round.tool())) {
+                tool.put("toolName", round.tool());
+            }
             tools.add(tool);
         }
         return tools;
@@ -190,7 +194,7 @@ public class RequestPayloadGenerator {
     private static List<Map<String, Object>> convertMessageRoundToolCalls(final List<MessageRoundToolCall> toolCalls) {
         final List<Map<String, Object>> tools = new ArrayList<>();
 
-        for (final MessageRoundToolCall toolCall : toolCalls) {
+        for (final MessageRoundToolCall toolCall: toolCalls) {
             final Map<String, Object> tool = new HashMap<>();
             tool.put("toolName", toolCall.toolName());
             tool.put("toolParameters", convertMessageRoundToolParameters(toolCall.toolParameters()));
@@ -202,7 +206,7 @@ public class RequestPayloadGenerator {
     private static List<Map<String, Object>> convertMessageRoundToolParameters(final List<MessageRoundToolPamameter> parameters) {
         final List<Map<String, Object>> tools = new ArrayList<>();
 
-        for (final MessageRoundToolPamameter parameter : parameters) {
+        for (final MessageRoundToolPamameter parameter: parameters) {
             final Map<String, Object> tool = new HashMap<>();
             tool.put("parameterName", parameter.parameterName());
             tool.put("parameterValue", parameter.parameterValue());

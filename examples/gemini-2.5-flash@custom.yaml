@@ -44,7 +44,7 @@ payloadTemplate: |
               "parts": [
                 {
                   "functionResponse": {
-                    "name": "get_weather",
+                    "name": {{convertToJsonString toolName}},
                     "response": {
                       "result": {{convertToJsonString content}}
                     }
