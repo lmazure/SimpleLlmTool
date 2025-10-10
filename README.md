@@ -154,16 +154,41 @@ The provider is indicated on the command line with the `--provider <provider>` p
 
 `payloadTemplate` and header value templates are evaluated using [Handlebars](https://jknack.github.io/handlebars.java/gettingStarted.html).
 
-The following variables are available:
+The following Handlebars variables are available:
 - `messages`: the list of messages  
-    each message has a `role` and a `content`
+    each message has
+    - `role`
+    - `content`
+    - `toolCalls` the list of tool calls performed by the model  
+      each tool call has
+      - `toolName` the name of the called tool
+      - `toolParameters` the list parameter value for the call  
+        each tool parameter has
+        - `parameterName`
+        - `parameterValue`
 - `modelName`: the name of the model
+- `tools` : the list of available tools  
+    each tool has
+    - `name`
+    - `description`
+    - `parameters` the list of parameter
+        each parameter being defined has
+        - `anmee`
+        - `type`
+        - `description`
+    - `requiredParameters` the list of the names of the required parameters  
 - `apiKey`: the API key
 
 The following helpers are available:
-- `isSystem` (boolean): tests if this is a system message (a.k.a system prompt)
-- `isUser` (boolean): tests if this is a user message (a.k.a user prompt)
-- `isModel` (boolean): tests if this is a model message
+- to be used on `messages.role`
+    - `isSystem` (boolean): tests if this is a system message (a.k.a system prompt)
+    - `isUser` (boolean): tests if this is a user message (a.k.a user prompt)
+    - `isModel` (boolean): tests if this is a model message
+- to be used on `messages.tools.parameters.type`
+    - `isStringType` (boolean)
+    - `isIntegerType` (boolean)
+    - `isNumberType` (boolean)
+    - `isStriisBooleanTypengType` (boolean)
 - `convertToJsonString` (string): converts a string to a JSON string (including the double quotes) by escaping the special characters
 
 Possible finish reasons:
