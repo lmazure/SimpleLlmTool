@@ -15,22 +15,19 @@ import dev.langchain4j.model.chat.request.json.JsonNumberSchema;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 import dev.langchain4j.model.chat.request.json.JsonSchemaElement;
 import dev.langchain4j.model.chat.request.json.JsonStringSchema;
-import fr.mazure.simplellmtool.provider.custom.internal.MessageRound.ToolCall;
-import fr.mazure.simplellmtool.provider.custom.internal.MessageRound.ToolParameter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class RequestPayloadGenerator {
 
     /**
      * Generates a payload by evaluating a Handlebars template with the provided messages.
      *
-     * @param handlebarsTemplate the Handlebars template string to evaluate
-     * @param messages the list of message rounds to use as template data
+     * @param handlebarsTemplate the Handlebars string to evaluate
+     * @param messages the list of message rounds
      * @param modelName the name of the model
      * @param tools the list of tools
      * @param apiKey the API key
@@ -185,9 +182,7 @@ public class RequestPayloadGenerator {
             tool.put("role", round.role());
             tool.put("content", round.content());
             tool.put("toolCalls", convertMessageRoundToolCalls(round.toolCalls()));
-            if (Objects.nonNull(round.tool())) {
-                tool.put("toolName", round.tool());
-            }
+            tool.put("toolName", round.tool());
             tools.add(tool);
         }
         return tools;
@@ -196,7 +191,7 @@ public class RequestPayloadGenerator {
     private static List<Map<String, Object>> convertMessageRoundToolCalls(final List<MessageRound.ToolCall> toolCalls) {
         final List<Map<String, Object>> tools = new ArrayList<>();
 
-        for (final ToolCall toolCall: toolCalls) {
+        for (final MessageRound.ToolCall toolCall: toolCalls) {
             final Map<String, Object> tool = new HashMap<>();
             tool.put("toolName", toolCall.toolName());
             tool.put("toolParameters", convertMessageRoundToolParameters(toolCall.toolParameters()));
@@ -208,7 +203,7 @@ public class RequestPayloadGenerator {
     private static List<Map<String, Object>> convertMessageRoundToolParameters(final List<MessageRound.ToolParameter> parameters) {
         final List<Map<String, Object>> tools = new ArrayList<>();
 
-        for (final ToolParameter parameter: parameters) {
+        for (final MessageRound.ToolParameter parameter: parameters) {
             final Map<String, Object> tool = new HashMap<>();
             tool.put("parameterName", parameter.parameterName());
             tool.put("parameterValue", parameter.parameterValue());
@@ -227,7 +222,7 @@ public class RequestPayloadGenerator {
     private static List<Map<String, Object>> convertToolSpecifications(final List<ToolSpecification> ktools) {
         final List<Map<String, Object>> tools = new ArrayList<>();
 
-        for (final ToolSpecification spec : ktools) {
+        for (final ToolSpecification spec: ktools) {
             final Map<String, Object> tool = new HashMap<>();
             tool.put("name", spec.name());
             tool.put("description", spec.description());
@@ -240,7 +235,7 @@ public class RequestPayloadGenerator {
 
             final Map<String, JsonSchemaElement> properties = schema.properties();
 
-            for (final Map.Entry<String, JsonSchemaElement> entry : properties.entrySet()) {
+            for (final Map.Entry<String, JsonSchemaElement> entry: properties.entrySet()) {
                 final String paramName = entry.getKey();
                 final JsonSchemaElement element = entry.getValue();
                 final String description = element.description();
