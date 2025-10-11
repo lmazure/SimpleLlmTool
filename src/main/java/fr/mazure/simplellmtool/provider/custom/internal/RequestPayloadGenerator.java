@@ -21,6 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/*
+ * Generates a payload by evaluating Handlebars templates
+ */
 public class RequestPayloadGenerator {
 
     /**
@@ -43,69 +46,7 @@ public class RequestPayloadGenerator {
 
             handlebars.with(EscapingStrategy.NOOP);
 
-            // Register boolean helpers for each role
-            handlebars.registerHelper("isSystem", new Helper<MessageRound.Role>() {
-                @Override
-                public Boolean apply(final MessageRound.Role role, final Options options) {
-                    return Boolean.valueOf(MessageRound.Role.SYSTEM.equals(role));
-                }
-            });
-
-            handlebars.registerHelper("isUser", new Helper<MessageRound.Role>() {
-                @Override
-                public Boolean apply(final MessageRound.Role role, final Options options) {
-                    return Boolean.valueOf(MessageRound.Role.USER.equals(role));
-                }
-            });
-
-            handlebars.registerHelper("isModel", new Helper<MessageRound.Role>() {
-                @Override
-                public Boolean apply(final MessageRound.Role role, final Options options) {
-                    return Boolean.valueOf(MessageRound.Role.MODEL.equals(role));
-                }
-            });
-
-            handlebars.registerHelper("isTool", new Helper<MessageRound.Role>() {
-                @Override
-                public Boolean apply(final MessageRound.Role role, final Options options) {
-                    return Boolean.valueOf(MessageRound.Role.TOOL.equals(role));
-                }
-            });
-
-            handlebars.registerHelper("convertToJsonString", new Helper<String>() {
-                @Override
-                public String apply(final String text, final Options options) {
-                    return jsonConverter(text);
-                }
-            });
-
-            handlebars.registerHelper("isStringType", new Helper<String>() {
-                @Override
-                public Boolean apply(final String type, final Options options) {
-                    return Boolean.valueOf("string".equals(type));
-                }
-            });
-
-            handlebars.registerHelper("isIntegerType", new Helper<String>() {
-                @Override
-                public Boolean apply(final String type, final Options options) {
-                    return Boolean.valueOf("integer".equals(type));
-                }
-            });
-
-            handlebars.registerHelper("isNumberType", new Helper<String>() {
-                @Override
-                public Boolean apply(final String type, final Options options) {
-                    return Boolean.valueOf("number".equals(type));
-                }
-            });
-
-            handlebars.registerHelper("isBooleanType", new Helper<String>() {
-                @Override
-                public Boolean apply(final String type, final Options options) {
-                    return Boolean.valueOf("boolean".equals(type));
-                }
-            });
+            registerHelpers(handlebars);
 
             final Template template = handlebars.compileInline(handlebarsTemplate);
 
@@ -119,6 +60,74 @@ public class RequestPayloadGenerator {
         } catch (final Exception e) {
             throw new RuntimeException("Failed to process Handlebars template", e);
         }
+    }
+
+    /*
+     * Registers custom Handlebars helpers for template evaluation
+     */
+    private static void registerHelpers(final Handlebars handlebars) {
+        handlebars.registerHelper("isSystem", new Helper<MessageRound.Role>() {
+            @Override
+            public Boolean apply(final MessageRound.Role role, final Options options) {
+                return Boolean.valueOf(MessageRound.Role.SYSTEM.equals(role));
+            }
+        });
+
+        handlebars.registerHelper("isUser", new Helper<MessageRound.Role>() {
+            @Override
+            public Boolean apply(final MessageRound.Role role, final Options options) {
+                return Boolean.valueOf(MessageRound.Role.USER.equals(role));
+            }
+        });
+
+        handlebars.registerHelper("isModel", new Helper<MessageRound.Role>() {
+            @Override
+            public Boolean apply(final MessageRound.Role role, final Options options) {
+                return Boolean.valueOf(MessageRound.Role.MODEL.equals(role));
+            }
+        });
+
+        handlebars.registerHelper("isTool", new Helper<MessageRound.Role>() {
+            @Override
+            public Boolean apply(final MessageRound.Role role, final Options options) {
+                return Boolean.valueOf(MessageRound.Role.TOOL.equals(role));
+            }
+        });
+
+        handlebars.registerHelper("convertToJsonString", new Helper<String>() {
+            @Override
+            public String apply(final String text, final Options options) {
+                return jsonConverter(text);
+            }
+        });
+
+        handlebars.registerHelper("isStringType", new Helper<String>() {
+            @Override
+            public Boolean apply(final String type, final Options options) {
+                return Boolean.valueOf("string".equals(type));
+            }
+        });
+
+        handlebars.registerHelper("isIntegerType", new Helper<String>() {
+            @Override
+            public Boolean apply(final String type, final Options options) {
+                return Boolean.valueOf("integer".equals(type));
+            }
+        });
+
+        handlebars.registerHelper("isNumberType", new Helper<String>() {
+            @Override
+            public Boolean apply(final String type, final Options options) {
+                return Boolean.valueOf("number".equals(type));
+            }
+        });
+
+        handlebars.registerHelper("isBooleanType", new Helper<String>() {
+            @Override
+            public Boolean apply(final String type, final Options options) {
+                return Boolean.valueOf("boolean".equals(type));
+            }
+        });
     }
 
     /**
@@ -174,6 +183,9 @@ public class RequestPayloadGenerator {
         return "\"" + escaped.toString() + "\"";
     }
 
+    /*
+     * Converts a list of MessageRound objects into a list of maps suitable for template evaluation.
+     */
     private static List<Map<String, Object>> convertMessageRounds(final List<MessageRound> rounds) {
         final List<Map<String, Object>> tools = new ArrayList<>();
 
@@ -188,6 +200,9 @@ public class RequestPayloadGenerator {
         return tools;
     }
 
+    /*
+     * Converts a list of ToolCall objects to a list of maps for template data. 
+     */
     private static List<Map<String, Object>> convertMessageRoundToolCalls(final List<MessageRound.ToolCall> toolCalls) {
         final List<Map<String, Object>> tools = new ArrayList<>();
 
@@ -200,6 +215,9 @@ public class RequestPayloadGenerator {
         return tools;
     }
 
+    /*
+     * Converts a list of ToolParameter objects to a list of maps for template data.
+     */
     private static List<Map<String, Object>> convertMessageRoundToolParameters(final List<MessageRound.ToolParameter> parameters) {
         final List<Map<String, Object>> tools = new ArrayList<>();
 
