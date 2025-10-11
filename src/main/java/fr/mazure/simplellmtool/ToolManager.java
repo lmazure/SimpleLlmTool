@@ -8,6 +8,7 @@ import java.io.StringReader;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -84,7 +85,7 @@ public class ToolManager {
                                        .filter(t -> t.name().equals(toolName))
                                        .findFirst()
                                        .orElse(null);
-        if (tool == null) {
+        if (Objects.isNull(tool)) {
             throw new RuntimeException("The model called a tool " + toolName + " that does not exist.");
         }
         final String output = executeTool(toolName, extractValues(tool.parameters(), request.arguments()));
@@ -100,7 +101,7 @@ public class ToolManager {
         }
 
         final File[] pythonFiles = dir.listFiles((_, name) -> name.endsWith(".py"));
-        if (pythonFiles == null || pythonFiles.length == 0) {
+        if (Objects.isNull(pythonFiles) || pythonFiles.length == 0) {
             return toolList;
         }
 
@@ -120,7 +121,7 @@ public class ToolManager {
 
         try {
             final String description = bufferedReader.readLine();
-            if (description == null) {
+            if (Objects.isNull(description)) {
                 throw new RuntimeException("failed to get description of " + toolName);
             }
             final List<ToolParameter> parameters = new ArrayList<>();

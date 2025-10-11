@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /*
  * Generates a payload by evaluating Handlebars templates
@@ -137,7 +138,7 @@ public class RequestPayloadGenerator {
      * @return the JSON string
      */
     private static String jsonConverter(final String input) {
-        if (input == null) {
+        if (Objects.isNull(input)) {
             return null;
         }
 

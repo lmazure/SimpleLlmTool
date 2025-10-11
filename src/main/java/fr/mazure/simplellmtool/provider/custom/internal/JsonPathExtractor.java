@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -116,7 +117,7 @@ public class JsonPathExtractor {
             // array index (e.g. "[1]")
             final int index = Integer.parseInt(part.substring(1, part.length() - 1));
             final JsonNode n = node.get(index);
-            if (n == null) {
+            if (Objects.isNull(n)) {
                 throw new JsonPathExtractorInternalException("Index " + index + " not found in array", part);
             }
             try {
@@ -128,7 +129,7 @@ public class JsonPathExtractor {
         }
         // name of a scalar field (e.g. "foo")
         final JsonNode n = node.get(part);
-        if (n == null) {
+        if (Objects.isNull(n)) {
             throw new JsonPathExtractorInternalException("'" + part + "' field not found", part);
         }
         try {

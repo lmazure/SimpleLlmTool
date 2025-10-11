@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -116,7 +117,7 @@ public class CustomChatModel implements ChatModel {
         final List<ToolSpecification> toolSpecifications = chatRequest.toolSpecifications();
         final String requestBody = buildRequestBody(chatRequest, toolSpecifications);
         final String jsonError = isValidJson(requestBody);
-        if (jsonError != null) {
+        if (Objects.nonNull(jsonError)) {
             throw new IllegalArgumentException("The generated payload is invalid JSON: " + jsonError + "\n" + addLineNumbers(requestBody));
         }
         final HttpRequest request = buildRequest(chatRequest, requestBody, toolSpecifications);
@@ -192,7 +193,7 @@ public class CustomChatModel implements ChatModel {
             try {
                 // Parse the arguments JSON string into a Map
                 final String argumentsJson = request.arguments();
-                if (argumentsJson != null && !argumentsJson.isEmpty()) {
+                if (Objects.nonNull(argumentsJson) && !argumentsJson.isEmpty()) {
                     final Map<String, Object> argumentsMap = objectMapper.readValue(
                         argumentsJson,
                         new TypeReference<Map<String, Object>>() { /* empty */}
@@ -268,7 +269,7 @@ public class CustomChatModel implements ChatModel {
         // Extract finish reason
         final String finishReason = JsonPathExtractor.extract(responseBody, this.finishReasonPath);
         final FinishingReason reason = this.finishReasonMappings.get(finishReason);
-        if (reason == null) {
+        if (Objects.isNull(reason)) {
             throw new IllegalArgumentException("Unexpected finish reason: " + finishReason + " (it should be present in the finishReasonMappings property)");
         }
         final FinishReason finishReasonEnum = reason.reason;

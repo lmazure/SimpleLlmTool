@@ -2,6 +2,7 @@ package fr.mazure.simplellmtool.provider.custom.internal;
 
 
 import java.util.Map;
+import java.util.Objects;
 
 import fr.mazure.simplellmtool.provider.custom.internal.CustomChatModel.FinishingReason;
 
@@ -176,34 +177,34 @@ public class CustomChatModelBuilder {
      * Validates required parameters before building
      */
     private void validateParameters() {
-        if (this.modelName == null || this.modelName.trim().isEmpty()) {
+        if (Objects.isNull(this.modelName) || this.modelName.trim().isEmpty()) {
             throw new IllegalArgumentException("Model name is required");
         }
-        if (this.apiKey == null || this.apiKey.trim().isEmpty()) {
+        if (Objects.isNull(this.apiKey) || this.apiKey.trim().isEmpty()) {
             throw new IllegalArgumentException("API key is required");
         }
-        if (this.baseUrl == null || this.baseUrl.trim().isEmpty()) {
+        if (Objects.isNull(this.baseUrl) || this.baseUrl.trim().isEmpty()) {
             throw new IllegalArgumentException("Base URL is required");
         }
-        if (this.payloadTemplate == null || this.payloadTemplate.trim().isEmpty()) {
+        if (Objects.isNull(this.payloadTemplate) || this.payloadTemplate.trim().isEmpty()) {
             throw new IllegalArgumentException("Payload template is required");
         }
-        if (this.httpHeaders == null || this.httpHeaders.isEmpty()) {
+        if (Objects.isNull(this.httpHeaders) || this.httpHeaders.isEmpty()) {
             throw new IllegalArgumentException("HTTP headers are required");
         }
-        if (this.answerPath == null || this.answerPath.trim().isEmpty()) {
+        if (Objects.isNull(this.answerPath) || this.answerPath.trim().isEmpty()) {
             throw new IllegalArgumentException("Answer path is required");
         }
-        if (this.inputTokenPath == null || this.inputTokenPath.trim().isEmpty()) {
+        if (Objects.isNull(this.inputTokenPath) || this.inputTokenPath.trim().isEmpty()) {
             throw new IllegalArgumentException("Input token path is required");
         }
-        if (this.outputTokenPath == null || this.outputTokenPath.trim().isEmpty()) {
+        if (Objects.isNull(this.outputTokenPath) || this.outputTokenPath.trim().isEmpty()) {
             throw new IllegalArgumentException("Output token path is required");
         }
-        if (this.finishReasonPath == null || this.finishReasonPath.trim().isEmpty()) {
+        if (Objects.isNull(this.finishReasonPath) || this.finishReasonPath.trim().isEmpty()) {
             throw new IllegalArgumentException("Finish reason path is required");
         }
-        if (this.finishReasonMappings == null || this.finishReasonMappings.isEmpty()) {
+        if (Objects.isNull(this.finishReasonMappings) || this.finishReasonMappings.isEmpty()) {
             throw new IllegalArgumentException("Finish reason mappings are required");
         }
     }
