@@ -149,6 +149,9 @@ The provider is indicated on the command line with the `--provider <provider>` p
 | `finishReasonMappings`  | mappings of the finish reason of the model                    | list   | yes          |
 | - model reason          | finish reason as provided by the model                        | string | yes          |
 | - reason                | either `DONE` or `MAX_TOKEN`                                  | string | yes          |
+| `toolCallsPath`         | JSON path to the array of tool calls in the response          | string | yes          |
+| `toolNamePath`          | JSON path to the tool name within a tool call element         | string | yes          |
+| `toolArgumentsPath`     | JSON path to the tool arguments within a tool call element    | string | yes          |
 
 † The HTTP header `Content-Type: application/json` is added automatically.
 
@@ -403,6 +406,43 @@ will generate this JSON:
 and this HTTP header:
 ```http
 x-goog-api-key: sec_DEADBEEF
+```
+
+#### JSON Paths for Tool Calls
+
+The three tool call JSON paths (`toolCallsPath`, `toolNamePath`, and `toolArgumentsPath`) work together to extract tool/function call information from the API response:
+
+- **`toolCallsPath`**: Points to an array of tool calls in the response. If this path doesn't exist or the array is empty, the response is treated as a regular text response.
+- **`toolNamePath`**: A relative path from each tool call element to the function name. This path is applied to each element in the array found at `toolCallsPath`.
+- **`toolArgumentsPath`**: A relative path from each tool call element to the arguments object/dictionary. This path is applied to each element in the array found at `toolCallsPath`.
+
+**Example for Google Gemini:**
+
+For a Gemini response like:
+```json
+{
+  "candidates": [{
+    "content": {
+      "parts": [
+        {
+          "functionCall": {
+            "name": "get_weather",
+            "args": {
+              "location": "Paris"
+            }
+          }
+        }
+      ]
+    }
+  }]
+}
+```
+
+The JSON paths would be:
+```yaml
+toolCallsPath: candidates[0].content.parts
+toolNamePath: functionCall.name
+toolArgumentsPath: functionCall.args
 ```
 
 ### mock

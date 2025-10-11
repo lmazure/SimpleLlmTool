@@ -46,6 +46,65 @@ public class JsonPathExtractor {
         }
     }
 
+    /**
+     * Extracts a JSON array from the given JSON string using the specified path.
+     *
+     * @param json the JSON string to extract from
+     * @param path the JSON path to the array
+     * @return a list of JsonNode elements from the array
+     * @throws IOException if there is an error parsing the JSON
+     * @throws JsonPathExtractorException if the path is invalid or the element is not found
+     */
+    public static List<JsonNode> extractArray(final String json,
+                                              final String path) throws IOException, JsonPathExtractorException {
+        final JsonNode rootNode = objectMapper.readTree(json);
+        try {
+            final JsonNode arrayNode = extract(rootNode, split(path), 0);
+            if (!arrayNode.isArray()) {
+                throw new JsonPathExtractorException("Path '" + path + "' does not point to an array", null);
+            }
+            final List<JsonNode> result = new ArrayList<>();
+            arrayNode.forEach(result::add);
+            return result;
+        } catch (final JsonPathExtractorInternalException e) {
+            throw new JsonPathExtractorException("Failed to extract JSON path '" + path + "', error occurred when retrieving element '" + e.getPartialPath() +"'", e.getCause());
+        }
+    }
+
+    /**
+     * Extracts a string value from a JsonNode using the specified path.
+     *
+     * @param node the JsonNode to extract from
+     * @param path the JSON path to the string value
+     * @return the extracted string value
+     * @throws JsonPathExtractorException if the path is invalid or the element is not found
+     */
+    public static String extractFromNode(final JsonNode node,
+                                         final String path) throws JsonPathExtractorException {
+        try {
+            return extract(node, split(path), 0).asText();
+        } catch (final JsonPathExtractorInternalException e) {
+            throw new JsonPathExtractorException("Failed to extract JSON path '" + path + "', error occurred when retrieving element '" + e.getPartialPath() +"'", e.getCause());
+        }
+    }
+
+    /**
+     * Extracts a JsonNode from a JsonNode using the specified path.
+     *
+     * @param node the JsonNode to extract from
+     * @param path the JSON path to the target node
+     * @return the extracted JsonNode
+     * @throws JsonPathExtractorException if the path is invalid or the element is not found
+     */
+    public static JsonNode extractNodeFromNode(final JsonNode node,
+                                               final String path) throws JsonPathExtractorException {
+        try {
+            return extract(node, split(path), 0);
+        } catch (final JsonPathExtractorInternalException e) {
+            throw new JsonPathExtractorException("Failed to extract JSON path '" + path + "', error occurred when retrieving element '" + e.getPartialPath() +"'", e.getCause());
+        }
+    }
+
     private static JsonNode extract(final JsonNode node,
                                     final List<String> pathParts,
                                     final int startIndex) throws JsonPathExtractorInternalException {

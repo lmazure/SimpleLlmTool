@@ -203,7 +203,10 @@ class BatchModeTest {
                                                                            "usage.prompt_tokens",
                                                                            "usage.completion_tokens",
                                                                            "choices[0].finish_reason",
-                                                                           Map.of("stop", CustomChatModel.FinishingReason.DONE)); // TODO fix this and the previous line!
+                                                                           Map.of("stop", CustomChatModel.FinishingReason.DONE),
+                                                                           "choices[0].message.tool_calls",
+                                                                           "function.name",
+                                                                           "function.arguments");
         final ChatModel model = CustomChatModelProvider.createChatModel(parameters);
         final Optional<String> sysPrompt = Optional.of("You must answer in one word.");
         final String userPrompt = "What is the capital of France?";

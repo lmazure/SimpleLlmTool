@@ -294,7 +294,7 @@ class RequestPayloadGeneratorTest {
           ToolManager.getSpecification(getWeatherTool),
           ToolManager.getSpecification(fooTool)
         );
-        
+
         // When
         final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", tools, "my-secret-API-key");
 

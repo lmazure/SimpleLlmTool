@@ -48,6 +48,9 @@ class CustomModelParametersTest {
                 finishReasonMappings:
                   string_for_stop: DONE
                   string_for_max_tokens: MAX_TOKENS
+                toolCallsPath: path_to_tool_calls
+                toolNamePath: path_to_tool_name
+                toolArgumentsPath: path_to_tool_arguments
                 """;
         final Path tempConfigPath = tempDir.resolve("valid-custom-config.yaml");
         Files.writeString(tempConfigPath, configContent);
@@ -66,6 +69,9 @@ class CustomModelParametersTest {
         Assertions.assertEquals("path_to_number_of_output_tokens", parameters.getOutputTokenPath());
         Assertions.assertEquals("path_to_finish_reason", parameters.getFinishReasonPath());
         Assertions.assertEquals(Map.of("string_for_stop", CustomChatModel.FinishingReason.DONE, "string_for_max_tokens", CustomChatModel.FinishingReason.MAX_TOKENS), parameters.getFinishReasonMappings());
+        Assertions.assertEquals("path_to_tool_calls", parameters.getToolCallsPath());
+        Assertions.assertEquals("path_to_tool_name", parameters.getToolNamePath());
+        Assertions.assertEquals("path_to_tool_arguments", parameters.getToolArgumentsPath());
     }
 
     /**
@@ -93,6 +99,9 @@ class CustomModelParametersTest {
                 finishReasonMappings:
                   string_for_stop: DONE
                   string_for_max_tokens: MAX_TOKENS
+                toolCallsPath: path_to_tool_calls
+                toolNamePath: path_to_tool_name
+                toolArgumentsPath: path_to_tool_arguments
                 """;
         final Path tempConfigPath = tempDir.resolve(("minimal-custom-config.yaml"));
         Files.writeString(tempConfigPath, configContent);
@@ -111,6 +120,9 @@ class CustomModelParametersTest {
         Assertions.assertEquals("path_to_number_of_output_tokens", parameters.getOutputTokenPath());
         Assertions.assertEquals("path_to_finish_reason", parameters.getFinishReasonPath());
         Assertions.assertEquals(Map.of("string_for_stop", CustomChatModel.FinishingReason.DONE, "string_for_max_tokens", CustomChatModel.FinishingReason.MAX_TOKENS), parameters.getFinishReasonMappings());
+        Assertions.assertEquals("path_to_tool_calls", parameters.getToolCallsPath());
+        Assertions.assertEquals("path_to_tool_name", parameters.getToolNamePath());
+        Assertions.assertEquals("path_to_tool_arguments", parameters.getToolArgumentsPath());
     }
 
     /**
@@ -138,6 +150,9 @@ class CustomModelParametersTest {
                 finishReasonMappings:
                   string_for_stop: DONE
                   string_for_max_tokens: MAX_TOKENS
+                toolCallsPath: path_to_tool_calls
+                toolNamePath: path_to_tool_name
+                toolArgumentsPath: path_to_tool_arguments
                 """;
         final Path tempConfigPath = tempDir.resolve(("minimal-custom-config.yaml"));
         Files.writeString(tempConfigPath, configContent);
@@ -156,6 +171,9 @@ class CustomModelParametersTest {
         Assertions.assertEquals("path_to_number_of_output_tokens", parameters.getOutputTokenPath());
         Assertions.assertEquals("path_to_finish_reason", parameters.getFinishReasonPath());
         Assertions.assertEquals(Map.of("string_for_stop", CustomChatModel.FinishingReason.DONE, "string_for_max_tokens", CustomChatModel.FinishingReason.MAX_TOKENS), parameters.getFinishReasonMappings());
+        Assertions.assertEquals("path_to_tool_calls", parameters.getToolCallsPath());
+        Assertions.assertEquals("path_to_tool_name", parameters.getToolNamePath());
+        Assertions.assertEquals("path_to_tool_arguments", parameters.getToolArgumentsPath());
     }
 
     /**

@@ -20,6 +20,9 @@ public class CustomChatModelBuilder {
     private String outputTokenPath;
     private String finishReasonPath;
     private Map<String, FinishingReason> finishReasonMappings;
+    private String toolCallsPath;
+    private String toolNamePath;
+    private String toolArgumentsPath;
     private Boolean logRequests = Boolean.FALSE;
     private Boolean logResponses = Boolean.FALSE;
 
@@ -63,6 +66,7 @@ public class CustomChatModelBuilder {
         this.httpHeaders = httpHeaders;
         return this;
     }
+
     /**
      * Sets the JSON path to the field containing the answer
      */
@@ -100,6 +104,30 @@ public class CustomChatModelBuilder {
      */
     public CustomChatModelBuilder finishReasonMappings(final Map<String, FinishingReason> finishReasonMappings) {
         this.finishReasonMappings = finishReasonMappings;
+        return this;
+    }
+
+    /**
+     * Sets the JSON path to the array of tool calls
+     */
+    public CustomChatModelBuilder toolCallsPath(final String toolCallsPath) {
+        this.toolCallsPath = toolCallsPath;
+        return this;
+    }
+
+    /**
+     * Sets the JSON path to the tool name within a tool call element
+     */
+    public CustomChatModelBuilder toolNamePath(final String toolNamePath) {
+        this.toolNamePath = toolNamePath;
+        return this;
+    }
+
+    /**
+     * Sets the JSON path to the tool arguments dictionary within a tool call element
+     */
+    public CustomChatModelBuilder toolArgumentsPath(final String toolArgumentsPath) {
+        this.toolArgumentsPath = toolArgumentsPath;
         return this;
     }
 
@@ -191,6 +219,9 @@ public class CustomChatModelBuilder {
     String getOutputTokenPath() { return this.outputTokenPath; }
     String getFinishReasonPath() { return this.finishReasonPath; }
     Map<String, FinishingReason> getFinishReasonMappings() { return this.finishReasonMappings;}
+    String getToolCallsPath() { return this.toolCallsPath; }
+    String getToolNamePath() { return this.toolNamePath; }
+    String getToolArgumentsPath() { return this.toolArgumentsPath; }
     Boolean isLogRequests() { return this.logRequests; }
     Boolean isLogResponses() { return this.logResponses; }
 }

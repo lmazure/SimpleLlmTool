@@ -65,6 +65,9 @@ public class CustomChatModel implements ChatModel {
     private final String outputTokenPath;
     private final String finishReasonPath;
     private final Map<String, FinishingReason> finishReasonMappings;
+    private final String toolCallsPath;
+    private final String toolNamePath;
+    private final String toolArgumentsPath;
     private final Boolean logRequests;
     private final Boolean logResponses;
 
@@ -82,6 +85,9 @@ public class CustomChatModel implements ChatModel {
         this.outputTokenPath = builder.getOutputTokenPath();
         this.finishReasonPath = builder.getFinishReasonPath();
         this.finishReasonMappings = builder.getFinishReasonMappings();
+        this.toolCallsPath = builder.getToolCallsPath();
+        this.toolNamePath = builder.getToolNamePath();
+        this.toolArgumentsPath = builder.getToolArgumentsPath();
         this.logRequests = builder.isLogRequests();
         this.logResponses = builder.isLogResponses();
 
@@ -211,71 +217,68 @@ public class CustomChatModel implements ChatModel {
         return new MessageRound(MessageRound.Role.MODEL, text, toolCalls);
     }
 
-private ChatResponse parseApiResponse(final String responseBody) throws IOException, JsonPathExtractorException {
-    // Parse the JSON response
-    final ObjectMapper mapper = new ObjectMapper();
-    final JsonNode root = mapper.readTree(responseBody);
-    final JsonNode candidate = root.path("candidates").get(0);
-    final JsonNode content = candidate.path("content");
-    final JsonNode parts = content.path("parts");
+    private ChatResponse parseApiResponse(final String responseBody) throws IOException, JsonPathExtractorException {
+        AiMessage aiMessage;
 
-    AiMessage aiMessage;
+        // Try to extract tool calls using the configured path
+        try {
+            final List<JsonNode> toolCallNodes = JsonPathExtractor.extractArray(responseBody, this.toolCallsPath);
+            
+            if (!toolCallNodes.isEmpty()) {
+                // Handle function call(s)
+                final List<ToolExecutionRequest> toolExecutionRequests = new ArrayList<>();
 
-    // Check if this is a function call response
-    if (parts.has(0) && parts.get(0).has("functionCall")) {
-        // Handle function call(s)
-        final List<ToolExecutionRequest> toolExecutionRequests = new ArrayList<>();
+                for (final JsonNode toolCallNode: toolCallNodes) {
+                    final String functionName = JsonPathExtractor.extractFromNode(toolCallNode, this.toolNamePath);
+                    final JsonNode argsNode = JsonPathExtractor.extractNodeFromNode(toolCallNode, this.toolArgumentsPath);
 
-        for (final JsonNode part: parts) {
-            if (part.has("functionCall")) {
-                final JsonNode functionCall = part.get("functionCall");
-                final String functionName = functionCall.get("name").asText();
-                final JsonNode args = functionCall.get("args");
+                    // Convert args to a JSON string
+                    final String arguments = argsNode.toString();
 
-                // Convert args to a JSON string
-                final String arguments = args.toString();
+                    // Create a unique ID for this tool execution request
+                    final String id = UUID.randomUUID().toString();
 
-                // Create a unique ID for this tool execution request
-                final String id = UUID.randomUUID().toString();
+                    final ToolExecutionRequest toolRequest = ToolExecutionRequest.builder()
+                                                                                 .id(id)
+                                                                                 .name(functionName)
+                                                                                 .arguments(arguments)
+                                                                                 .build();
 
-                final ToolExecutionRequest toolRequest = ToolExecutionRequest.builder()
-                                                                             .id(id)
-                                                                             .name(functionName)
-                                                                             .arguments(arguments)
-                                                                             .build();
+                    toolExecutionRequests.add(toolRequest);
+                }
 
-                toolExecutionRequests.add(toolRequest);
+                // Create AiMessage with tool execution requests
+                aiMessage = AiMessage.from(toolExecutionRequests);
+            } else {
+                // Handle regular text response (empty tool calls array)
+                final String generatedText = JsonPathExtractor.extract(responseBody, this.answerPath);
+                aiMessage = AiMessage.from(generatedText);
             }
+        } catch (final JsonPathExtractorException e) {
+            // If tool calls path doesn't exist or is invalid, fall back to regular text response
+            final String generatedText = JsonPathExtractor.extract(responseBody, this.answerPath);
+            aiMessage = AiMessage.from(generatedText);
         }
 
-        // Create AiMessage with tool execution requests
-        aiMessage = AiMessage.from(toolExecutionRequests);
+        // Extract token usage
+        final Integer inputTokens = Integer.valueOf(JsonPathExtractor.extract(responseBody, this.inputTokenPath));
+        final Integer outputTokens = Integer.valueOf(JsonPathExtractor.extract(responseBody, this.outputTokenPath));
+        final TokenUsage tokenUsage = new TokenUsage(inputTokens, outputTokens);
 
-    } else {
-        // Handle regular text response
-        final String generatedText = JsonPathExtractor.extract(responseBody, this.answerPath);
-        aiMessage = AiMessage.from(generatedText);
+        // Extract finish reason
+        final String finishReason = JsonPathExtractor.extract(responseBody, this.finishReasonPath);
+        final FinishingReason reason = this.finishReasonMappings.get(finishReason);
+        if (reason == null) {
+            throw new IllegalArgumentException("Unexpected finish reason: " + finishReason + " (it should be present in the finishReasonMappings property)");
+        }
+        final FinishReason finishReasonEnum = reason.reason;
+
+        return ChatResponse.builder()
+                           .aiMessage(aiMessage)
+                           .tokenUsage(tokenUsage)
+                           .finishReason(finishReasonEnum)
+                           .build();
     }
-
-    // Extract token usage
-    final Integer inputTokens = Integer.valueOf(JsonPathExtractor.extract(responseBody, this.inputTokenPath));
-    final Integer outputTokens = Integer.valueOf(JsonPathExtractor.extract(responseBody, this.outputTokenPath));
-    final TokenUsage tokenUsage = new TokenUsage(inputTokens, outputTokens);
-
-    // Extract finish reason
-    final String finishReason = JsonPathExtractor.extract(responseBody, this.finishReasonPath);
-    final FinishingReason reason = this.finishReasonMappings.get(finishReason);
-    if (reason == null) {
-        throw new IllegalArgumentException("Unexpected finish reason: " + finishReason + " (it should be present in the finishReasonMappings property)");
-    }
-    final FinishReason finishReasonEnum = reason.reason;
-
-    return ChatResponse.builder()
-                       .aiMessage(aiMessage)
-                       .tokenUsage(tokenUsage)
-                       .finishReason(finishReasonEnum)
-                       .build();
-}
 
     /**
      * Checks if the provided JSON string is valid.

@@ -19,3 +19,10 @@ httpHeaders:
 answerPath: choices[0].message.content
 inputTokenPath: usage.prompt_tokens
 outputTokenPath: usage.completion_tokens
+finishReasonPath: choices[0].finish_reason
+finishReasonMappings:
+  stop: DONE
+  length: MAX_TOKENS
+toolCallsPath: choices[0].message.tool_calls
+toolNamePath: function.name
+toolArgumentsPath: function.arguments
