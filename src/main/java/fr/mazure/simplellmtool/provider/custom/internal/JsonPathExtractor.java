@@ -14,13 +14,13 @@ public class JsonPathExtractor {
     private static class JsonPathExtractorInternalException extends Exception {
 
         private final String partialPath;
-    
+
         public JsonPathExtractorInternalException(final String message,
                                                   final String partialPath) {
             super(message);
             this.partialPath = partialPath;
         }
-    
+
         public String getPartialPath() {
             return this.partialPath;
         }

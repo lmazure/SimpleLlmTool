@@ -38,7 +38,7 @@ public record MessageRound(Role role, String content, List<ToolCall> toolCalls, 
      */
     public record ToolCall(String toolName, List<ToolParameter> toolParameters) {
     }
-    
+
     /*
      * Represents a paramteter in a tool call in a round of message exchange
      */

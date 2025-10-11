@@ -201,7 +201,7 @@ public class RequestPayloadGenerator {
     }
 
     /*
-     * Converts a list of ToolCall objects to a list of maps for template data. 
+     * Converts a list of ToolCall objects to a list of maps for template data.
      */
     private static List<Map<String, Object>> convertMessageRoundToolCalls(final List<MessageRound.ToolCall> toolCalls) {
         final List<Map<String, Object>> tools = new ArrayList<>();

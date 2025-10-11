@@ -104,7 +104,7 @@ public class ToolManager {
             return toolList;
         }
 
-        for (final File pythonFile : pythonFiles) {
+        for (final File pythonFile: pythonFiles) {
             final Tool tool = getToolDescription(pythonFile.getName().replace(".py", ""));
             toolList.add(tool);
         }
@@ -181,7 +181,7 @@ public class ToolManager {
         final List<String> result = new ArrayList<>();
 
         try {
-            for (final String key : parameters.stream().map(ToolParameter::name).toList()) {
+            for (final String key: parameters.stream().map(ToolParameter::name).toList()) {
                 result.add(jsonObject.getString(key));
             }
         } catch (final JSONException e) {
