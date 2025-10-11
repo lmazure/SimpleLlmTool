@@ -207,6 +207,15 @@ public class CustomChatModelBuilder {
         if (Objects.isNull(this.finishReasonMappings) || this.finishReasonMappings.isEmpty()) {
             throw new IllegalArgumentException("Finish reason mappings are required");
         }
+        if (Objects.isNull(this.toolCallsPath) || this.toolCallsPath.trim().isEmpty()) {
+            throw new IllegalArgumentException("Tool calls path is required");
+        }
+        if (Objects.isNull(this.toolNamePath) || this.toolNamePath.trim().isEmpty()) {
+            throw new IllegalArgumentException("Tool name path is required");
+        }
+        if (Objects.isNull(this.toolArgumentsPath) || this.toolArgumentsPath.trim().isEmpty()) {
+            throw new IllegalArgumentException("Tool arguments path is required");
+        }
     }
 
     // Getters for the CustomChatModel constructor
