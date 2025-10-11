@@ -15,6 +15,8 @@ import dev.langchain4j.model.chat.request.json.JsonNumberSchema;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 import dev.langchain4j.model.chat.request.json.JsonSchemaElement;
 import dev.langchain4j.model.chat.request.json.JsonStringSchema;
+import fr.mazure.simplellmtool.provider.custom.internal.MessageRound.ToolCall;
+import fr.mazure.simplellmtool.provider.custom.internal.MessageRound.ToolParameter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -191,10 +193,10 @@ public class RequestPayloadGenerator {
         return tools;
     }
 
-    private static List<Map<String, Object>> convertMessageRoundToolCalls(final List<MessageRoundToolCall> toolCalls) {
+    private static List<Map<String, Object>> convertMessageRoundToolCalls(final List<MessageRound.ToolCall> toolCalls) {
         final List<Map<String, Object>> tools = new ArrayList<>();
 
-        for (final MessageRoundToolCall toolCall: toolCalls) {
+        for (final ToolCall toolCall: toolCalls) {
             final Map<String, Object> tool = new HashMap<>();
             tool.put("toolName", toolCall.toolName());
             tool.put("toolParameters", convertMessageRoundToolParameters(toolCall.toolParameters()));
@@ -203,10 +205,10 @@ public class RequestPayloadGenerator {
         return tools;
     }
 
-    private static List<Map<String, Object>> convertMessageRoundToolParameters(final List<MessageRoundToolPamameter> parameters) {
+    private static List<Map<String, Object>> convertMessageRoundToolParameters(final List<MessageRound.ToolParameter> parameters) {
         final List<Map<String, Object>> tools = new ArrayList<>();
 
-        for (final MessageRoundToolPamameter parameter: parameters) {
+        for (final ToolParameter parameter: parameters) {
             final Map<String, Object> tool = new HashMap<>();
             tool.put("parameterName", parameter.parameterName());
             tool.put("parameterValue", parameter.parameterValue());

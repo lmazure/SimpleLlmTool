@@ -36,8 +36,14 @@ import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.TokenUsage;
 
+/*
+ * Represents a fully customizable chat model that can be used in the LangChain4j framework
+ */
 public class CustomChatModel implements ChatModel {
 
+    /*
+     * Represents the reason why the model stopped text generation
+     */
     public enum FinishingReason {
         DONE(FinishReason.STOP),
         MAX_TOKENS(FinishReason.LENGTH);
@@ -170,12 +176,12 @@ public class CustomChatModel implements ChatModel {
 
     private static MessageRound buildModelMessageRound(AiMessage aiMessage) {
         final String text = aiMessage.text();
-        final List<MessageRoundToolCall> toolCalls = new ArrayList<>();
+        final List<MessageRound.ToolCall> toolCalls = new ArrayList<>();
         
         ObjectMapper objectMapper = new ObjectMapper();
         
         for (ToolExecutionRequest request : aiMessage.toolExecutionRequests()) {
-            final List<MessageRoundToolPamameter> toolParameters = new ArrayList<>();
+            final List<MessageRound.ToolParameter> toolParameters = new ArrayList<>();
             
             try {
                 // Parse the arguments JSON string into a Map
@@ -192,7 +198,7 @@ public class CustomChatModel implements ChatModel {
                             ? entry.getValue().toString() 
                             : null;
                         toolParameters.add(
-                            new MessageRoundToolPamameter(entry.getKey(), paramValue)
+                            new MessageRound.ToolParameter(entry.getKey(), paramValue)
                         );
                     }
                 }
@@ -202,7 +208,7 @@ public class CustomChatModel implements ChatModel {
                 throw new RuntimeException("Failed to parse tool arguments", e);
             }
             
-            toolCalls.add(new MessageRoundToolCall(request.name(), toolParameters));
+            toolCalls.add(new MessageRound.ToolCall(request.name(), toolParameters));
         }
         
         return new MessageRound(Role.MODEL, text, toolCalls);

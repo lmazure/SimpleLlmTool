@@ -5,6 +5,9 @@ import java.util.Map;
 
 import fr.mazure.simplellmtool.provider.custom.internal.CustomChatModel.FinishingReason;
 
+/*
+ * Represents a builder for the CustomChatModel class
+ */
 public class CustomChatModelBuilder {
 
     private String modelName;
