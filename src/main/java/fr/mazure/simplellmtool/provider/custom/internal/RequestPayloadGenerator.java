@@ -26,7 +26,7 @@ public class RequestPayloadGenerator {
     /**
      * Generates a payload by evaluating a Handlebars template with the provided messages.
      *
-     * @param handlebarsTemplate the Handlebars string to evaluate
+     * @param handlebarsTemplate the Handlebars template to evaluate
      * @param messages the list of message rounds
      * @param modelName the name of the model
      * @param tools the list of tools
@@ -44,31 +44,31 @@ public class RequestPayloadGenerator {
             handlebars.with(EscapingStrategy.NOOP);
 
             // Register boolean helpers for each role
-            handlebars.registerHelper("isSystem", new Helper<Role>() {
+            handlebars.registerHelper("isSystem", new Helper<MessageRound.Role>() {
                 @Override
-                public Boolean apply(final Role role, final Options options) {
-                    return Boolean.valueOf(Role.SYSTEM.equals(role));
+                public Boolean apply(final MessageRound.Role role, final Options options) {
+                    return Boolean.valueOf(MessageRound.Role.SYSTEM.equals(role));
                 }
             });
 
-            handlebars.registerHelper("isUser", new Helper<Role>() {
+            handlebars.registerHelper("isUser", new Helper<MessageRound.Role>() {
                 @Override
-                public Boolean apply(final Role role, final Options options) {
-                    return Boolean.valueOf(Role.USER.equals(role));
+                public Boolean apply(final MessageRound.Role role, final Options options) {
+                    return Boolean.valueOf(MessageRound.Role.USER.equals(role));
                 }
             });
 
-            handlebars.registerHelper("isModel", new Helper<Role>() {
+            handlebars.registerHelper("isModel", new Helper<MessageRound.Role>() {
                 @Override
-                public Boolean apply(final Role role, final Options options) {
-                    return Boolean.valueOf(Role.MODEL.equals(role));
+                public Boolean apply(final MessageRound.Role role, final Options options) {
+                    return Boolean.valueOf(MessageRound.Role.MODEL.equals(role));
                 }
             });
 
-            handlebars.registerHelper("isTool", new Helper<Role>() {
+            handlebars.registerHelper("isTool", new Helper<MessageRound.Role>() {
                 @Override
-                public Boolean apply(final Role role, final Options options) {
-                    return Boolean.valueOf(Role.TOOL.equals(role));
+                public Boolean apply(final MessageRound.Role role, final Options options) {
+                    return Boolean.valueOf(MessageRound.Role.TOOL.equals(role));
                 }
             });
 

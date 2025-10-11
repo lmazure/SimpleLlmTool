@@ -166,10 +166,10 @@ public class CustomChatModel implements ChatModel {
 
     private MessageRound convertMessage(final ChatMessage message) {
         return switch (message) {
-            case UserMessage userMessage -> new MessageRound(Role.USER, userMessage.singleText());
+            case UserMessage userMessage -> new MessageRound(MessageRound.Role.USER, userMessage.singleText());
             case AiMessage aiMessage -> buildModelMessageRound(aiMessage);
-            case SystemMessage systemMessage -> new MessageRound(Role.SYSTEM, systemMessage.text());
-            case ToolExecutionResultMessage toolExecutionResultMessage -> new MessageRound(Role.TOOL, toolExecutionResultMessage.text(), toolExecutionResultMessage.toolName());
+            case SystemMessage systemMessage -> new MessageRound(MessageRound.Role.SYSTEM, systemMessage.text());
+            case ToolExecutionResultMessage toolExecutionResultMessage -> new MessageRound(MessageRound.Role.TOOL, toolExecutionResultMessage.text(), toolExecutionResultMessage.toolName());
             default -> throw new IllegalArgumentException("Unsupported message type: " + message.getClass());
         };
     }
@@ -211,7 +211,7 @@ public class CustomChatModel implements ChatModel {
             toolCalls.add(new MessageRound.ToolCall(request.name(), toolParameters));
         }
         
-        return new MessageRound(Role.MODEL, text, toolCalls);
+        return new MessageRound(MessageRound.Role.MODEL, text, toolCalls);
     }
 
 private ChatResponse parseApiResponse(final String responseBody) throws IOException, JsonPathExtractorException {
