@@ -255,7 +255,7 @@ public class CustomChatModel implements ChatModel {
                 final String generatedText = JsonPathExtractor.extract(responseBody, this.answerPath);
                 aiMessage = AiMessage.from(generatedText);
             }
-        } catch (final JsonPathExtractorException e) {
+        } catch (final JsonPathExtractorException _) {
             // If tool calls path doesn't exist or is invalid, fall back to regular text response
             final String generatedText = JsonPathExtractor.extract(responseBody, this.answerPath);
             aiMessage = AiMessage.from(generatedText);

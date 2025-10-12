@@ -2,7 +2,6 @@ package fr.mazure.simplellmtool.provider.custom.internal;
 
 import com.github.jknack.handlebars.EscapingStrategy;
 import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.Template;
 
@@ -67,68 +66,17 @@ public class RequestPayloadGenerator {
      * Registers custom Handlebars helpers for template evaluation
      */
     private static void registerHelpers(final Handlebars handlebars) {
-        handlebars.registerHelper("isSystem", new Helper<MessageRound.Role>() {
-            @Override
-            public Boolean apply(final MessageRound.Role role, final Options options) {
-                return Boolean.valueOf(MessageRound.Role.SYSTEM.equals(role));
-            }
-        });
-
-        handlebars.registerHelper("isUser", new Helper<MessageRound.Role>() {
-            @Override
-            public Boolean apply(final MessageRound.Role role, final Options options) {
-                return Boolean.valueOf(MessageRound.Role.USER.equals(role));
-            }
-        });
-
-        handlebars.registerHelper("isModel", new Helper<MessageRound.Role>() {
-            @Override
-            public Boolean apply(final MessageRound.Role role, final Options options) {
-                return Boolean.valueOf(MessageRound.Role.MODEL.equals(role));
-            }
-        });
-
-        handlebars.registerHelper("isTool", new Helper<MessageRound.Role>() {
-            @Override
-            public Boolean apply(final MessageRound.Role role, final Options options) {
-                return Boolean.valueOf(MessageRound.Role.TOOL.equals(role));
-            }
-        });
-
-        handlebars.registerHelper("convertToJsonString", new Helper<String>() {
-            @Override
-            public String apply(final String text, final Options options) {
-                return jsonConverter(text);
-            }
-        });
-
-        handlebars.registerHelper("isStringType", new Helper<String>() {
-            @Override
-            public Boolean apply(final String type, final Options options) {
-                return Boolean.valueOf("string".equals(type));
-            }
-        });
-
-        handlebars.registerHelper("isIntegerType", new Helper<String>() {
-            @Override
-            public Boolean apply(final String type, final Options options) {
-                return Boolean.valueOf("integer".equals(type));
-            }
-        });
-
-        handlebars.registerHelper("isNumberType", new Helper<String>() {
-            @Override
-            public Boolean apply(final String type, final Options options) {
-                return Boolean.valueOf("number".equals(type));
-            }
-        });
-
-        handlebars.registerHelper("isBooleanType", new Helper<String>() {
-            @Override
-            public Boolean apply(final String type, final Options options) {
-                return Boolean.valueOf("boolean".equals(type));
-            }
-        });
+        handlebars.registerHelper("isSystem", (final MessageRound.Role role, final Options _) -> Boolean.valueOf(MessageRound.Role.SYSTEM.equals(role)));
+        handlebars.registerHelper("isUser",   (final MessageRound.Role role, final Options _) -> Boolean.valueOf(MessageRound.Role.USER.equals(role)));
+        handlebars.registerHelper("isModel",  (final MessageRound.Role role, final Options _) -> Boolean.valueOf(MessageRound.Role.MODEL.equals(role)));
+        handlebars.registerHelper("isTool",   (final MessageRound.Role role, final Options _) -> Boolean.valueOf(MessageRound.Role.TOOL.equals(role)));
+        
+        handlebars.registerHelper("convertToJsonString", (final String text, final Options _) -> jsonConverter(text));
+        
+        handlebars.registerHelper("isStringType",  (final String type, final Options _) -> Boolean.valueOf("string".equals(type)));
+        handlebars.registerHelper("isIntegerType", (final String type, final Options _) -> Boolean.valueOf("integer".equals(type)));
+        handlebars.registerHelper("isNumberType",  (final String type, final Options _) -> Boolean.valueOf("number".equals(type)));
+        handlebars.registerHelper("isBooleanType", (final String type, final Options _) -> Boolean.valueOf("boolean".equals(type)));
     }
 
     /**

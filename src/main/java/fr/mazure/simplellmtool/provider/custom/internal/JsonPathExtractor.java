@@ -28,7 +28,7 @@ public class JsonPathExtractor {
     }
 
     // In theory, a JSON field name can contain any character, but we will limit ourselves to alphanumeric and underscore characters
-    final static Pattern validJsonPathPattern = Pattern.compile("((\\p{L}|\\d|_)+|\\[\\d+])" +        // first component
+    static final Pattern validJsonPathPattern = Pattern.compile("((\\p{L}|\\d|_)+|\\[\\d+])" +        // first component
                                                                 "(\\.(\\p{L}|\\d|_)+|\\[\\d+])*");    // following components
 
     private static final ObjectMapper objectMapper = new ObjectMapper();

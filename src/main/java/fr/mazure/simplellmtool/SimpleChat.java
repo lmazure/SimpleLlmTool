@@ -55,7 +55,7 @@ public class SimpleChat {
             case ProviderEnum.MOCK          -> MockChatModelProvider.createChatModel(new MockModelParameters());
         };
 
-        final Optional<ToolManager> toolManager = cli.toolsDir().map(dir -> new ToolManager(dir));
+        final Optional<ToolManager> toolManager = cli.toolsDir().map(ToolManager::new);
 
         try {
             if (cli.chatMode()) {
