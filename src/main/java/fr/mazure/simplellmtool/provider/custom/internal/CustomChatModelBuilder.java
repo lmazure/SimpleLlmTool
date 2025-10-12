@@ -72,6 +72,9 @@ public class CustomChatModelBuilder {
      * Sets the JSON path to the field containing the answer
      */
     public CustomChatModelBuilder answerPath(final String answerPath) {
+        if (!JsonPathExtractor.isPathValid(answerPath)) {
+             throw new IllegalArgumentException("Invalid answer path: " + answerPath);
+        }
         this.answerPath = answerPath;
         return this;
     }
@@ -80,6 +83,9 @@ public class CustomChatModelBuilder {
      * Sets the JSON path to the field containing the number of input tokens
      */
     public CustomChatModelBuilder inputTokenPath(final String inputTokenPath) {
+        if (!JsonPathExtractor.isPathValid(inputTokenPath)) {
+             throw new IllegalArgumentException("Invalid input token path: " + inputTokenPath);
+        }
         this.inputTokenPath = inputTokenPath;
         return this;
     }
@@ -88,6 +94,9 @@ public class CustomChatModelBuilder {
      * Sets the JSON path to the field containing the number of output tokens
      */
     public CustomChatModelBuilder outputTokenPath(final String outputTokenPath) {
+        if (!JsonPathExtractor.isPathValid(outputTokenPath)) {
+             throw new IllegalArgumentException("Invalid output token path: " + outputTokenPath);
+        }
         this.outputTokenPath = outputTokenPath;
         return this;
     }
@@ -96,6 +105,9 @@ public class CustomChatModelBuilder {
      * Sets the JSON path to the field containing the finish reason
      */
     public CustomChatModelBuilder finishReasonPath(final String finishReasonPath) {
+        if (!JsonPathExtractor.isPathValid(finishReasonPath)) {
+             throw new IllegalArgumentException("Invalid finish reason path: " + finishReasonPath);
+        }
         this.finishReasonPath = finishReasonPath;
         return this;
     }
@@ -112,6 +124,9 @@ public class CustomChatModelBuilder {
      * Sets the JSON path to the array of tool calls
      */
     public CustomChatModelBuilder toolCallsPath(final String toolCallsPath) {
+        if (!JsonPathExtractor.isPathValid(toolCallsPath)) {
+             throw new IllegalArgumentException("Invalid tool calls path: " + toolCallsPath);
+        }
         this.toolCallsPath = toolCallsPath;
         return this;
     }
@@ -120,6 +135,9 @@ public class CustomChatModelBuilder {
      * Sets the JSON path to the tool name within a tool call element
      */
     public CustomChatModelBuilder toolNamePath(final String toolNamePath) {
+        if (!JsonPathExtractor.isPathValid(toolNamePath)) {
+             throw new IllegalArgumentException("Invalid tool name path: " + toolNamePath);
+        }
         this.toolNamePath = toolNamePath;
         return this;
     }
@@ -128,6 +146,9 @@ public class CustomChatModelBuilder {
      * Sets the JSON path to the tool arguments dictionary within a tool call element
      */
     public CustomChatModelBuilder toolArgumentsPath(final String toolArgumentsPath) {
+        if (!JsonPathExtractor.isPathValid(toolArgumentsPath)) {
+             throw new IllegalArgumentException("Invalid tool arguments path: " + toolArgumentsPath);
+        }
         this.toolArgumentsPath = toolArgumentsPath;
         return this;
     }
