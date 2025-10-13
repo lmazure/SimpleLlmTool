@@ -1,9 +1,7 @@
 package fr.mazure.simplellmtool.provider.custom.internal;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -31,15 +29,20 @@ public class JsonPathExtractor {
     static final Pattern validJsonPathPattern = Pattern.compile("((\\p{L}|\\d|_)+|\\[\\d+])" +        // first component
                                                                 "(\\.(\\p{L}|\\d|_)+|\\[\\d+])*");    // following components
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-
     public static boolean isPathValid(final String path) {
         return validJsonPathPattern.matcher(path).matches();
     }
 
-    public static String extract(final String json,
-                                 final String path) throws IOException, JsonPathExtractorException {
-        final JsonNode rootNode = objectMapper.readTree(json);
+    /**
+     * Extracts a string from a JsonNode using the specified path.
+     *
+     * @param rootNode the JSON node to extract from
+     * @param path the JSON path to the string
+     * @return the extracted string
+     * @throws JsonPathExtractorException if the path is invalid or the element is not found
+     */
+    public static String extractString(final JsonNode rootNode,
+                                       final String path) throws JsonPathExtractorException {
         try {
             return extract(rootNode, split(path), 0).asText();
         } catch (final JsonPathExtractorInternalException e) {
@@ -48,17 +51,15 @@ public class JsonPathExtractor {
     }
 
     /**
-     * Extracts a JSON array from the given JSON string using the specified path.
+     * Extracts a JSON array from a JsonNode using the specified path.
      *
-     * @param json the JSON string to extract from
+     * @param rootNode the JSON node to extract from
      * @param path the JSON path to the array
      * @return a list of JsonNode elements from the array
-     * @throws IOException if there is an error parsing the JSON
      * @throws JsonPathExtractorException if the path is invalid or the element is not found
      */
-    public static List<JsonNode> extractArray(final String json,
-                                              final String path) throws IOException, JsonPathExtractorException {
-        final JsonNode rootNode = objectMapper.readTree(json);
+    public static List<JsonNode> extractArray(final JsonNode rootNode,
+                                              final String path) throws JsonPathExtractorException {
         try {
             final JsonNode arrayNode = extract(rootNode, split(path), 0);
             if (!arrayNode.isArray()) {
@@ -73,23 +74,6 @@ public class JsonPathExtractor {
     }
 
     /**
-     * Extracts a string value from a JsonNode using the specified path.
-     *
-     * @param node the JsonNode to extract from
-     * @param path the JSON path to the string value
-     * @return the extracted string value
-     * @throws JsonPathExtractorException if the path is invalid or the element is not found
-     */
-    public static String extractFromNode(final JsonNode node,
-                                         final String path) throws JsonPathExtractorException {
-        try {
-            return extract(node, split(path), 0).asText();
-        } catch (final JsonPathExtractorInternalException e) {
-            throw new JsonPathExtractorException("Failed to extract JSON path '" + path + "', error occurred when retrieving element '" + e.getPartialPath() +"'", e.getCause());
-        }
-    }
-
-    /**
      * Extracts a JsonNode from a JsonNode using the specified path.
      *
      * @param node the JsonNode to extract from
@@ -97,8 +81,8 @@ public class JsonPathExtractor {
      * @return the extracted JsonNode
      * @throws JsonPathExtractorException if the path is invalid or the element is not found
      */
-    public static JsonNode extractNodeFromNode(final JsonNode node,
-                                               final String path) throws JsonPathExtractorException {
+    public static JsonNode extractNode(final JsonNode node,
+                                       final String path) throws JsonPathExtractorException {
         try {
             return extract(node, split(path), 0);
         } catch (final JsonPathExtractorInternalException e) {
