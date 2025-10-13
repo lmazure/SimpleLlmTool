@@ -385,6 +385,202 @@ class RequestPayloadGeneratorTest {
 
     @SuppressWarnings("static-method")
     @Test
+    @DisplayName("Should generate Google's Gemini payload with tool call results")
+    void testGenerateToolCallResultsForGoogleGemini() { //TODO write this test
+        // Given
+        final String template = """
+        {
+          {{#each messages}}{{#if (isSystem role)}}"system_instruction": {
+            "parts": [
+              {
+                "text": {{convertToJsonString content}}
+              }
+            ]
+          },{{/if}}{{/each}}
+          "contents": [
+            {{#each messages}}{{#if (isUser role)}}{
+              "role": "user",
+              "parts": [
+                {
+                  "text": {{convertToJsonString content}}
+                }
+              ]
+            }{{#unless @last}},
+            {{/unless}}{{/if}}{{#if (isModel role)}}{
+              "role": "model",
+              "parts": [
+                {{#if content}}{
+                  "text": {{convertToJsonString content}}
+                }{{/if}}
+                {{#each toolCalls}}{
+                "functionCall": {
+                "name": {{convertToJsonString toolName}},
+                  "args": {
+                    {{#each toolParameters}}
+                    {{convertToJsonString parameterName}}: {{convertToJsonString parameterValue}}
+                    {{#unless @last}},
+                    {{/unless}}{{/each}}
+                  }
+                }
+                {{#unless @last}},
+                {{/unless}} } {{/each}}
+              ]
+            }{{#unless @last}},
+            {{/unless}}{{/if}}{{#if (isTool role)}}{
+              "role": "function",
+              "parts": [
+                {
+                  "functionResponse": {
+                    "name": {{convertToJsonString toolName}},
+                    "response": {
+                      "result": {{convertToJsonString content}}
+                    }
+                  }
+                }
+              ]
+            }{{#unless @last}},
+            {{/unless}}{{/if}}{{/each}}
+          ],
+          "tools": [
+            {
+              "function_declarations": [
+                {{#each tools}}{
+                  "name": {{convertToJsonString name}},
+                  "description": {{convertToJsonString description}},
+                  "parameters": {
+                    "type": "object",
+                    "properties": {
+                      {{#each parameters}}{{convertToJsonString name}}: {
+                        "type": {{#if (isStringType type)}}"string"{{/if}}{{#if (isIntegerType type)}}"integer"{{/if}}{{#if (isNumberType type)}}"number"{{/if}}{{#if (isBooleanType type)}}"boolean"{{/if}},
+                        "description": {{convertToJsonString description}}
+                      }{{#unless @last}},
+                      {{/unless}}{{/each}}
+                    },
+                    "required": [
+                      {{#each requiredParameters}}{{convertToJsonString name}}{{#unless @last}},
+                      {{/unless}}{{/each}}
+                    ]
+                  }
+                }{{#unless @last}},
+                {{/unless}}{{/each}}
+              ]
+            }
+          ],
+          "generationConfig": {
+            "stopSequences": [
+              "Title"
+            ],
+            "temperature": 1.0,
+            "topP": 0.8,
+            "topK": 10
+          }
+        }
+        """;
+
+        final List<MessageRound> messages = Arrays.asList(
+            new MessageRound(MessageRound.Role.SYSTEM, "You always provide an English anwer, followed by a precise translation in French"),
+            new MessageRound(MessageRound.Role.USER, "What is the weather in Paris?"),
+            new MessageRound(MessageRound.Role.MODEL, "", List.of(new MessageRound.ToolCall("get_weather", List.of(new MessageRound.ToolParameter("city", "Paris"))))),
+            new MessageRound(MessageRound.Role.TOOL, "Paris, ?le-de-France, France: 14.0?C, Mainly Clear, Feels like 13.3?C, Humidity 88%", "get_weather")
+        );
+
+        final ToolManager.Tool getWeatherTool = new ToolManager.Tool("get_weather",
+                                                                     "Returns the current weather for a given city",
+                                                                     List.of(new ToolManager.ToolParameter("city", "The city for which the weather forecast should be returned, only the city name should be present", ToolManager.ToolParameterType.STRING, true)));
+
+        final List<ToolSpecification> tools = List.of(
+          ToolManager.getSpecification(getWeatherTool)
+        );
+
+        // When
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", tools, "my-secret-API-key");
+
+        // Then
+        final String expectedResult = """
+        {
+          "system_instruction": {
+            "parts": [
+              {
+                "text": "You always provide an English anwer, followed by a precise translation in French"
+              }
+            ]
+          },
+          "contents": [
+            {
+              "role": "user",
+              "parts": [
+                {
+                  "text": "What is the weather in Paris?"
+                }
+              ]
+            },
+            {
+              "role": "model",
+              "parts": [
+            \s\s\s\s
+                {
+                "functionCall": {
+                "name": "get_weather",
+                  "args": {
+             \s\s\s\s\s\s\s
+                    "city": "Paris"
+             \s\s\s\s\s\s\s
+                  }
+                }
+                 }\s
+              ]
+            },
+            {
+              "role": "function",
+              "parts": [
+                {
+                  "functionResponse": {
+                    "name": "get_weather",
+                    "response": {
+                      "result": "Paris, ?le-de-France, France: 14.0?C, Mainly Clear, Feels like 13.3?C, Humidity 88%"
+                    }
+                  }
+                }
+              ]
+            }
+          ],
+          "tools": [
+            {
+              "function_declarations": [
+                {
+                  "name": "get_weather",
+                  "description": "Returns the current weather for a given city",
+                  "parameters": {
+                    "type": "object",
+                    "properties": {
+                      "city": {
+                        "type": "string",
+                        "description": "The city for which the weather forecast should be returned, only the city name should be present"
+                      }
+                    },
+                    "required": [
+                      "city"
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "generationConfig": {
+            "stopSequences": [
+              "Title"
+            ],
+            "temperature": 1.0,
+            "topP": 0.8,
+            "topK": 10
+          }
+        }
+        """;
+        Assertions.assertEquals(expectedResult, result);
+    }
+
+    @SuppressWarnings("static-method")
+    @Test
     @DisplayName("Should manage model name")
     void testGenerateModelName() {
         // Given
