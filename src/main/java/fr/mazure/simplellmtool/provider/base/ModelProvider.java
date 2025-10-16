@@ -1,5 +1,7 @@
 package fr.mazure.simplellmtool.provider.base;
 
+import java.util.Objects;
+
 import dev.langchain4j.model.chat.ChatModel;
 
 public interface ModelProvider {
@@ -25,7 +27,7 @@ public interface ModelProvider {
     static String getApiKeyFromEnvironmentVariable(final String apiKeyEnvironmentVariableName,
                                                    final String providerName) throws MissingEnvironmentVariable {
         final String apiKey = System.getenv(apiKeyEnvironmentVariableName);
-        if (apiKey == null) {
+        if (Objects.isNull(apiKey)) {
             throw new MissingEnvironmentVariable(apiKeyEnvironmentVariableName, "Please set it to your " + providerName + " API key.");
         }
 

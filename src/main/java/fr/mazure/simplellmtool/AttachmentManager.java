@@ -146,7 +146,7 @@ public class AttachmentManager {
      * @throws AttachmentManagerException If the file cannot be read
      */
     private static Content getAudioFileContent(final Path filePath,
-                                               String fileExtension) throws AttachmentManagerException {
+                                               final String fileExtension) throws AttachmentManagerException {
         final String base64Data = getFileContentAsBase64(filePath);
         return AudioContent.from(base64Data, "audio/" + fileExtension);
     }
@@ -163,7 +163,7 @@ public class AttachmentManager {
      * @throws AttachmentManagerException If the file cannot be read
      */
     private static Content getVideoFileContent(final Path filePath,
-                                               String fileExtension) throws AttachmentManagerException {
+                                               final String fileExtension) throws AttachmentManagerException {
         final String base64Data = getFileContentAsBase64(filePath);
         return VideoContent.from(base64Data, "video/" + fileExtension);
     }

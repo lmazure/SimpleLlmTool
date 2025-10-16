@@ -6,6 +6,9 @@ import dev.langchain4j.model.openai.OpenAiChatModel.OpenAiChatModelBuilder;
 import fr.mazure.simplellmtool.provider.base.MissingEnvironmentVariable;
 import fr.mazure.simplellmtool.provider.base.ModelProvider;
 
+/**
+ * The OpenAI model provider.
+ */
 public class OpenAiChatModelProvider implements ModelProvider {
 
     public static ChatModel createChatModel(final OpenAiModelParameters parameters) throws MissingEnvironmentVariable {
@@ -44,8 +47,8 @@ public class OpenAiChatModelProvider implements ModelProvider {
             builder.maxCompletionTokens(parameters.getMaxCompletionTokens().get());
         }
 
-        return builder.logRequests(true)
-                      .logResponses(true)
+        return builder.logRequests(Boolean.TRUE)
+                      .logResponses(Boolean.TRUE)
                       .build();
     }
 }

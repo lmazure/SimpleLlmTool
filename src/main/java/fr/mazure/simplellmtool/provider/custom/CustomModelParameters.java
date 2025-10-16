@@ -30,6 +30,9 @@ import fr.mazure.simplellmtool.provider.custom.internal.CustomChatModel;
  * @param outputTokenPath      the path to the output token count in the API response
  * @param finishReasonPath     the path to the finish reason in the API response
  * @param finishReasonMappings the finish reason mappings
+ * @param toolCallsPath        the path to the array of tool calls
+ * @param toolNamePath         the path to the tool name within a tool call element
+ * @param toolArgumentsPath    the path to the tool arguments dictionary within a tool call element
  */
 public class CustomModelParameters extends ModelParameters {
 
@@ -40,6 +43,9 @@ public class CustomModelParameters extends ModelParameters {
     private final String outputTokenPath;
     private final String finishReasonPath;
     private final Map<String, CustomChatModel.FinishingReason> finishReasonMappings;
+    private final String toolCallsPath;
+    private final String toolNamePath;
+    private final String toolArgumentsPath;
 
     public CustomModelParameters(final String modelName,
                                  final URL url,
@@ -50,7 +56,10 @@ public class CustomModelParameters extends ModelParameters {
                                  final String inputTokenPath,
                                  final String outputTokenPath,
                                  final String finishReasonPath,
-                                 final Map<String, CustomChatModel.FinishingReason> finishReasonMappings) {
+                                 final Map<String, CustomChatModel.FinishingReason> finishReasonMappings,
+                                 final String toolCallsPath,
+                                 final String toolNamePath,
+                                 final String toolArgumentsPath) {
         super(modelName, Optional.of(url), apiKeyEnvVar);
         this.payloadTemplate = payloadTemplate;
         this.httpHeaders = httpHeaders;
@@ -59,6 +68,9 @@ public class CustomModelParameters extends ModelParameters {
         this.outputTokenPath = outputTokenPath;
         this.finishReasonPath = finishReasonPath;
         this.finishReasonMappings = finishReasonMappings;
+        this.toolCallsPath = toolCallsPath;
+        this.toolNamePath = toolNamePath;
+        this.toolArgumentsPath = toolArgumentsPath;
     }
 
     public String getPayloadTemplate() {
@@ -89,6 +101,18 @@ public class CustomModelParameters extends ModelParameters {
         return this.finishReasonMappings;
     }
 
+    public String getToolCallsPath() {
+        return this.toolCallsPath;
+    }
+
+    public String getToolNamePath() {
+        return this.toolNamePath;
+    }
+
+    public String getToolArgumentsPath() {
+        return this.toolArgumentsPath;
+    }
+
     /**
      * Load parameters from a YAML file and create a new CustomModelParameters instance.
      *
@@ -113,7 +137,10 @@ public class CustomModelParameters extends ModelParameters {
                                              parameterMap.getString("inputTokenPath"),
                                              parameterMap.getString("outputTokenPath"),
                                              parameterMap.getString("finishReasonPath"),
-                                             getFinishReasonMappings(parameterMap));
+                                             getFinishReasonMappings(parameterMap),
+                                             parameterMap.getString("toolCallsPath"),
+                                             parameterMap.getString("toolNamePath"),
+                                             parameterMap.getString("toolArgumentsPath"));
         }
     }
 

@@ -39,15 +39,17 @@ import fr.mazure.simplellmtool.provider.openai.OpenAiModelParameters;
 /**
  * Tests for the {@link BatchMode} class.
  */
-public class BatchModeTest {
+class BatchModeTest {
 
     /**
      * Basic test for OpenAI.
      * @throws MissingEnvironmentVariable
      */
+    @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
-    public void testBasicOpenAi() throws MissingEnvironmentVariable {
+    @Tag("e2e_openai")
+    void testBasicOpenAi() throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
@@ -76,9 +78,11 @@ public class BatchModeTest {
      * Basic test for Mistral AI.
      * @throws MissingEnvironmentVariable
      */
+    @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
-    public void testBasicMistralAi() throws MissingEnvironmentVariable {
+    @Tag("e2e_mistralai")
+    void testBasicMistralAi() throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
@@ -104,9 +108,11 @@ public class BatchModeTest {
      * Basic test for Anthropic.
      * @throws MissingEnvironmentVariable
      */
+    @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
-    public void testBasicAnthropic() throws MissingEnvironmentVariable {
+    @Tag("e2e_anthropic")
+    void testBasicAnthropic() throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
@@ -133,9 +139,11 @@ public class BatchModeTest {
      * Basic test for Google Gemini.
      * @throws MissingEnvironmentVariable
      */
+    @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
-    public void testBasicGemini() throws MissingEnvironmentVariable {
+    @Tag("e2e_google_gemini")
+    void testBasicGemini() throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
@@ -164,9 +172,11 @@ public class BatchModeTest {
      * @throws MalformedURLException
      * @throws MissingEnvironmentVariable
      */
+    @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
-    public void testBasicCustom() throws MalformedURLException, URISyntaxException, MissingEnvironmentVariable {
+    @Tag("e2e_openai")
+    void testBasicCustom() throws MalformedURLException, URISyntaxException, MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
@@ -193,7 +203,10 @@ public class BatchModeTest {
                                                                            "usage.prompt_tokens",
                                                                            "usage.completion_tokens",
                                                                            "choices[0].finish_reason",
-                                                                           Map.of("stop", CustomChatModel.FinishingReason.DONE)); // TODO fix this and the previous line!
+                                                                           Map.of("stop", CustomChatModel.FinishingReason.DONE),
+                                                                           "choices[0].message.tool_calls",
+                                                                           "function.name",
+                                                                           "function.arguments");
         final ChatModel model = CustomChatModelProvider.createChatModel(parameters);
         final Optional<String> sysPrompt = Optional.of("You must answer in one word.");
         final String userPrompt = "What is the capital of France?";
@@ -210,9 +223,11 @@ public class BatchModeTest {
      * Tool test for OpenAI.
      * @throws MissingEnvironmentVariable
      */
+    @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
-    public void testToolOpenAi(@TempDir final Path tempDir) throws IOException, MissingEnvironmentVariable {
+    @Tag("e2e_openai")
+    void testToolOpenAi(@TempDir final Path tempDir) throws IOException, MissingEnvironmentVariable {
         // Given
         final String pythonScript = """
                 import sys
@@ -278,8 +293,9 @@ public class BatchModeTest {
      * Management of invalid file attachment.
      * @throws MissingEnvironmentVariable
      */
+    @SuppressWarnings("static-method")
     @Test
-    public void testInvalidFileAttachment(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+    void testInvalidFileAttachment() throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
@@ -303,8 +319,9 @@ public class BatchModeTest {
      * Management of invalid URL attachment.
      * @throws MissingEnvironmentVariable
      */
+    @SuppressWarnings("static-method")
     @Test
-    public void testInvalidUrlAttachment(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+    void testInvalidUrlAttachment() throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
@@ -328,9 +345,11 @@ public class BatchModeTest {
      * Test of image file attachment for Anthropic.
      * @throws MissingEnvironmentVariable
      */
+    @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
-    public void testImageFileAttachmentAnthropic(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+    @Tag("e2e_anthropic")
+    void testImageFileAttachmentAnthropic() throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
@@ -360,9 +379,11 @@ public class BatchModeTest {
      * Test of image URL attachment for Anthropic.
      * @throws MissingEnvironmentVariable
      */
+    @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
-    public void testImageUrlAttachmentAnthropic(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+    @Tag("e2e_anthropic")
+    void testImageUrlAttachmentAnthropic() throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
@@ -392,9 +413,11 @@ public class BatchModeTest {
      * Test of PDF file attachment for Anthropic.
      * @throws MissingEnvironmentVariable
      */
+    @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
-    public void testPdfFileAttachmentAnthropic(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+    @Tag("e2e_anthropic")
+    void testPdfFileAttachmentAnthropic() throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
@@ -425,9 +448,11 @@ public class BatchModeTest {
      * @throws MissingEnvironmentVariable
      */
     @Disabled("Bug in LangChain4j?")
+    @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
-    public void testPdfUrlAttachmentAnthropic(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+    @Tag("e2e_anthropic")
+    void testPdfUrlAttachmentAnthropic() throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
@@ -458,9 +483,11 @@ public class BatchModeTest {
      * @throws MissingEnvironmentVariable
      */
     @Disabled("Bug in LangChain4j?")
+    @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
-    public void testPdfUrlAttachmentOpenAI(@TempDir final Path tempDir) throws MissingEnvironmentVariable {
+    @Tag("e2e_openai")
+    void testPdfUrlAttachmentOpenAI() throws MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);

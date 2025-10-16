@@ -23,7 +23,7 @@ public class MockChatModel implements ChatModel {
         final int numberOfReturnedMessages = Math.min(messages.size(), 5);
         for (int i = messages.size() - numberOfReturnedMessages; i < messages.size(); i++) {
             final ChatMessage message = messages.get(i);
-            mockAnswerBuilder.append(String.format("%03d ", i));
+            mockAnswerBuilder.append(String.format("%03d ", Integer.valueOf(i)));
             mockAnswerBuilder.append(
                 switch (message) {
                     case UserMessage userMessage -> "USER " + userMessage.singleText().replaceAll("\n", "↵");

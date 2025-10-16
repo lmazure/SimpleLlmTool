@@ -20,18 +20,21 @@ import fr.mazure.simplellmtool.provider.custom.internal.CustomChatModel;
 /**
  * Tests for the {@link CustomModelParameters} class.
  */
-public class CustomModelParametersTest {
+class CustomModelParametersTest {
 
     /**
      * Test loading a valid configuration file with all parameters.
+     *
+     * @param tempDir temporary directory where to write the configuration file
      *
      * @throws IOException if there is an error reading the file
      * @throws URISyntaxException if the expected URL is invalid (i.e. you screwed up the test itself)
      * @throws MissingModelParameter if a compulsory parameter is missing
      * @throws InvalidModelParameter if a parameter has an incorrect value
      */
+    @SuppressWarnings("static-method")
     @Test
-    public void testLoadFromFileWithAllParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
+    void testLoadFromFileWithAllParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
         // Given
         final String configContent = """
                 modelName: custom-large-latest
@@ -47,6 +50,9 @@ public class CustomModelParametersTest {
                 finishReasonMappings:
                   string_for_stop: DONE
                   string_for_max_tokens: MAX_TOKENS
+                toolCallsPath: path_to_tool_calls
+                toolNamePath: path_to_tool_name
+                toolArgumentsPath: path_to_tool_arguments
                 """;
         final Path tempConfigPath = tempDir.resolve("valid-custom-config.yaml");
         Files.writeString(tempConfigPath, configContent);
@@ -65,17 +71,23 @@ public class CustomModelParametersTest {
         Assertions.assertEquals("path_to_number_of_output_tokens", parameters.getOutputTokenPath());
         Assertions.assertEquals("path_to_finish_reason", parameters.getFinishReasonPath());
         Assertions.assertEquals(Map.of("string_for_stop", CustomChatModel.FinishingReason.DONE, "string_for_max_tokens", CustomChatModel.FinishingReason.MAX_TOKENS), parameters.getFinishReasonMappings());
+        Assertions.assertEquals("path_to_tool_calls", parameters.getToolCallsPath());
+        Assertions.assertEquals("path_to_tool_name", parameters.getToolNamePath());
+        Assertions.assertEquals("path_to_tool_arguments", parameters.getToolArgumentsPath());
     }
 
     /**
      * Test loading a minimal configuration file with only required parameters.
      *
+     * @param tempDir temporary directory where to write the configuration file
+     *
      * @throws IOException if there is an error reading the file
      * @throws MissingModelParameter if a compulsory parameter is missing
      * @throws InvalidModelParameter if a parameter has an incorrect value
      */
+    @SuppressWarnings("static-method")
     @Test
-    public void testLoadFromFileWithMinimalParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
+    void testLoadFromFileWithMinimalParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
         // Given
         final String configContent = """
                 modelName: custom-small-latest
@@ -91,6 +103,9 @@ public class CustomModelParametersTest {
                 finishReasonMappings:
                   string_for_stop: DONE
                   string_for_max_tokens: MAX_TOKENS
+                toolCallsPath: path_to_tool_calls
+                toolNamePath: path_to_tool_name
+                toolArgumentsPath: path_to_tool_arguments
                 """;
         final Path tempConfigPath = tempDir.resolve(("minimal-custom-config.yaml"));
         Files.writeString(tempConfigPath, configContent);
@@ -109,17 +124,23 @@ public class CustomModelParametersTest {
         Assertions.assertEquals("path_to_number_of_output_tokens", parameters.getOutputTokenPath());
         Assertions.assertEquals("path_to_finish_reason", parameters.getFinishReasonPath());
         Assertions.assertEquals(Map.of("string_for_stop", CustomChatModel.FinishingReason.DONE, "string_for_max_tokens", CustomChatModel.FinishingReason.MAX_TOKENS), parameters.getFinishReasonMappings());
+        Assertions.assertEquals("path_to_tool_calls", parameters.getToolCallsPath());
+        Assertions.assertEquals("path_to_tool_name", parameters.getToolNamePath());
+        Assertions.assertEquals("path_to_tool_arguments", parameters.getToolArgumentsPath());
     }
 
     /**
      * Test loading with an overriding model name.
      *
+     * @param tempDir temporary directory where to write the configuration file
+     *
      * @throws IOException if there is an error reading the file
      * @throws MissingModelParameter if a compulsory parameter is missing
      * @throws InvalidModelParameter if a parameter has an incorrect value
      */
+    @SuppressWarnings("static-method")
     @Test
-    public void testLoadFromFileWithOverriddenModelName(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
+    void testLoadFromFileWithOverriddenModelName(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
         // Given
         final String configContent = """
                 modelName: custom-small-latest
@@ -135,6 +156,9 @@ public class CustomModelParametersTest {
                 finishReasonMappings:
                   string_for_stop: DONE
                   string_for_max_tokens: MAX_TOKENS
+                toolCallsPath: path_to_tool_calls
+                toolNamePath: path_to_tool_name
+                toolArgumentsPath: path_to_tool_arguments
                 """;
         final Path tempConfigPath = tempDir.resolve(("minimal-custom-config.yaml"));
         Files.writeString(tempConfigPath, configContent);
@@ -153,13 +177,17 @@ public class CustomModelParametersTest {
         Assertions.assertEquals("path_to_number_of_output_tokens", parameters.getOutputTokenPath());
         Assertions.assertEquals("path_to_finish_reason", parameters.getFinishReasonPath());
         Assertions.assertEquals(Map.of("string_for_stop", CustomChatModel.FinishingReason.DONE, "string_for_max_tokens", CustomChatModel.FinishingReason.MAX_TOKENS), parameters.getFinishReasonMappings());
+        Assertions.assertEquals("path_to_tool_calls", parameters.getToolCallsPath());
+        Assertions.assertEquals("path_to_tool_name", parameters.getToolNamePath());
+        Assertions.assertEquals("path_to_tool_arguments", parameters.getToolArgumentsPath());
     }
 
     /**
      * Test loading a non-existent file.
      */
+    @SuppressWarnings("static-method")
     @Test
-    public void testLoadFromNonExistentFile() {
+    void testLoadFromNonExistentFile() {
         // Given
         final Path nonExistentPath = Paths.get("non-existent-file.yaml");
 
@@ -171,11 +199,13 @@ public class CustomModelParametersTest {
     /**
      * Test loading a file with invalid URL.
      *
-     * @param tempDir temporary directory for test files
+     * @param tempDir temporary directory where to write the configuration file
+     *
      * @throws IOException if there is an error creating or writing to the file
      */
+    @SuppressWarnings("static-method")
     @Test
-    public void testLoadFromFileWithInvalidUrl(@TempDir final Path tempDir) throws IOException {
+    void testLoadFromFileWithInvalidUrl(@TempDir final Path tempDir) throws IOException {
         // Given
         final Path invalidConfigPath = tempDir.resolve("invalid-url-config.yaml");
         Files.writeString(invalidConfigPath, """
@@ -202,11 +232,13 @@ public class CustomModelParametersTest {
     /**
      * Test loading a file with invalid finish reason mappings.
      *
-     * @param tempDir temporary directory for test files
+     * @param tempDir temporary directory where to write the configuration file
+     *
      * @throws IOException if there is an error creating or writing to the file
      */
+    @SuppressWarnings("static-method")
     @Test
-    public void testLoadFromFileWithInvalidFinishReasonMappings(@TempDir final Path tempDir) throws IOException {
+    void testLoadFromFileWithInvalidFinishReasonMappings(@TempDir final Path tempDir) throws IOException {
         // Given
         final Path invalidConfigPath = tempDir.resolve("invalid-finish-reason-mappings-config.yaml");
         Files.writeString(invalidConfigPath, """

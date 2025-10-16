@@ -2,9 +2,13 @@ package fr.mazure.simplellmtool.provider.custom.internal;
 
 
 import java.util.Map;
+import java.util.Objects;
 
 import fr.mazure.simplellmtool.provider.custom.internal.CustomChatModel.FinishingReason;
 
+/*
+ * Represents a builder for the CustomChatModel class
+ */
 public class CustomChatModelBuilder {
 
     private String modelName;
@@ -17,8 +21,11 @@ public class CustomChatModelBuilder {
     private String outputTokenPath;
     private String finishReasonPath;
     private Map<String, FinishingReason> finishReasonMappings;
-    private boolean logRequests = false;
-    private boolean logResponses = false;
+    private String toolCallsPath;
+    private String toolNamePath;
+    private String toolArgumentsPath;
+    private Boolean logRequests = Boolean.FALSE;
+    private Boolean logResponses = Boolean.FALSE;
 
     public CustomChatModelBuilder() {
         // Default constructor
@@ -60,10 +67,14 @@ public class CustomChatModelBuilder {
         this.httpHeaders = httpHeaders;
         return this;
     }
+
     /**
      * Sets the JSON path to the field containing the answer
      */
     public CustomChatModelBuilder answerPath(final String answerPath) {
+        if (!JsonPathExtractor.isPathValid(answerPath)) {
+             throw new IllegalArgumentException("Invalid answer path: " + answerPath);
+        }
         this.answerPath = answerPath;
         return this;
     }
@@ -72,6 +83,9 @@ public class CustomChatModelBuilder {
      * Sets the JSON path to the field containing the number of input tokens
      */
     public CustomChatModelBuilder inputTokenPath(final String inputTokenPath) {
+        if (!JsonPathExtractor.isPathValid(inputTokenPath)) {
+             throw new IllegalArgumentException("Invalid input token path: " + inputTokenPath);
+        }
         this.inputTokenPath = inputTokenPath;
         return this;
     }
@@ -80,6 +94,9 @@ public class CustomChatModelBuilder {
      * Sets the JSON path to the field containing the number of output tokens
      */
     public CustomChatModelBuilder outputTokenPath(final String outputTokenPath) {
+        if (!JsonPathExtractor.isPathValid(outputTokenPath)) {
+             throw new IllegalArgumentException("Invalid output token path: " + outputTokenPath);
+        }
         this.outputTokenPath = outputTokenPath;
         return this;
     }
@@ -88,6 +105,9 @@ public class CustomChatModelBuilder {
      * Sets the JSON path to the field containing the finish reason
      */
     public CustomChatModelBuilder finishReasonPath(final String finishReasonPath) {
+        if (!JsonPathExtractor.isPathValid(finishReasonPath)) {
+             throw new IllegalArgumentException("Invalid finish reason path: " + finishReasonPath);
+        }
         this.finishReasonPath = finishReasonPath;
         return this;
     }
@@ -101,9 +121,42 @@ public class CustomChatModelBuilder {
     }
 
     /**
+     * Sets the JSON path to the array of tool calls
+     */
+    public CustomChatModelBuilder toolCallsPath(final String toolCallsPath) {
+        if (!JsonPathExtractor.isPathValid(toolCallsPath)) {
+             throw new IllegalArgumentException("Invalid tool calls path: " + toolCallsPath);
+        }
+        this.toolCallsPath = toolCallsPath;
+        return this;
+    }
+
+    /**
+     * Sets the JSON path to the tool name within a tool call element
+     */
+    public CustomChatModelBuilder toolNamePath(final String toolNamePath) {
+        if (!JsonPathExtractor.isPathValid(toolNamePath)) {
+             throw new IllegalArgumentException("Invalid tool name path: " + toolNamePath);
+        }
+        this.toolNamePath = toolNamePath;
+        return this;
+    }
+
+    /**
+     * Sets the JSON path to the tool arguments dictionary within a tool call element
+     */
+    public CustomChatModelBuilder toolArgumentsPath(final String toolArgumentsPath) {
+        if (!JsonPathExtractor.isPathValid(toolArgumentsPath)) {
+             throw new IllegalArgumentException("Invalid tool arguments path: " + toolArgumentsPath);
+        }
+        this.toolArgumentsPath = toolArgumentsPath;
+        return this;
+    }
+
+    /**
      * Enables request logging
      */
-    public CustomChatModelBuilder logRequests(final boolean logRequests) {
+    public CustomChatModelBuilder logRequests(final Boolean logRequests) {
         this.logRequests = logRequests;
         return this;
     }
@@ -111,7 +164,7 @@ public class CustomChatModelBuilder {
     /**
      * Enables response logging
      */
-    public CustomChatModelBuilder logResponses(final boolean logResponses) {
+    public CustomChatModelBuilder logResponses(final Boolean logResponses) {
         this.logResponses = logResponses;
         return this;
     }
@@ -145,35 +198,44 @@ public class CustomChatModelBuilder {
      * Validates required parameters before building
      */
     private void validateParameters() {
-        if (this.modelName == null || this.modelName.trim().isEmpty()) {
+        if (Objects.isNull(this.modelName) || this.modelName.trim().isEmpty()) {
             throw new IllegalArgumentException("Model name is required");
         }
-        if (this.apiKey == null || this.apiKey.trim().isEmpty()) {
+        if (Objects.isNull(this.apiKey) || this.apiKey.trim().isEmpty()) {
             throw new IllegalArgumentException("API key is required");
         }
-        if (this.baseUrl == null || this.baseUrl.trim().isEmpty()) {
+        if (Objects.isNull(this.baseUrl) || this.baseUrl.trim().isEmpty()) {
             throw new IllegalArgumentException("Base URL is required");
         }
-        if (this.payloadTemplate == null || this.payloadTemplate.trim().isEmpty()) {
+        if (Objects.isNull(this.payloadTemplate) || this.payloadTemplate.trim().isEmpty()) {
             throw new IllegalArgumentException("Payload template is required");
         }
-        if (this.httpHeaders == null || this.httpHeaders.isEmpty()) {
+        if (Objects.isNull(this.httpHeaders)) {
             throw new IllegalArgumentException("HTTP headers are required");
         }
-        if (this.answerPath == null || this.answerPath.trim().isEmpty()) {
+        if (Objects.isNull(this.answerPath) || this.answerPath.trim().isEmpty()) {
             throw new IllegalArgumentException("Answer path is required");
         }
-        if (this.inputTokenPath == null || this.inputTokenPath.trim().isEmpty()) {
+        if (Objects.isNull(this.inputTokenPath) || this.inputTokenPath.trim().isEmpty()) {
             throw new IllegalArgumentException("Input token path is required");
         }
-        if (this.outputTokenPath == null || this.outputTokenPath.trim().isEmpty()) {
+        if (Objects.isNull(this.outputTokenPath) || this.outputTokenPath.trim().isEmpty()) {
             throw new IllegalArgumentException("Output token path is required");
         }
-        if (this.finishReasonPath == null || this.finishReasonPath.trim().isEmpty()) {
+        if (Objects.isNull(this.finishReasonPath) || this.finishReasonPath.trim().isEmpty()) {
             throw new IllegalArgumentException("Finish reason path is required");
         }
-        if (this.finishReasonMappings == null || this.finishReasonMappings.isEmpty()) {
+        if (Objects.isNull(this.finishReasonMappings) || this.finishReasonMappings.isEmpty()) {
             throw new IllegalArgumentException("Finish reason mappings are required");
+        }
+        if (Objects.isNull(this.toolCallsPath) || this.toolCallsPath.trim().isEmpty()) {
+            throw new IllegalArgumentException("Tool calls path is required");
+        }
+        if (Objects.isNull(this.toolNamePath) || this.toolNamePath.trim().isEmpty()) {
+            throw new IllegalArgumentException("Tool name path is required");
+        }
+        if (Objects.isNull(this.toolArgumentsPath) || this.toolArgumentsPath.trim().isEmpty()) {
+            throw new IllegalArgumentException("Tool arguments path is required");
         }
     }
 
@@ -188,6 +250,9 @@ public class CustomChatModelBuilder {
     String getOutputTokenPath() { return this.outputTokenPath; }
     String getFinishReasonPath() { return this.finishReasonPath; }
     Map<String, FinishingReason> getFinishReasonMappings() { return this.finishReasonMappings;}
-    boolean isLogRequests() { return this.logRequests; }
-    boolean isLogResponses() { return this.logResponses; }
+    String getToolCallsPath() { return this.toolCallsPath; }
+    String getToolNamePath() { return this.toolNamePath; }
+    String getToolArgumentsPath() { return this.toolArgumentsPath; }
+    Boolean isLogRequests() { return this.logRequests; }
+    Boolean isLogResponses() { return this.logResponses; }
 }

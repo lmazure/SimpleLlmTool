@@ -14,19 +14,19 @@ import fr.mazure.simplellmtool.provider.base.MissingModelParameter;
 import fr.mazure.simplellmtool.provider.base.ModelParameters;
 import fr.mazure.simplellmtool.provider.base.ParameterMap;
 
-    /**
-     * Parameters for the OpenAI model provider.
-     *
-     * @param modelName           the name of the model
-     * @param baseUrl             the base URL of the provider
-     * @param apiKeyEnvVar        the name of the environment variable containing the API key
-     * @param organizationId      the ID of the organization containing the model
-     * @param projectId           the ID of the project containing the model
-     * @param temperature         the temperature of the model
-     * @param seed                the random seed of the model
-     * @param topP                the top P value of the model
-     * @param maxCompletionTokens the maximum number of tokens the model should generate
-     */
+/**
+ * Parameters for the OpenAI model provider.
+ *
+ * @param modelName           the name of the model
+ * @param baseUrl             the base URL of the provider
+ * @param apiKeyEnvVar        the name of the environment variable containing the API key
+ * @param organizationId      the ID of the organization containing the model
+ * @param projectId           the ID of the project containing the model
+ * @param temperature         the temperature of the model
+ * @param seed                the random seed of the model
+ * @param topP                the top P value of the model
+ * @param maxCompletionTokens the maximum number of tokens the model should generate
+ */
 public class OpenAiModelParameters extends ModelParameters{
 
     private final Optional<String> organizationId;

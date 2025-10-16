@@ -2,13 +2,25 @@ package fr.mazure.simplellmtool.provider.custom.internal;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import dev.langchain4j.agent.tool.ToolExecutionRequest;
+import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.SystemMessage;
+import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.exception.HttpException;
 import dev.langchain4j.http.client.HttpClient;
@@ -17,16 +29,22 @@ import dev.langchain4j.http.client.HttpMethod;
 import dev.langchain4j.http.client.HttpRequest;
 import dev.langchain4j.http.client.HttpRequest.Builder;
 import dev.langchain4j.http.client.SuccessfulHttpResponse;
-import dev.langchain4j.http.client.log.LoggingHttpClient;
 import dev.langchain4j.http.client.jdk.JdkHttpClientBuilder;
+import dev.langchain4j.http.client.log.LoggingHttpClient;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.TokenUsage;
 
+/*
+ * Represents a fully customizable chat model that can be used in the LangChain4j framework
+ */
 public class CustomChatModel implements ChatModel {
 
+    /*
+     * Represents the reason why the model stopped text generation
+     */
     public enum FinishingReason {
         DONE(FinishReason.STOP),
         MAX_TOKENS(FinishReason.LENGTH);
@@ -48,8 +66,11 @@ public class CustomChatModel implements ChatModel {
     private final String outputTokenPath;
     private final String finishReasonPath;
     private final Map<String, FinishingReason> finishReasonMappings;
-    private final boolean logRequests;
-    private final boolean logResponses;
+    private final String toolCallsPath;
+    private final String toolNamePath;
+    private final String toolArgumentsPath;
+    private final Boolean logRequests;
+    private final Boolean logResponses;
 
     private final HttpClient httpClient;
 
@@ -65,6 +86,9 @@ public class CustomChatModel implements ChatModel {
         this.outputTokenPath = builder.getOutputTokenPath();
         this.finishReasonPath = builder.getFinishReasonPath();
         this.finishReasonMappings = builder.getFinishReasonMappings();
+        this.toolCallsPath = builder.getToolCallsPath();
+        this.toolNamePath = builder.getToolNamePath();
+        this.toolArgumentsPath = builder.getToolArgumentsPath();
         this.logRequests = builder.isLogRequests();
         this.logResponses = builder.isLogResponses();
 
@@ -75,11 +99,10 @@ public class CustomChatModel implements ChatModel {
         final HttpClientBuilder httpClientBuilder = new JdkHttpClientBuilder();
         final HttpClient client = httpClientBuilder.connectTimeout(connectTimeout).readTimeout(readTimeout).build();
 
-        if (this.logRequests || this.logResponses) {
+        if (this.logRequests.booleanValue() || this.logResponses.booleanValue()) {
             return new LoggingHttpClient(client, this.logRequests, this.logResponses);
-        } else {
-            return client;
         }
+        return client;
     }
 
     /**
@@ -91,13 +114,13 @@ public class CustomChatModel implements ChatModel {
 
     @Override
     public ChatResponse doChat(final ChatRequest chatRequest) {
-        String requestBody;
-        try {
-            requestBody = buildRequestBody(chatRequest);
-        } catch (final IOException e) {
-            throw new RuntimeException("Failed to build request body: " + e.getMessage());
+        final List<ToolSpecification> toolSpecifications = chatRequest.toolSpecifications();
+        final String requestBody = buildRequestBody(chatRequest, toolSpecifications);
+        final String jsonError = isValidJson(requestBody);
+        if (Objects.nonNull(jsonError)) {
+            throw new IllegalArgumentException("The generated payload is invalid JSON: " + jsonError + "\n" + addLineNumbers(requestBody));
         }
-        final HttpRequest request = buildRequest(chatRequest, requestBody);
+        final HttpRequest request = buildRequest(chatRequest, requestBody, toolSpecifications);
 
         try {
             final SuccessfulHttpResponse response = this.httpClient.execute(request);
@@ -107,29 +130,35 @@ public class CustomChatModel implements ChatModel {
         } catch (final IOException e) {
             throw new RuntimeException("Failed to parse answer: " + e.getMessage());
         } catch (final JsonPathExtractorException e) {
-            throw new RuntimeException("Failed to extract path " + e.getPath() + " from answer");
+            throw new RuntimeException("Failed to extract generated text from answer: " + e.getMessage());
         }
     }
 
-    private String buildRequestBody(final ChatRequest chatRequest) throws IOException {
+    private String buildRequestBody(final ChatRequest chatRequest,
+                                    final List<ToolSpecification> toolSpecifications) {
+        System.out.println("messages=" + chatRequest.messages());
+        System.out.println("converted messages=" + convertMessages(chatRequest.messages()));
         return RequestPayloadGenerator.generate(this.payloadTemplate,
                                                 convertMessages(chatRequest.messages()),
                                                 this.modelName,
+                                                toolSpecifications,
                                                 this.apiKey);
     }
 
     private HttpRequest buildRequest(final ChatRequest chatRequest,
-                                     final String requestBody) {
+                                     final String requestBody,
+                                     final List<ToolSpecification> toolSpecifications) {
         final Builder httpRequestBuilder = HttpRequest.builder()
                                                       .method(HttpMethod.POST)
-                                                      .url(url)
+                                                      .url(this.url)
                                                       .addHeader("Content-Type", "application/json")
                                                       .body(requestBody);
-        for (final Map.Entry<String, String> entry : httpHeaders.entrySet()) {
+        for (final Map.Entry<String, String> entry: this.httpHeaders.entrySet()) {
             final String valueTemplate = entry.getValue();
             final String value = RequestPayloadGenerator.generate(valueTemplate,
                                                                   convertMessages(chatRequest.messages()),
                                                                   this.modelName,
+                                                                  toolSpecifications,
                                                                   this.apiKey);
             httpRequestBuilder.addHeader(entry.getKey(), value);
         }
@@ -139,30 +168,111 @@ public class CustomChatModel implements ChatModel {
     private List<MessageRound> convertMessages(final List<ChatMessage> messages) {
         return messages.stream()
                        .map(this::convertMessage)
-                       .collect(Collectors.toList());
+                       .toList();
     }
 
     private MessageRound convertMessage(final ChatMessage message) {
         return switch (message) {
-            case UserMessage userMessage -> new MessageRound(Role.USER, userMessage.singleText());
-            case AiMessage aiMessage -> new MessageRound(Role.MODEL, aiMessage.text());
-            case SystemMessage systemMessage -> new MessageRound(Role.SYSTEM, systemMessage.text());
-            default -> throw new IllegalArgumentException("Unsupported message type: " + message.getClass()); // TODO: we will have to support tools
+            case UserMessage userMessage -> new MessageRound(MessageRound.Role.USER, userMessage.singleText());
+            case AiMessage aiMessage -> buildModelMessageRound(aiMessage);
+            case SystemMessage systemMessage -> new MessageRound(MessageRound.Role.SYSTEM, systemMessage.text());
+            case ToolExecutionResultMessage toolExecutionResultMessage -> new MessageRound(MessageRound.Role.TOOL, toolExecutionResultMessage.text(), toolExecutionResultMessage.toolName());
+            default -> throw new IllegalArgumentException("Unsupported message type: " + message.getClass());
         };
     }
 
-    private ChatResponse parseApiResponse(final String responseBody) throws IOException, JsonPathExtractorException {
-        final String generatedText = JsonPathExtractor.extract(responseBody, this.answerPath);
+    private static MessageRound buildModelMessageRound(AiMessage aiMessage) {
+        final String text = aiMessage.text();
+        final List<MessageRound.ToolCall> toolCalls = new ArrayList<>();
 
-        final AiMessage aiMessage = AiMessage.from(generatedText);
+        final ObjectMapper objectMapper = new ObjectMapper();
 
-        final Integer inputTokens = Integer.parseInt(JsonPathExtractor.extract(responseBody, this.inputTokenPath));
-        final Integer outputTokens = Integer.parseInt(JsonPathExtractor.extract(responseBody, this.outputTokenPath));
+        for (final ToolExecutionRequest request: aiMessage.toolExecutionRequests()) {
+            final List<MessageRound.ToolParameter> toolParameters = new ArrayList<>();
+
+            try {
+                // Parse the arguments JSON string into a Map
+                final String argumentsJson = request.arguments();
+                if (Objects.nonNull(argumentsJson) && !argumentsJson.isEmpty()) {
+                    final Map<String, Object> argumentsMap = objectMapper.readValue(
+                        argumentsJson,
+                        new TypeReference<Map<String, Object>>() { /* empty */}
+                    );
+
+                    // Convert each entry to a MessageRoundToolPamameter
+                    for (Map.Entry<String, Object> entry: argumentsMap.entrySet()) {
+                        final String paramValue = (entry.getValue() != null) ? entry.getValue().toString()
+                                                                             : null;
+                        toolParameters.add(new MessageRound.ToolParameter(entry.getKey(), paramValue));
+                    }
+                }
+            } catch (final JsonProcessingException e) {
+                // Handle parsing error - you might want to log this
+                // or rethrow as a runtime exception depending on your needs
+                throw new RuntimeException("Failed to parse tool arguments", e);
+            }
+
+            toolCalls.add(new MessageRound.ToolCall(request.name(), toolParameters));
+        }
+
+        return new MessageRound(MessageRound.Role.MODEL, text, toolCalls);
+    }
+
+    public ChatResponse parseApiResponse(final String responseBody) throws IOException, JsonPathExtractorException {
+        AiMessage aiMessage;
+
+        final ObjectMapper objectMapper = new ObjectMapper();
+        final JsonNode rootNode = objectMapper.readTree(responseBody);
+
+        // Try to extract tool calls using the configured path
+        try {
+            final List<JsonNode> toolCallNodes = JsonPathExtractor.extractArray(rootNode, this.toolCallsPath);
+
+            if (!toolCallNodes.isEmpty()) {
+                // Handle function call(s)
+                final List<ToolExecutionRequest> toolExecutionRequests = new ArrayList<>();
+
+                for (final JsonNode toolCallNode: toolCallNodes) {
+                    final String functionName = JsonPathExtractor.extractString(toolCallNode, this.toolNamePath);
+                    final JsonNode argsNode = JsonPathExtractor.extractNode(toolCallNode, this.toolArgumentsPath);
+
+                    // Convert args to a JSON string
+                    final String arguments = argsNode.toString();
+
+                    // Create a unique ID for this tool execution request
+                    final String id = UUID.randomUUID().toString();
+
+                    final ToolExecutionRequest toolRequest = ToolExecutionRequest.builder()
+                                                                                 .id(id)
+                                                                                 .name(functionName)
+                                                                                 .arguments(arguments)
+                                                                                 .build();
+
+                    toolExecutionRequests.add(toolRequest);
+                }
+
+                // Create AiMessage with tool execution requests
+                aiMessage = AiMessage.from(toolExecutionRequests);
+            } else {
+                // Handle regular text response (empty tool calls array)
+                final String generatedText = JsonPathExtractor.extractString(rootNode, this.answerPath);
+                aiMessage = AiMessage.from(generatedText);
+            }
+        } catch (final JsonPathExtractorException _) {
+            // If tool calls path doesn't exist or is invalid, fall back to regular text response
+            final String generatedText = JsonPathExtractor.extractString(rootNode, this.answerPath);
+            aiMessage = AiMessage.from(generatedText);
+        }
+
+        // Extract token usage
+        final Integer inputTokens = Integer.valueOf(JsonPathExtractor.extractString(rootNode, this.inputTokenPath));
+        final Integer outputTokens = Integer.valueOf(JsonPathExtractor.extractString(rootNode, this.outputTokenPath));
         final TokenUsage tokenUsage = new TokenUsage(inputTokens, outputTokens);
 
-        final String finishReason = JsonPathExtractor.extract(responseBody, finishReasonPath);
+        // Extract finish reason
+        final String finishReason = JsonPathExtractor.extractString(rootNode, this.finishReasonPath);
         final FinishingReason reason = this.finishReasonMappings.get(finishReason);
-        if (reason == null) {
+        if (Objects.isNull(reason)) {
             throw new IllegalArgumentException("Unexpected finish reason: " + finishReason + " (it should be present in the finishReasonMappings property)");
         }
         final FinishReason finishReasonEnum = reason.reason;
@@ -172,5 +282,27 @@ public class CustomChatModel implements ChatModel {
                            .tokenUsage(tokenUsage)
                            .finishReason(finishReasonEnum)
                            .build();
+    }
+
+    /**
+     * Checks if the provided JSON string is valid.
+     *
+     * @param json the JSON string to validate
+     * @return null if the JSON is valid, or an error message if it is invalid
+     */
+    private static String isValidJson(final String json) {
+        try {
+            new ObjectMapper().readTree(json);
+            return null;
+        } catch (final JsonProcessingException e) {
+            return e.getMessage();
+        }
+    }
+
+    private static String addLineNumbers(final String input) {
+        final AtomicInteger counter = new AtomicInteger();
+        return input.lines()
+                    .map(line -> "%03d %s".formatted(Integer.valueOf(counter.incrementAndGet()), line))
+                    .collect(Collectors.joining("\n"));
     }
 }

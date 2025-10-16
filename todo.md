@@ -1,3 +1,26 @@
+
+dans la partie context de 
+on peut factoriser
+{{#unless @last}},
+            {{/unless}}
+
+
+gérer les types des paramètres
++ ajouter l'UT correspondant
+
+gérer l'optionnel des paramètres
++ ajouter l'UT correspondant
+
+ajouter des tests
+
+modifier examples\gpt-4.1-nano@custom.yaml pour qu'il prenne en compte ci-dessus
+
+
+----------------------------------------
+
+
+
+
 - afficher (en log info) les tokens et la finishing reason en mode batch
 - compléter et tester gpt-4.1-nano@custom.yaml + corriger le test testBasicCustom
 - corriger le parsing de la finishReason dans parseApiResponse (mettre un switch case qui throw sur une valeur non prévue en indiquant celle-ci)
@@ -14,7 +37,6 @@ commands
 
 - tools
   - proper logging of tool calls
-  - support tools in `CustomChatModel`
 
 - aupport of attachments in `CustomChatModel`
 
@@ -27,6 +49,7 @@ commands
 
 How to manage the token count for `gemini-2.5-flash@custom.yaml`, it seems we will need a formula
 ```
+{
   "candidates": [
     {
       "content": {

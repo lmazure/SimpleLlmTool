@@ -10,7 +10,6 @@ import java.util.Optional;
 import org.tinylog.configuration.Configuration;
 
 import dev.langchain4j.model.chat.ChatModel;
-
 import fr.mazure.simplellmtool.provider.anthropic.AnthropicChatModelProvider;
 import fr.mazure.simplellmtool.provider.anthropic.AnthropicModelParameters;
 import fr.mazure.simplellmtool.provider.base.InvalidModelParameter;
@@ -55,7 +54,7 @@ public class SimpleChat {
             case ProviderEnum.MOCK          -> MockChatModelProvider.createChatModel(new MockModelParameters());
         };
 
-        final Optional<ToolManager> toolManager = cli.toolsDir().map(dir -> new ToolManager(dir));
+        final Optional<ToolManager> toolManager = cli.toolsDir().map(ToolManager::new);
 
         try {
             if (cli.chatMode()) {

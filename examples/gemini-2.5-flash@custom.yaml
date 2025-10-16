@@ -22,12 +22,62 @@ payloadTemplate: |
             {{/unless}}{{/if}}{{#if (isModel role)}}{
               "role": "model",
               "parts": [
-                {
+                {{#if content}}{
                   "text": {{convertToJsonString content}}
+                }{{/if}}
+                {{#each toolCalls}}{
+                "functionCall": {
+                "name": {{convertToJsonString toolName}},
+                  "args": {
+                    {{#each toolParameters}}
+                    {{convertToJsonString parameterName}}: {{convertToJsonString parameterValue}}
+                    {{#unless @last}},
+                    {{/unless}}{{/each}}
+                  }
+                }
+                {{#unless @last}},
+                {{/unless}} } {{/each}}
+              ]
+            }{{#unless @last}},
+            {{/unless}}{{/if}}{{#if (isTool role)}}{
+              "role": "function",
+              "parts": [
+                {
+                  "functionResponse": {
+                    "name": {{convertToJsonString toolName}},
+                    "response": {
+                      "result": {{convertToJsonString content}}
+                    }
+                  }
                 }
               ]
             }{{#unless @last}},
             {{/unless}}{{/if}}{{/each}}
+          ],
+          "tools": [
+            {
+              "function_declarations": [
+                {{#each tools}}{
+                  "name": {{convertToJsonString name}},
+                  "description": {{convertToJsonString description}},
+                  "parameters": {
+                    "type": "object",
+                    "properties": {
+                      {{#each parameters}}{{convertToJsonString name}}: {
+                        "type": {{#if (isStringType type)}}"string"{{/if}}{{#if (isIntegerType type)}}"integer"{{/if}}{{#if (isNumberType type)}}"number"{{/if}}{{#if (isBooleanType type)}}"boolean"{{/if}},
+                        "description": {{convertToJsonString description}}
+                      }{{#unless @last}},
+                      {{/unless}}{{/each}}
+                    },
+                    "required": [
+                      {{#each requiredParameters}}{{convertToJsonString name}}{{#unless @last}},
+                      {{/unless}}{{/each}}
+                    ]
+                  }
+                }{{#unless @last}},
+                {{/unless}}{{/each}}
+              ]
+            }
           ],
           "generationConfig": {
             "stopSequences": [
@@ -46,3 +96,6 @@ outputTokenPath: usageMetadata.candidatesTokenCount
 finishReasonPath: candidates[0].finishReason
 finishReasonMappings:
   STOP: DONE
+toolCallsPath: candidates[0].content.parts
+toolNamePath: functionCall.name
+toolArgumentsPath: functionCall.args

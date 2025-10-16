@@ -18,18 +18,21 @@ import fr.mazure.simplellmtool.provider.base.MissingModelParameter;
 /**
  * Tests for the {@link AnthropicModelParameters} class.
  */
-public class AnthropicModelParametersTest {
+class AnthropicModelParametersTest {
 
     /**
      * Test loading a valid configuration file with all parameters.
+     *
+     * @param tempDir temporary directory where to write the configuration file
      *
      * @throws IOException if there is an error reading the file
      * @throws URISyntaxException if the expected URL is invalid (i.e. you screwed up the test itself)
      * @throws MissingModelParameter if a compulsory parameter is missing
      * @throws InvalidModelParameter if a parameter has an incorrect value
      */
+    @SuppressWarnings("static-method")
     @Test
-    public void testLoadFromFileWithAllParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
+    void testLoadFromFileWithAllParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
         // Given
         final String configContent = """
                 modelName: claude-3-5-sonnet-20240620
@@ -59,12 +62,15 @@ public class AnthropicModelParametersTest {
     /**
      * Test loading a minimal configuration file with only required parameters.
      *
+     * @param tempDir temporary directory where to write the configuration file
+     *
      * @throws IOException if there is an error reading the file
      * @throws MissingModelParameter if a compulsory parameter is missing
      * @throws InvalidModelParameter if a parameter has an incorrect value
      */
+    @SuppressWarnings("static-method")
     @Test
-    public void testLoadFromFileWithMinimalParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter {
+    void testLoadFromFileWithMinimalParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter {
         // Given
         final String configContent = """
                 modelName: claude-3-haiku-20240307
@@ -89,12 +95,15 @@ public class AnthropicModelParametersTest {
     /**
      * Test loading with an overriding model name.
      *
+     * @param tempDir temporary directory where to write the configuration file
+     *
      * @throws IOException if there is an error reading the file
      * @throws MissingModelParameter if a compulsory parameter is missing
      * @throws InvalidModelParameter if a parameter has an incorrect value
      */
+    @SuppressWarnings("static-method")
     @Test
-    public void testLoadFromFileWithOverriddenModelName(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter {
+    void testLoadFromFileWithOverriddenModelName(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter {
         // Given
         final String configContent = """
                 modelName: claude-3-haiku-20240307
@@ -119,6 +128,7 @@ public class AnthropicModelParametersTest {
     /**
      * Test loading a non-existent file.
      */
+    @SuppressWarnings("static-method")
     @Test
     public void testLoadFromNonExistentFile() {
         // Given
@@ -131,11 +141,13 @@ public class AnthropicModelParametersTest {
     /**
      * Test loading a file with invalid URL.
      *
-     * @param tempDir temporary directory for test files
+     * @param tempDir temporary directory where to write the configuration file
+     *
      * @throws IOException if there is an error creating or writing to the file
      */
+    @SuppressWarnings("static-method")
     @Test
-    public void testLoadFromFileWithInvalidUrl(@TempDir final Path tempDir) throws IOException {
+    void testLoadFromFileWithInvalidUrl(@TempDir final Path tempDir) throws IOException {
         // Given
         final Path invalidConfigPath = tempDir.resolve("invalid-url-config.yaml");
         Files.writeString(invalidConfigPath, """
@@ -151,11 +163,13 @@ public class AnthropicModelParametersTest {
     /**
      * Test loading a file with invalid numeric values.
      *
-     * @param tempDir temporary directory for test files
+     * @param tempDir temporary directory where to write the configuration file
+     *
      * @throws IOException if there is an error creating or writing to the file
      */
+    @SuppressWarnings("static-method")
     @Test
-    public void testLoadFromFileWithInvalidNumericValues(@TempDir final Path tempDir) throws IOException {
+    void testLoadFromFileWithInvalidNumericValues(@TempDir final Path tempDir) throws IOException {
         // Given
         final Path invalidConfigPath = tempDir.resolve("invalid-numeric-config.yaml");
         Files.writeString(invalidConfigPath, """

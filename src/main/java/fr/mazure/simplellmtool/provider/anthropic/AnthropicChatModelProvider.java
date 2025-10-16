@@ -6,6 +6,9 @@ import dev.langchain4j.model.chat.ChatModel;
 import fr.mazure.simplellmtool.provider.base.MissingEnvironmentVariable;
 import fr.mazure.simplellmtool.provider.base.ModelProvider;
 
+/**
+ * The Anthropic model provider.
+ */
 public class AnthropicChatModelProvider implements ModelProvider {
 
     public static ChatModel createChatModel(final AnthropicModelParameters parameters) throws MissingEnvironmentVariable {
@@ -36,8 +39,8 @@ public class AnthropicChatModelProvider implements ModelProvider {
             builder.maxTokens(parameters.getMaxTokens().get());
         }
 
-        return builder.logRequests(true)
-                      .logResponses(true)
+        return builder.logRequests(Boolean.TRUE)
+                      .logResponses(Boolean.TRUE)
                       .build();
     }
 }

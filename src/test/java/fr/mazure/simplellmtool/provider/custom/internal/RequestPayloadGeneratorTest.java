@@ -8,11 +8,15 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import dev.langchain4j.agent.tool.ToolSpecification;
+import fr.mazure.simplellmtool.ToolManager;
+
 /**
  * Tests for the {@link RequestPayloadGenerator} class.
  */
 class RequestPayloadGeneratorTest {
 
+    @SuppressWarnings("static-method")
     @Test
     @DisplayName("Should generate OpenAI payload with multiple messages")
     void testGenerateMultipleMessagesForOpenAi() {
@@ -33,16 +37,16 @@ class RequestPayloadGeneratorTest {
             """;
 
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(Role.SYSTEM, "You are a helpful assistant"),
-            new MessageRound(Role.USER, "What is the weather?"),
-            new MessageRound(Role.MODEL, "I don't have access to weather data"),
-            new MessageRound(Role.USER, "What day is it?"),
-            new MessageRound(Role.MODEL, "April fools' day"),
-            new MessageRound(Role.USER, "So, tell me a joke!")
+            new MessageRound(MessageRound.Role.SYSTEM, "You are a helpful assistant"),
+            new MessageRound(MessageRound.Role.USER, "What is the weather?"),
+            new MessageRound(MessageRound.Role.MODEL, "I don't have access to weather data"),
+            new MessageRound(MessageRound.Role.USER, "What day is it?"),
+            new MessageRound(MessageRound.Role.MODEL, "April fools' day"),
+            new MessageRound(MessageRound.Role.USER, "So, tell me a joke!")
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", List.of(), "my-secret-API-key");
 
         // Then
         final String expectedResult = """
@@ -81,6 +85,7 @@ class RequestPayloadGeneratorTest {
         Assertions.assertEquals(expectedResult, result);
     }
 
+    @SuppressWarnings("static-method")
     @Test
     @DisplayName("Should generate Google's Gemini payload with multiple messages")
     void testGenerateMultipleMessagesForGoogleGemini() {
@@ -125,16 +130,16 @@ class RequestPayloadGeneratorTest {
                 """;
 
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(Role.SYSTEM, "You are a helpful assistant"),
-            new MessageRound(Role.USER, "What is the weather?"),
-            new MessageRound(Role.MODEL, "I don't have access to weather data"),
-            new MessageRound(Role.USER, "What day is it?"),
-            new MessageRound(Role.MODEL, "April fools' day"),
-            new MessageRound(Role.USER, "So, tell me a joke!")
+            new MessageRound(MessageRound.Role.SYSTEM, "You are a helpful assistant"),
+            new MessageRound(MessageRound.Role.USER, "What is the weather?"),
+            new MessageRound(MessageRound.Role.MODEL, "I don't have access to weather data"),
+            new MessageRound(MessageRound.Role.USER, "What day is it?"),
+            new MessageRound(MessageRound.Role.MODEL, "April fools' day"),
+            new MessageRound(MessageRound.Role.USER, "So, tell me a joke!")
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", List.of(), "my-secret-API-key");
 
         // Then
         final String expectedResult = """
@@ -201,6 +206,380 @@ class RequestPayloadGeneratorTest {
         Assertions.assertEquals(expectedResult, result);
     }
 
+    @SuppressWarnings("static-method")
+    @Test
+    @DisplayName("Should generate Google's Gemini payload with multiple tools")
+    void testGenerateMultipleToolsForGoogleGemini() {
+        // Given
+        final String template = """
+        {
+          {{#each messages}}{{#if (isSystem role)}}"system_instruction": {
+            "parts": [
+              {
+                "text": {{convertToJsonString content}}
+              }
+            ]
+          },{{/if}}{{/each}}
+          "contents": [
+            {{#each messages}}{{#if (isUser role)}}{
+              "role": "user",
+              "parts": [
+                {
+                  "text": {{convertToJsonString content}}
+                }
+              ]
+            }{{#unless @last}},
+            {{/unless}}{{/if}}{{#if (isModel role)}}{
+              "role": "model",
+              "parts": [
+                {
+                  "text": {{convertToJsonString content}}
+                }
+              ]
+            }{{#unless @last}},
+            {{/unless}}{{/if}}{{/each}}
+          ],
+          "tools": [
+            {
+              "function_declarations": [
+                {{#each tools}}{
+                  "name": {{convertToJsonString name}},
+                  "description": {{convertToJsonString description}},
+                  "parameters": {
+                    "type": "object",
+                    "properties": {
+                      {{#each parameters}}{{convertToJsonString name}}: {
+                        "type": {{#if (isStringType type)}}"string"{{/if}}{{#if (isIntegerType type)}}"integer"{{/if}}{{#if (isNumberType type)}}"number"{{/if}}{{#if (isBooleanType type)}}"boolean"{{/if}},
+                        "description": {{convertToJsonString description}}
+                      }{{#unless @last}},
+                      {{/unless}}{{/each}}
+                    },
+                    "required": [
+                      {{#each requiredParameters}}{{convertToJsonString name}}{{#unless @last}},
+                      {{/unless}}{{/each}}
+                    ]
+                  }
+                }{{#unless @last}},
+                {{/unless}}{{/each}}
+              ]
+            }
+          ],
+          "generationConfig": {
+            "stopSequences": [
+              "Title"
+            ],
+            "temperature": 1.0,
+            "topP": 0.8,
+            "topK": 10
+          }
+        }
+        """;
+
+        final List<MessageRound> messages = Arrays.asList(
+            new MessageRound(MessageRound.Role.SYSTEM, "You are a helpful assistant"),
+            new MessageRound(MessageRound.Role.USER, "What is the weather?")
+        );
+
+        final ToolManager.Tool getWeatherTool = new ToolManager.Tool("getWeather",
+                                                                     "Get the weather",
+                                                                     List.of(new ToolManager.ToolParameter("city", "The city to get the weather for", ToolManager.ToolParameterType.STRING, true)));
+        final ToolManager.Tool fooTool = new ToolManager.Tool("foo",
+                                                              "Perform foo",
+                                                              List.of(new ToolManager.ToolParameter("alpha", "first argument", ToolManager.ToolParameterType.STRING, true),
+                                                                      new ToolManager.ToolParameter("beta", "second argument", ToolManager.ToolParameterType.INTEGER, true),
+                                                                      new ToolManager.ToolParameter("gamma", "third argument", ToolManager.ToolParameterType.NUMBER, false),
+                                                                      new ToolManager.ToolParameter("delta", "fourth argument", ToolManager.ToolParameterType.BOOLEAN, true)));
+
+        final List<ToolSpecification> tools = List.of(
+          ToolManager.getSpecification(getWeatherTool),
+          ToolManager.getSpecification(fooTool)
+        );
+
+        // When
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", tools, "my-secret-API-key");
+
+        // Then
+        final String expectedResult = """
+        {
+          "system_instruction": {
+            "parts": [
+              {
+                "text": "You are a helpful assistant"
+              }
+            ]
+          },
+          "contents": [
+            {
+              "role": "user",
+              "parts": [
+                {
+                  "text": "What is the weather?"
+                }
+              ]
+            }
+          ],
+          "tools": [
+            {
+              "function_declarations": [
+                {
+                  "name": "getWeather",
+                  "description": "Get the weather",
+                  "parameters": {
+                    "type": "object",
+                    "properties": {
+                      "city": {
+                        "type": "string",
+                        "description": "The city to get the weather for"
+                      }
+                    },
+                    "required": [
+                      "city"
+                    ]
+                  }
+                },
+                {
+                  "name": "foo",
+                  "description": "Perform foo",
+                  "parameters": {
+                    "type": "object",
+                    "properties": {
+                      "alpha": {
+                        "type": "string",
+                        "description": "first argument"
+                      },
+                      "beta": {
+                        "type": "integer",
+                        "description": "second argument"
+                      },
+                      "gamma": {
+                        "type": "number",
+                        "description": "third argument"
+                      },
+                      "delta": {
+                        "type": "boolean",
+                        "description": "fourth argument"
+                      }
+                    },
+                    "required": [
+                      "alpha",
+                      "beta",
+                      "delta"
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "generationConfig": {
+            "stopSequences": [
+              "Title"
+            ],
+            "temperature": 1.0,
+            "topP": 0.8,
+            "topK": 10
+          }
+        }
+        """;
+        Assertions.assertEquals(expectedResult, result);
+    }
+
+    @SuppressWarnings("static-method")
+    @Test
+    @DisplayName("Should generate Google's Gemini payload with tool call results")
+    void testGenerateToolCallResultsForGoogleGemini() {
+        // Given
+        final String template = """
+        {
+          {{#each messages}}{{#if (isSystem role)}}"system_instruction": {
+            "parts": [
+              {
+                "text": {{convertToJsonString content}}
+              }
+            ]
+          },{{/if}}{{/each}}
+          "contents": [
+            {{#each messages}}{{#if (isUser role)}}{
+              "role": "user",
+              "parts": [
+                {
+                  "text": {{convertToJsonString content}}
+                }
+              ]
+            }{{#unless @last}},
+            {{/unless}}{{/if}}{{#if (isModel role)}}{
+              "role": "model",
+              "parts": [
+                {{#if content}}{
+                  "text": {{convertToJsonString content}}
+                }{{/if}}
+                {{#each toolCalls}}{
+                "functionCall": {
+                "name": {{convertToJsonString toolName}},
+                  "args": {
+                    {{#each toolParameters}}
+                    {{convertToJsonString parameterName}}: {{convertToJsonString parameterValue}}
+                    {{#unless @last}},
+                    {{/unless}}{{/each}}
+                  }
+                }
+                {{#unless @last}},
+                {{/unless}} } {{/each}}
+              ]
+            }{{#unless @last}},
+            {{/unless}}{{/if}}{{#if (isTool role)}}{
+              "role": "function",
+              "parts": [
+                {
+                  "functionResponse": {
+                    "name": {{convertToJsonString toolName}},
+                    "response": {
+                      "result": {{convertToJsonString content}}
+                    }
+                  }
+                }
+              ]
+            }{{#unless @last}},
+            {{/unless}}{{/if}}{{/each}}
+          ],
+          "tools": [
+            {
+              "function_declarations": [
+                {{#each tools}}{
+                  "name": {{convertToJsonString name}},
+                  "description": {{convertToJsonString description}},
+                  "parameters": {
+                    "type": "object",
+                    "properties": {
+                      {{#each parameters}}{{convertToJsonString name}}: {
+                        "type": {{#if (isStringType type)}}"string"{{/if}}{{#if (isIntegerType type)}}"integer"{{/if}}{{#if (isNumberType type)}}"number"{{/if}}{{#if (isBooleanType type)}}"boolean"{{/if}},
+                        "description": {{convertToJsonString description}}
+                      }{{#unless @last}},
+                      {{/unless}}{{/each}}
+                    },
+                    "required": [
+                      {{#each requiredParameters}}{{convertToJsonString name}}{{#unless @last}},
+                      {{/unless}}{{/each}}
+                    ]
+                  }
+                }{{#unless @last}},
+                {{/unless}}{{/each}}
+              ]
+            }
+          ],
+          "generationConfig": {
+            "stopSequences": [
+              "Title"
+            ],
+            "temperature": 1.0,
+            "topP": 0.8,
+            "topK": 10
+          }
+        }
+        """;
+
+        final List<MessageRound> messages = Arrays.asList(
+            new MessageRound(MessageRound.Role.SYSTEM, "You always provide an English anwer, followed by a precise translation in French"),
+            new MessageRound(MessageRound.Role.USER, "What is the weather in Paris?"),
+            new MessageRound(MessageRound.Role.MODEL, "", List.of(new MessageRound.ToolCall("get_weather", List.of(new MessageRound.ToolParameter("city", "Paris"))))),
+            new MessageRound(MessageRound.Role.TOOL, "Paris, ?le-de-France, France: 14.0?C, Mainly Clear, Feels like 13.3?C, Humidity 88%", "get_weather")
+        );
+
+        final ToolManager.Tool getWeatherTool = new ToolManager.Tool("get_weather",
+                                                                     "Returns the current weather for a given city",
+                                                                     List.of(new ToolManager.ToolParameter("city", "The city for which the weather forecast should be returned, only the city name should be present", ToolManager.ToolParameterType.STRING, true)));
+
+        final List<ToolSpecification> tools = List.of(
+          ToolManager.getSpecification(getWeatherTool)
+        );
+
+        // When
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", tools, "my-secret-API-key");
+
+        // Then
+        final String expectedResult = """
+        {
+          "system_instruction": {
+            "parts": [
+              {
+                "text": "You always provide an English anwer, followed by a precise translation in French"
+              }
+            ]
+          },
+          "contents": [
+            {
+              "role": "user",
+              "parts": [
+                {
+                  "text": "What is the weather in Paris?"
+                }
+              ]
+            },
+            {
+              "role": "model",
+              "parts": [
+            \s\s\s\s
+                {
+                "functionCall": {
+                "name": "get_weather",
+                  "args": {
+             \s\s\s\s\s\s\s
+                    "city": "Paris"
+             \s\s\s\s\s\s\s
+                  }
+                }
+                 }\s
+              ]
+            },
+            {
+              "role": "function",
+              "parts": [
+                {
+                  "functionResponse": {
+                    "name": "get_weather",
+                    "response": {
+                      "result": "Paris, ?le-de-France, France: 14.0?C, Mainly Clear, Feels like 13.3?C, Humidity 88%"
+                    }
+                  }
+                }
+              ]
+            }
+          ],
+          "tools": [
+            {
+              "function_declarations": [
+                {
+                  "name": "get_weather",
+                  "description": "Returns the current weather for a given city",
+                  "parameters": {
+                    "type": "object",
+                    "properties": {
+                      "city": {
+                        "type": "string",
+                        "description": "The city for which the weather forecast should be returned, only the city name should be present"
+                      }
+                    },
+                    "required": [
+                      "city"
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "generationConfig": {
+            "stopSequences": [
+              "Title"
+            ],
+            "temperature": 1.0,
+            "topP": 0.8,
+            "topK": 10
+          }
+        }
+        """;
+        Assertions.assertEquals(expectedResult, result);
+    }
+
+    @SuppressWarnings("static-method")
     @Test
     @DisplayName("Should manage model name")
     void testGenerateModelName() {
@@ -221,16 +600,16 @@ class RequestPayloadGeneratorTest {
             """;
 
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(Role.SYSTEM, "You are a helpful assistant"),
-            new MessageRound(Role.USER, "What is the weather?"),
-            new MessageRound(Role.MODEL, "I don't have access to weather data"),
-            new MessageRound(Role.USER, "What day is it?"),
-            new MessageRound(Role.MODEL, "April fools' day"),
-            new MessageRound(Role.USER, "So, tell me a joke!")
+            new MessageRound(MessageRound.Role.SYSTEM, "You are a helpful assistant"),
+            new MessageRound(MessageRound.Role.USER, "What is the weather?"),
+            new MessageRound(MessageRound.Role.MODEL, "I don't have access to weather data"),
+            new MessageRound(MessageRound.Role.USER, "What day is it?"),
+            new MessageRound(MessageRound.Role.MODEL, "April fools' day"),
+            new MessageRound(MessageRound.Role.USER, "So, tell me a joke!")
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", List.of(), "my-secret-API-key");
 
         // Then
         final String expectedResult = """
@@ -269,6 +648,7 @@ class RequestPayloadGeneratorTest {
         Assertions.assertEquals(expectedResult, result);
     }
 
+    @SuppressWarnings("static-method")
     @Test
     @DisplayName("Should handle API key in HTTP headers")
     void testGenerateApiKet() {
@@ -276,18 +656,19 @@ class RequestPayloadGeneratorTest {
         final String template = "Bearer: {{apiKey}}";
 
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(Role.SYSTEM, "You are a helpful assistant"),
-            new MessageRound(Role.USER, "What is the weather?"),
-            new MessageRound(Role.MODEL, "I don't have access to weather data")
+            new MessageRound(MessageRound.Role.SYSTEM, "You are a helpful assistant"),
+            new MessageRound(MessageRound.Role.USER, "What is the weather?"),
+            new MessageRound(MessageRound.Role.MODEL, "I don't have access to weather data")
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", List.of(), "my-secret-API-key");
 
         // Then
         Assertions.assertEquals("Bearer: my-secret-API-key", result);
     }
 
+    @SuppressWarnings("static-method")
     @Test
     @DisplayName("Does not modify special characters in API key in HTTP headers")
     void testGenerateAPiKeyWithoutChangingCharacters() {
@@ -295,18 +676,19 @@ class RequestPayloadGeneratorTest {
         final String template = "Bearer: {{apiKey}}";
 
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(Role.SYSTEM, "You are a helpful assistant"),
-            new MessageRound(Role.USER, "What is the weather?"),
-            new MessageRound(Role.MODEL, "I don't have access to weather data")
+            new MessageRound(MessageRound.Role.SYSTEM, "You are a helpful assistant"),
+            new MessageRound(MessageRound.Role.USER, "What is the weather?"),
+            new MessageRound(MessageRound.Role.MODEL, "I don't have access to weather data")
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "&é~\"#'{([-|è`_\\ç^à@)]");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", List.of(), "&é~\"#'{([-|è`_\\ç^à@)]");
 
         // Then
         Assertions.assertEquals("Bearer: &é~\"#'{([-|è`_\\ç^à@)]", result);
     }
 
+    @SuppressWarnings("static-method")
     @Test
     @DisplayName("Should handle empty messages list")
     void testGenerateEmptyMessages() {
@@ -315,72 +697,76 @@ class RequestPayloadGeneratorTest {
         final List<MessageRound> messages = Collections.emptyList();
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", List.of(), "my-secret-API-key");
 
         // Then
         Assertions.assertEquals("Messages: ", result);
     }
 
+    @SuppressWarnings("static-method")
     @Test
     @DisplayName("Should handle template without message placeholders")
     void testGenerateTemplateWithoutPlaceholders() {
         // Given
         final String template = "This is a static template without placeholders";
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(Role.USER, "Hello")
+            new MessageRound(MessageRound.Role.USER, "Hello")
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", List.of(), "my-secret-API-key");
 
         // Then
         Assertions.assertEquals("This is a static template without placeholders", result);
     }
 
+    @SuppressWarnings("static-method")
     @Test
     @DisplayName("Should handle special characters in messages")
     void testGenerateWithSpecialCharacters() {
         // Given
         final String template = "Message: {{#messages}}{{convertToJsonString content}}{{/messages}}";
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(Role.USER, "Hello \"world\" with 'quotes' and \n newlines")
+            new MessageRound(MessageRound.Role.USER, "Hello \"world\" with 'quotes' and \n newlines")
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", List.of(), "my-secret-API-key");
 
         // Then
         Assertions.assertEquals("Message: \"Hello \\\"world\\\" with 'quotes' and \\n newlines\"", result);
     }
 
+    @SuppressWarnings("static-method")
     @Test
     @DisplayName("Should throw runtime exception for invalid template syntax")
     void testGenerateInvalidTemplate() {
         // Given
         final String template = "Hello {{#messages}}{{role}"; // Missing closing tag
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(Role.USER, "Hello")
+            new MessageRound(MessageRound.Role.USER, "Hello")
         );
 
         // When & Then
         RuntimeException exception = Assertions.assertThrows(
             RuntimeException.class,
-            () -> RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key")
+            () -> RequestPayloadGenerator.generate(template, messages, "my-model-name", List.of(), "my-secret-API-key")
         );
         Assertions.assertEquals("Failed to process Handlebars template", exception.getMessage());
     }
 
+    @SuppressWarnings("static-method")
     @Test
     @DisplayName("Should handle empty template")
     void testGenerateEmptyTemplate() {
         // Given
         final String template = "";
         final List<MessageRound> messages = Arrays.asList(
-            new MessageRound(Role.USER, "Hello")
+            new MessageRound(MessageRound.Role.USER, "Hello")
         );
 
         // When
-        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", "my-secret-API-key");
+        final String result = RequestPayloadGenerator.generate(template, messages, "my-model-name", List.of(), "my-secret-API-key");
 
         // Then
         Assertions.assertEquals("", result);

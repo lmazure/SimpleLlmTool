@@ -8,6 +8,7 @@ import java.io.StringReader;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,7 +20,13 @@ import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 
 public class ToolManager {
 
-    public record ToolParameter(String name, String description) {}
+    public enum ToolParameterType {
+        STRING,
+        INTEGER,
+        NUMBER,
+        BOOLEAN
+    }
+    public record ToolParameter(String name, String description, ToolParameterType type, boolean required) {}
     public record Tool(String name, String description, List<ToolParameter> parameters) {}
 
     private final Path toolsDir;
@@ -27,8 +34,9 @@ public class ToolManager {
 
     public ToolManager(final Path toolsDir) {
         this.toolsDir = toolsDir;
-        toolList = initToolList(toolsDir);
+        this.toolList = initToolList(toolsDir);
     }
+
     public List<Tool> getToolList() {
         return this.toolList;
     }
@@ -41,16 +49,22 @@ public class ToolManager {
         return specifications;
     }
 
-    private static ToolSpecification getSpecification(final Tool tool) {
+    public static ToolSpecification getSpecification(final Tool tool) {
         final ToolSpecification.Builder builder = ToolSpecification.builder()
                                                                    .name(tool.name())
                                                                    .description(tool.description());
 
         final JsonObjectSchema.Builder jsonBuilder = JsonObjectSchema.builder();
         for (final ToolParameter parameter: tool.parameters()) {
-            jsonBuilder.addStringProperty(parameter.name(), parameter.description)
-                       .required(parameter.name());
+            switch (parameter.type()) {
+                case STRING -> jsonBuilder.addStringProperty(parameter.name(), parameter.description);
+                case INTEGER -> jsonBuilder.addIntegerProperty(parameter.name(), parameter.description);
+                case NUMBER -> jsonBuilder.addNumberProperty(parameter.name(), parameter.description);
+                case BOOLEAN -> jsonBuilder.addBooleanProperty(parameter.name(), parameter.description);
+                default -> throw new IllegalArgumentException("type " + parameter.type() + " is not supported");
+            }
         }
+        jsonBuilder.required(tool.parameters().stream().filter(ToolParameter::required).map(ToolParameter::name).toList());
 
         builder.parameters(jsonBuilder.build());
         return builder.build();
@@ -71,7 +85,7 @@ public class ToolManager {
                                        .filter(t -> t.name().equals(toolName))
                                        .findFirst()
                                        .orElse(null);
-        if (tool == null) {
+        if (Objects.isNull(tool)) {
             throw new RuntimeException("The model called a tool " + toolName + " that does not exist.");
         }
         final String output = executeTool(toolName, extractValues(tool.parameters(), request.arguments()));
@@ -87,11 +101,11 @@ public class ToolManager {
         }
 
         final File[] pythonFiles = dir.listFiles((_, name) -> name.endsWith(".py"));
-        if (pythonFiles == null || pythonFiles.length == 0) {
+        if (Objects.isNull(pythonFiles) || pythonFiles.length == 0) {
             return toolList;
         }
 
-        for (final File pythonFile : pythonFiles) {
+        for (final File pythonFile: pythonFiles) {
             final Tool tool = getToolDescription(pythonFile.getName().replace(".py", ""));
             toolList.add(tool);
         }
@@ -107,7 +121,7 @@ public class ToolManager {
 
         try {
             final String description = bufferedReader.readLine();
-            if (description == null) {
+            if (Objects.isNull(description)) {
                 throw new RuntimeException("failed to get description of " + toolName);
             }
             final List<ToolParameter> parameters = new ArrayList<>();
@@ -115,7 +129,7 @@ public class ToolManager {
             while ((line = bufferedReader.readLine()) != null) {
                 final String[] parts = line.split("\t");
                 if (parts.length == 2) {
-                    parameters.add(new ToolParameter(parts[0].trim(), parts[1].trim()));
+                    parameters.add(new ToolParameter(parts[0].trim(), parts[1].trim(), ToolParameterType.STRING, true));
                 } else {
                     throw new RuntimeException("incorrect parameter description for " + toolName);
                 }
@@ -168,7 +182,7 @@ public class ToolManager {
         final List<String> result = new ArrayList<>();
 
         try {
-            for (final String key : parameters.stream().map(ToolParameter::name).toList()) {
+            for (final String key: parameters.stream().map(ToolParameter::name).toList()) {
                 result.add(jsonObject.getString(key));
             }
         } catch (final JSONException e) {
