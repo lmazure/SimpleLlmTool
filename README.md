@@ -153,7 +153,7 @@ The provider is indicated on the command line with the `--provider <provider>` p
 | `toolNamePath`          | JSON path to the tool name within a tool call element         | string | yes          |
 | `toolArgumentsPath`     | JSON path to the tool arguments within a tool call element    | string | yes          |
 
-† The HTTP header `Content-Type: application/json` is added automatically.
+† The HTTP header `Content-Type: application/json` is added automatically. It is possible to define no HTTP headers, but the `httpHeaders` still needs to be present.
 
 `payloadTemplate` and header value templates are evaluated using [Handlebars](https://jknack.github.io/handlebars.java/gettingStarted.html).
 

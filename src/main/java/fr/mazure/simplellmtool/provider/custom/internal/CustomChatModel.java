@@ -29,8 +29,8 @@ import dev.langchain4j.http.client.HttpMethod;
 import dev.langchain4j.http.client.HttpRequest;
 import dev.langchain4j.http.client.HttpRequest.Builder;
 import dev.langchain4j.http.client.SuccessfulHttpResponse;
-import dev.langchain4j.http.client.log.LoggingHttpClient;
 import dev.langchain4j.http.client.jdk.JdkHttpClientBuilder;
+import dev.langchain4j.http.client.log.LoggingHttpClient;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.ChatResponse;
@@ -218,7 +218,7 @@ public class CustomChatModel implements ChatModel {
         return new MessageRound(MessageRound.Role.MODEL, text, toolCalls);
     }
 
-    private ChatResponse parseApiResponse(final String responseBody) throws IOException, JsonPathExtractorException {
+    public ChatResponse parseApiResponse(final String responseBody) throws IOException, JsonPathExtractorException {
         AiMessage aiMessage;
 
         final ObjectMapper objectMapper = new ObjectMapper();

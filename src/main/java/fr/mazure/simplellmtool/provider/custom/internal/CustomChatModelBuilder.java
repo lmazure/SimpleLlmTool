@@ -210,7 +210,7 @@ public class CustomChatModelBuilder {
         if (Objects.isNull(this.payloadTemplate) || this.payloadTemplate.trim().isEmpty()) {
             throw new IllegalArgumentException("Payload template is required");
         }
-        if (Objects.isNull(this.httpHeaders) || this.httpHeaders.isEmpty()) {
+        if (Objects.isNull(this.httpHeaders)) {
             throw new IllegalArgumentException("HTTP headers are required");
         }
         if (Objects.isNull(this.answerPath) || this.answerPath.trim().isEmpty()) {
