@@ -386,7 +386,7 @@ class RequestPayloadGeneratorTest {
     @SuppressWarnings("static-method")
     @Test
     @DisplayName("Should generate Google's Gemini payload with tool call results")
-    void testGenerateToolCallResultsForGoogleGemini() { //TODO write this test
+    void testGenerateToolCallResultsForGoogleGemini() {
         // Given
         final String template = """
         {

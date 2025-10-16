@@ -227,7 +227,7 @@ public class CustomChatModel implements ChatModel {
         // Try to extract tool calls using the configured path
         try {
             final List<JsonNode> toolCallNodes = JsonPathExtractor.extractArray(rootNode, this.toolCallsPath);
-            
+
             if (!toolCallNodes.isEmpty()) {
                 // Handle function call(s)
                 final List<ToolExecutionRequest> toolExecutionRequests = new ArrayList<>();

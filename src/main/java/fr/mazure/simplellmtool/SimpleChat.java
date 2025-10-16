@@ -10,7 +10,6 @@ import java.util.Optional;
 import org.tinylog.configuration.Configuration;
 
 import dev.langchain4j.model.chat.ChatModel;
-
 import fr.mazure.simplellmtool.provider.anthropic.AnthropicChatModelProvider;
 import fr.mazure.simplellmtool.provider.anthropic.AnthropicModelParameters;
 import fr.mazure.simplellmtool.provider.base.InvalidModelParameter;

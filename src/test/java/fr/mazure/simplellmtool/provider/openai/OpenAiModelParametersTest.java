@@ -23,6 +23,8 @@ class OpenAiModelParametersTest {
     /**
      * Test loading a valid configuration file with all parameters.
      *
+     * @param tempDir temporary directory where to write the configuration file
+     *
      * @throws IOException if there is an error reading the file
      * @throws URISyntaxException if the exepcted URL is invalid (i.e. you screwed up the test itself)
      * @throws MissingModelParameter if a compulsory parameter is missing
@@ -64,6 +66,8 @@ class OpenAiModelParametersTest {
     /**
      * Test loading a minimal configuration file with only required parameters.
      *
+     * @param tempDir temporary directory where to write the configuration file
+     *
      * @throws IOException if there is an error reading the file
      * @throws MissingModelParameter if a compulsory parameter is missing
      * @throws InvalidModelParameter if a parameter has an incorrect value
@@ -96,6 +100,8 @@ class OpenAiModelParametersTest {
 
     /**
      * Test loading with an overriding model name.
+     *
+     * @param tempDir temporary directory where to write the configuration file
      *
      * @throws IOException if there is an error reading the file
      * @throws MissingModelParameter if a compulsory parameter is missing
@@ -143,7 +149,8 @@ class OpenAiModelParametersTest {
     /**
      * Test loading a file with invalid URL.
      *
-     * @param tempDir temporary directory for test files
+     * @param tempDir temporary directory where to write the configuration file
+     *
      * @throws IOException if there is an error creating or writing to the file
      */
     @SuppressWarnings("static-method")
@@ -164,7 +171,8 @@ class OpenAiModelParametersTest {
     /**
      * Test loading a file with invalid numeric values.
      *
-     * @param tempDir temporary directory for test files
+     * @param tempDir temporary directory where to write the configuration file
+     *
      * @throws IOException if there is an error creating or writing to the file
      */
     @SuppressWarnings("static-method")

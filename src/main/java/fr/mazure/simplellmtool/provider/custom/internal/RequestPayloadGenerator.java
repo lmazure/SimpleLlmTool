@@ -1,5 +1,11 @@
 package fr.mazure.simplellmtool.provider.custom.internal;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import com.github.jknack.handlebars.EscapingStrategy;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Options;
@@ -14,12 +20,6 @@ import dev.langchain4j.model.chat.request.json.JsonNumberSchema;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 import dev.langchain4j.model.chat.request.json.JsonSchemaElement;
 import dev.langchain4j.model.chat.request.json.JsonStringSchema;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 /*
  * Generates a payload by evaluating Handlebars templates
@@ -70,9 +70,9 @@ public class RequestPayloadGenerator {
         handlebars.registerHelper("isUser",   (final MessageRound.Role role, final Options _) -> Boolean.valueOf(MessageRound.Role.USER.equals(role)));
         handlebars.registerHelper("isModel",  (final MessageRound.Role role, final Options _) -> Boolean.valueOf(MessageRound.Role.MODEL.equals(role)));
         handlebars.registerHelper("isTool",   (final MessageRound.Role role, final Options _) -> Boolean.valueOf(MessageRound.Role.TOOL.equals(role)));
-        
+
         handlebars.registerHelper("convertToJsonString", (final String text, final Options _) -> jsonConverter(text));
-        
+
         handlebars.registerHelper("isStringType",  (final String type, final Options _) -> Boolean.valueOf("string".equals(type)));
         handlebars.registerHelper("isIntegerType", (final String type, final Options _) -> Boolean.valueOf("integer".equals(type)));
         handlebars.registerHelper("isNumberType",  (final String type, final Options _) -> Boolean.valueOf("number".equals(type)));

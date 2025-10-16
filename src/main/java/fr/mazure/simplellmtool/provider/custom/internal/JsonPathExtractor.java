@@ -1,12 +1,12 @@
 package fr.mazure.simplellmtool.provider.custom.internal;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class JsonPathExtractor {
 
