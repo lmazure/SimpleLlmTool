@@ -1,3 +1,5 @@
+UT "Should parse Google's Gemini answer with tool calls"
+
 java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar     --provider custom     --model-file examples/gemini-2.5-flash@custom.yaml     --tools-dir tools     --system-prompt-string "You always provide an English anwer, followed by a precise translation in French"     --user-prompt-string "What is the weather in Paris?" --log-level info  
 
 
