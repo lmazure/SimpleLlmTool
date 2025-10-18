@@ -15,7 +15,8 @@ class CustomChatModelTest {
     @SuppressWarnings("static-method")
     @Test
     @DisplayName("Can parse Gemini tool calls")
-    void canParseGeminiToolCalls() throws IOException, JsonPathExtractorException {
+    void canParseGeminiToolCalls() throws IOException,
+                                          JsonPathExtractorException {
         // Given
         final CustomChatModel model = builGeminiModel();
         final String answer = """
@@ -75,7 +76,8 @@ class CustomChatModelTest {
     @SuppressWarnings("static-method")
     @Test
     @DisplayName("Can parse Gemini final answer")
-    void canParseGeminiFinalAnswer() throws IOException, JsonPathExtractorException {
+    void canParseGeminiFinalAnswer() throws IOException,
+                                            JsonPathExtractorException {
         // Given
         final CustomChatModel model = builGeminiModel();
         final String answer = """

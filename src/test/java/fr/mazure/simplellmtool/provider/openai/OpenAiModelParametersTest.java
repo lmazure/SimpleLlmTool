@@ -32,7 +32,10 @@ class OpenAiModelParametersTest {
      */
     @SuppressWarnings("static-method")
 	@Test
-    void testLoadFromFileWithAllParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
+    void testLoadFromFileWithAllParameters(@TempDir final Path tempDir) throws IOException,
+                                                                               MissingModelParameter,
+                                                                               InvalidModelParameter,
+                                                                               URISyntaxException {
         // Given
         final String configContent = """
                 modelName: gpt-4
@@ -74,7 +77,9 @@ class OpenAiModelParametersTest {
      */
     @SuppressWarnings("static-method")
     @Test
-    void testLoadFromFileWithMinimalParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter {
+    void testLoadFromFileWithMinimalParameters(@TempDir final Path tempDir) throws IOException,
+                                                                                   MissingModelParameter,
+                                                                                   InvalidModelParameter {
         // Given
         final String configContent = """
                 modelName: gpt-3.5-turbo
@@ -109,7 +114,9 @@ class OpenAiModelParametersTest {
      */
     @SuppressWarnings("static-method")
     @Test
-    void testLoadFromFileWithOverriddenModelName(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter {
+    void testLoadFromFileWithOverriddenModelName(@TempDir final Path tempDir) throws IOException,
+                                                                                     MissingModelParameter,
+                                                                                     InvalidModelParameter {
         // Given
         final String configContent = """
                 modelName: gpt-3.5-turbo

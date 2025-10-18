@@ -176,7 +176,9 @@ class BatchModeTest {
     @Test
     @Tag("e2e")
     @Tag("e2e_openai")
-    void testBasicCustom() throws MalformedURLException, URISyntaxException, MissingEnvironmentVariable {
+    void testBasicCustom() throws MalformedURLException,
+                                  URISyntaxException,
+                                  MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
@@ -222,6 +224,7 @@ class BatchModeTest {
     /**
      * Tool test for OpenAI.
      *
+     * @throws IOException If an I/O error occurs.
      * @throws MissingEnvironmentVariable
      * @throws ToolManagerException In case of a tool execution error
      */
@@ -229,7 +232,9 @@ class BatchModeTest {
     @Test
     @Tag("e2e")
     @Tag("e2e_openai")
-    void testToolOpenAi(@TempDir final Path tempDir) throws IOException, MissingEnvironmentVariable, ToolManagerException {
+    void testToolOpenAi(@TempDir final Path tempDir) throws IOException,
+                                                            MissingEnvironmentVariable,
+                                                            ToolManagerException {
         // Given
         final String pythonScript = """
                 import sys

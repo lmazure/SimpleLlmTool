@@ -57,7 +57,8 @@ public class ChatMode extends BaseMode {
                            final Optional<String> sysPrompt,
                            final Optional<String> userPrompt,
                            final List<Attachment> initialAttachments,
-                           final Optional<ToolManager> toolManager) throws IOException, ToolManagerException {
+                           final Optional<ToolManager> toolManager) throws IOException,
+                                                                           ToolManagerException {
 
         // setup terminal
         try (final Terminal terminal = TerminalBuilder.builder()

@@ -124,7 +124,9 @@ public class CustomModelParameters extends ModelParameters {
      * @throws InvalidModelParameter if a parameter has an incorrect value
      */
     public static CustomModelParameters loadFromFile(final Path yamlFilePath,
-                                                     final Optional<String> overridingModelName) throws IOException, MissingModelParameter, InvalidModelParameter {
+                                                     final Optional<String> overridingModelName) throws IOException,
+                                                                                                        MissingModelParameter,
+                                                                                                        InvalidModelParameter {
         try (final InputStream inputStream = new FileInputStream(yamlFilePath.toFile())) {
             final Yaml yaml = new Yaml();
             final ParameterMap parameterMap = new ParameterMap(yaml.load(inputStream));
@@ -144,7 +146,8 @@ public class CustomModelParameters extends ModelParameters {
         }
     }
 
-    static private Map<String, CustomChatModel.FinishingReason> getFinishReasonMappings(final ParameterMap parameterMap) throws MissingModelParameter, InvalidModelParameter {
+    static private Map<String, CustomChatModel.FinishingReason> getFinishReasonMappings(final ParameterMap parameterMap) throws MissingModelParameter,
+                                                                                                                                InvalidModelParameter {
         final String parameterName = "finishReasonMappings";
         final Map<String, String> map = parameterMap.getStringMap(parameterName);
         final Map<String, CustomChatModel.FinishingReason> finishingReasonMap = new HashMap<>();

@@ -32,7 +32,10 @@ class AnthropicModelParametersTest {
      */
     @SuppressWarnings("static-method")
     @Test
-    void testLoadFromFileWithAllParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
+    void testLoadFromFileWithAllParameters(@TempDir final Path tempDir) throws IOException,
+                                                                               MissingModelParameter,
+                                                                               InvalidModelParameter,
+                                                                               URISyntaxException {
         // Given
         final String configContent = """
                 modelName: claude-3-5-sonnet-20240620
@@ -70,7 +73,9 @@ class AnthropicModelParametersTest {
      */
     @SuppressWarnings("static-method")
     @Test
-    void testLoadFromFileWithMinimalParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter {
+    void testLoadFromFileWithMinimalParameters(@TempDir final Path tempDir) throws IOException,
+                                                                                   MissingModelParameter,
+                                                                                   InvalidModelParameter {
         // Given
         final String configContent = """
                 modelName: claude-3-haiku-20240307
@@ -103,7 +108,9 @@ class AnthropicModelParametersTest {
      */
     @SuppressWarnings("static-method")
     @Test
-    void testLoadFromFileWithOverriddenModelName(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter {
+    void testLoadFromFileWithOverriddenModelName(@TempDir final Path tempDir) throws IOException,
+                                                                                     MissingModelParameter,
+                                                                                     InvalidModelParameter {
         // Given
         final String configContent = """
                 modelName: claude-3-haiku-20240307

@@ -34,7 +34,10 @@ class CustomModelParametersTest {
      */
     @SuppressWarnings("static-method")
     @Test
-    void testLoadFromFileWithAllParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
+    void testLoadFromFileWithAllParameters(@TempDir final Path tempDir) throws IOException,
+                                                                               MissingModelParameter,
+                                                                               InvalidModelParameter,
+                                                                               URISyntaxException {
         // Given
         final String configContent = """
                 modelName: custom-large-latest
@@ -87,7 +90,10 @@ class CustomModelParametersTest {
      */
     @SuppressWarnings("static-method")
     @Test
-    void testLoadFromFileWithMinimalParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
+    void testLoadFromFileWithMinimalParameters(@TempDir final Path tempDir) throws IOException,
+                                                                                   MissingModelParameter,
+                                                                                   InvalidModelParameter,
+                                                                                   URISyntaxException {
         // Given
         final String configContent = """
                 modelName: custom-small-latest
@@ -140,7 +146,10 @@ class CustomModelParametersTest {
      */
     @SuppressWarnings("static-method")
     @Test
-    void testLoadFromFileWithOverriddenModelName(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
+    void testLoadFromFileWithOverriddenModelName(@TempDir final Path tempDir) throws IOException,
+                                                                                     MissingModelParameter,
+                                                                                     InvalidModelParameter,
+                                                                                     URISyntaxException {
         // Given
         final String configContent = """
                 modelName: custom-small-latest

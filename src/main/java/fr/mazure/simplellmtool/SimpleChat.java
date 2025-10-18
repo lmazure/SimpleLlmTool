@@ -30,7 +30,11 @@ import fr.mazure.simplellmtool.provider.openai.OpenAiModelParameters;
  * Simple chat application.
  */
 public class SimpleChat {
-    public static void main(final String[] args) throws MissingEnvironmentVariable, IOException, MissingModelParameter, InvalidModelParameter, ToolManagerException {
+    public static void main(final String[] args) throws MissingEnvironmentVariable,
+                                                        IOException,
+                                                        MissingModelParameter,
+                                                        InvalidModelParameter,
+                                                        ToolManagerException {
 
         final CommandLine.Parameters cli = CommandLine.parseCommandLine(args);
 

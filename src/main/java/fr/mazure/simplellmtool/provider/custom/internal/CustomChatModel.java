@@ -218,7 +218,8 @@ public class CustomChatModel implements ChatModel {
         return new MessageRound(MessageRound.Role.MODEL, text, toolCalls);
     }
 
-    public ChatResponse parseApiResponse(final String responseBody) throws IOException, JsonPathExtractorException {
+    public ChatResponse parseApiResponse(final String responseBody) throws IOException,
+                                                                           JsonPathExtractorException {
         AiMessage aiMessage;
 
         final ObjectMapper objectMapper = new ObjectMapper();
