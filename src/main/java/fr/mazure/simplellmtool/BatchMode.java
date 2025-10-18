@@ -60,7 +60,13 @@ public class BatchMode extends BaseMode {
         contents.addAll(attachments);
         memory.add(UserMessage.from(contents));
 
-        final ChatResponse response = generateResponse(model, memory, toolManager);
+        ChatResponse response;
+        try {
+            response = generateResponse(model, memory, toolManager);
+        } catch (final ToolManagerException e) {
+            error.println("Tool error: " + e.getMessage());
+            return ExitCode.TOOL_ERROR.getCode();
+        }
         final String answer = response.aiMessage().text();
         output.println(answer);
         return ExitCode.SUCCESS.getCode();

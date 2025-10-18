@@ -221,13 +221,15 @@ class BatchModeTest {
 
     /**
      * Tool test for OpenAI.
+     *
      * @throws MissingEnvironmentVariable
+     * @throws ToolManagerException In case of a tool execution error
      */
     @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
     @Tag("e2e_openai")
-    void testToolOpenAi(@TempDir final Path tempDir) throws IOException, MissingEnvironmentVariable {
+    void testToolOpenAi(@TempDir final Path tempDir) throws IOException, MissingEnvironmentVariable, ToolManagerException {
         // Given
         final String pythonScript = """
                 import sys

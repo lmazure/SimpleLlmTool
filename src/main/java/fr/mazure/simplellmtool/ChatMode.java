@@ -51,12 +51,13 @@ public class ChatMode extends BaseMode {
      * @param toolManager The ToolManager to use for tool execution.
      *
      * @throws IOException If an I/O error occurs.
+     * @throws ToolManagerException In case of a tool execution error
      */
     static void handleChat(final ChatModel model,
                            final Optional<String> sysPrompt,
                            final Optional<String> userPrompt,
                            final List<Attachment> initialAttachments,
-                           final Optional<ToolManager> toolManager) throws IOException {
+                           final Optional<ToolManager> toolManager) throws IOException, ToolManagerException {
 
         // setup terminal
         try (final Terminal terminal = TerminalBuilder.builder()

@@ -456,9 +456,11 @@ Each script is a tool.
 
 Each script should, when called with the `--description` parameter, return the description of the tool formatted as:
 - first line: the description of the tool
-- following lines: one line per parameter, each line formatted as `parameter_name<tab>parameter_description` where
+- following lines: one line per parameter, each line formatted as `parameter_name<tab>pamater_type<tab>parameter_optionality<tab>parameter_description` where
+    - `<tab>` is a tab character,
     - `parameter_name` is the name of the parameter,
-    - `<tab>` is a tab character, and
+    - `pamater_type` is the type of the parameter, it must be equal to `string`, `integer`, `number`, or `boolean`,
+    - `parameter_optionality` is the optionality of the parameter, it must be equal to `required` or `optional`,
     - `parameter_description` is the description of the parameter.
 
 Each script should

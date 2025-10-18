@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
 import fr.mazure.simplellmtool.ToolManager;
+import fr.mazure.simplellmtool.ToolManagerException;
 
 /**
  * Tests for the {@link RequestPayloadGenerator} class.
@@ -209,7 +210,7 @@ class RequestPayloadGeneratorTest {
     @SuppressWarnings("static-method")
     @Test
     @DisplayName("Should generate Google's Gemini payload with multiple tools")
-    void testGenerateMultipleToolsForGoogleGemini() {
+    void testGenerateMultipleToolsForGoogleGemini() throws ToolManagerException {
         // Given
         final String template = """
         {
@@ -386,7 +387,7 @@ class RequestPayloadGeneratorTest {
     @SuppressWarnings("static-method")
     @Test
     @DisplayName("Should generate Google's Gemini payload with tool call results")
-    void testGenerateToolCallResultsForGoogleGemini() {
+    void testGenerateToolCallResultsForGoogleGemini() throws ToolManagerException {
         // Given
         final String template = """
         {

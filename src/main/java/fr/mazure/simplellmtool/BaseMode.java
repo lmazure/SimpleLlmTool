@@ -18,7 +18,7 @@ public class BaseMode {
 
     protected static ChatResponse generateResponse(final ChatModel model,
                                                    final ChatMemory memory,
-                                                   final Optional<ToolManager> toolManager) {
+                                                   final Optional<ToolManager> toolManager) throws ToolManagerException {
         ChatResponse chatResponse = callChatModel(model, memory, toolManager);
         AiMessage aiMessage = chatResponse.aiMessage();
         memory.add(aiMessage);
@@ -37,7 +37,7 @@ public class BaseMode {
 
     private static ChatResponse callChatModel(final ChatModel model,
                                               final ChatMemory memory,
-                                              final Optional<ToolManager> toolManager) {
+                                              final Optional<ToolManager> toolManager) throws ToolManagerException {
         ChatRequestParameters parameters = model.defaultRequestParameters();
         if (toolManager.isPresent()) {
             parameters = parameters.overrideWith(ChatRequestParameters.builder()

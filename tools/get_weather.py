@@ -134,7 +134,7 @@ if __name__ == "__main__":
     # Check command line arguments
     if len(sys.argv) == 2:
         if sys.argv[1] == "--description":
-            print("Returns the current weather for a given city\ncity\tThe city for which the weather forecast should be returned, only the city name should be present")
+            print("Returns the current weather for a given city\ncity\tstring\trequired\tThe city for which the weather forecast should be returned, only the city name should be present")
         else:
             # City name provided
             city_name = sys.argv[1]
