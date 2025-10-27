@@ -252,6 +252,9 @@ public class CustomChatModelBuilder {
         if (!(toolArgumentsDictPathIsSet || toolArgumentsStringPathIsSet)) {
             throw new IllegalArgumentException("Either tool arguments dictonary path or tool arguments dictonary string is required");
         }
+        if (toolArgumentsDictPathIsSet && toolArgumentsStringPathIsSet) {
+            throw new IllegalArgumentException("Tool arguments dictonary path and tool arguments dictonary string cannot both be set");
+        }
     }
 
     // Getters for the CustomChatModel constructor

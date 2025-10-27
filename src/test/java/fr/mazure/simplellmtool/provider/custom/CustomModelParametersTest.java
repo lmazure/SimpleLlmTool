@@ -55,7 +55,7 @@ class CustomModelParametersTest {
                   string_for_max_tokens: MAX_TOKENS
                 toolCallsPath: path_to_tool_calls
                 toolNamePath: path_to_tool_name
-                toolArgumentsDictPath: path_to_tool_arguments
+                toolArgumentsDictPath: path_to_tool_arguments_dict
                 """;
         final Path tempConfigPath = tempDir.resolve("valid-custom-config.yaml");
         Files.writeString(tempConfigPath, configContent);
@@ -77,8 +77,67 @@ class CustomModelParametersTest {
         Assertions.assertEquals("path_to_tool_calls", parameters.getToolCallsPath());
         Assertions.assertEquals("path_to_tool_name", parameters.getToolNamePath());
         Assertions.assertTrue(parameters.getToolArgumentsDictPath().isPresent());
-        Assertions.assertEquals("path_to_tool_arguments", parameters.getToolArgumentsDictPath().get());
+        Assertions.assertEquals("path_to_tool_arguments_dict", parameters.getToolArgumentsDictPath().get());
         Assertions.assertFalse(parameters.getToolArgumentsStringPath().isPresent());
+    }
+
+    /**
+     * Test loading a valid configuration file with all parameters and tool arguments string.
+     *
+     * @param tempDir temporary directory where to write the configuration file
+     *
+     * @throws IOException if there is an error reading the file
+     * @throws URISyntaxException if the expected URL is invalid (i.e. you screwed up the test itself)
+     * @throws MissingModelParameter if a compulsory parameter is missing
+     * @throws InvalidModelParameter if a parameter has an incorrect value
+     */
+    @SuppressWarnings("static-method")
+    @Test
+    void testLoadFromFileWithAllParametersAndToolArgumentsString(@TempDir final Path tempDir) throws IOException,
+                                                                               MissingModelParameter,
+                                                                               InvalidModelParameter,
+                                                                               URISyntaxException {
+        // Given
+        final String configContent = """
+                modelName: custom-large-latest
+                apiKeyEnvVar: CUSTOM_API_KEY
+                url: https://api.custom.ai/v1
+                payloadTemplate: the_template
+                httpHeaders:
+                  Authorization: Bearer {{apiKey}}
+                answerPath: path_to_answer
+                inputTokenPath: path_to_number_of_input_tokens
+                outputTokenPath: path_to_number_of_output_tokens
+                finishReasonPath: path_to_finish_reason
+                finishReasonMappings:
+                  string_for_stop: DONE
+                  string_for_max_tokens: MAX_TOKENS
+                toolCallsPath: path_to_tool_calls
+                toolNamePath: path_to_tool_name
+                toolArgumentsStringPath: path_to_tool_arguments_string
+                """;
+        final Path tempConfigPath = tempDir.resolve("valid-custom-config.yaml");
+        Files.writeString(tempConfigPath, configContent);
+
+        // When
+        final CustomModelParameters parameters = CustomModelParameters.loadFromFile(tempConfigPath, Optional.empty());
+
+        // Then
+        Assertions.assertEquals("custom-large-latest", parameters.getModelName());
+        Assertions.assertEquals("CUSTOM_API_KEY", parameters.getApiKeyEnvironmentVariableName());
+        Assertions.assertEquals(new URI("https://api.custom.ai/v1").toURL(), parameters.getBaseUrl().get());
+        Assertions.assertEquals("the_template", parameters.getPayloadTemplate());
+        Assertions.assertEquals(Map.of("Authorization", "Bearer {{apiKey}}"), parameters.getHttpHeaders());
+        Assertions.assertEquals("path_to_answer", parameters.getAnswerPath());
+        Assertions.assertEquals("path_to_number_of_input_tokens", parameters.getInputTokenPath());
+        Assertions.assertEquals("path_to_number_of_output_tokens", parameters.getOutputTokenPath());
+        Assertions.assertEquals("path_to_finish_reason", parameters.getFinishReasonPath());
+        Assertions.assertEquals(Map.of("string_for_stop", CustomChatModel.FinishingReason.DONE, "string_for_max_tokens", CustomChatModel.FinishingReason.MAX_TOKENS), parameters.getFinishReasonMappings());
+        Assertions.assertEquals("path_to_tool_calls", parameters.getToolCallsPath());
+        Assertions.assertEquals("path_to_tool_name", parameters.getToolNamePath());
+        Assertions.assertFalse(parameters.getToolArgumentsDictPath().isPresent());
+        Assertions.assertTrue(parameters.getToolArgumentsStringPath().isPresent());
+        Assertions.assertEquals("path_to_tool_arguments_string", parameters.getToolArgumentsStringPath().get());
     }
 
     /**
@@ -113,7 +172,7 @@ class CustomModelParametersTest {
                   string_for_max_tokens: MAX_TOKENS
                 toolCallsPath: path_to_tool_calls
                 toolNamePath: path_to_tool_name
-                toolArgumentsDictPath: path_to_tool_arguments
+                toolArgumentsDictPath: path_to_tool_arguments_dict
                 """;
         final Path tempConfigPath = tempDir.resolve(("minimal-custom-config.yaml"));
         Files.writeString(tempConfigPath, configContent);
@@ -135,7 +194,7 @@ class CustomModelParametersTest {
         Assertions.assertEquals("path_to_tool_calls", parameters.getToolCallsPath());
         Assertions.assertEquals("path_to_tool_name", parameters.getToolNamePath());
         Assertions.assertTrue(parameters.getToolArgumentsDictPath().isPresent());
-        Assertions.assertEquals("path_to_tool_arguments", parameters.getToolArgumentsDictPath().get());
+        Assertions.assertEquals("path_to_tool_arguments_dict", parameters.getToolArgumentsDictPath().get());
         Assertions.assertFalse(parameters.getToolArgumentsStringPath().isPresent());
     }
 
@@ -171,7 +230,7 @@ class CustomModelParametersTest {
                   string_for_max_tokens: MAX_TOKENS
                 toolCallsPath: path_to_tool_calls
                 toolNamePath: path_to_tool_name
-                toolArgumentsDictPath: path_to_tool_arguments
+                toolArgumentsDictPath: path_to_tool_arguments_dict
                 """;
         final Path tempConfigPath = tempDir.resolve(("minimal-custom-config.yaml"));
         Files.writeString(tempConfigPath, configContent);
@@ -193,7 +252,7 @@ class CustomModelParametersTest {
         Assertions.assertEquals("path_to_tool_calls", parameters.getToolCallsPath());
         Assertions.assertEquals("path_to_tool_name", parameters.getToolNamePath());
         Assertions.assertTrue(parameters.getToolArgumentsDictPath().isPresent());
-        Assertions.assertEquals("path_to_tool_arguments", parameters.getToolArgumentsDictPath().get());
+        Assertions.assertEquals("path_to_tool_arguments_dict", parameters.getToolArgumentsDictPath().get());
         Assertions.assertFalse(parameters.getToolArgumentsStringPath().isPresent());
     }
 
