@@ -40,6 +40,7 @@ public class ChatMode extends BaseMode {
         private static final String COMMAND_TOOLS_DETAILS = "/tools details";
         private static final String COMMAND_ATTACH_FILE = "/attach file";
         private static final String COMMAND_ATTACH_URL = "/attach url";
+        private static final String COMMAND_HELP = "/help";
 
     /**
      * Handles interactive chat processing of chat interactions using a specified ChatModel.
@@ -96,6 +97,10 @@ public class ChatMode extends BaseMode {
                 }
                 if (input.equals(COMMAND_EXIT)) {
                     return;
+                }
+                if (input.equals(COMMAND_HELP)) {
+                    displayHelpMessage(terminal);
+                    continue;
                 }
                 if (input.equals(COMMAND_TOOLS_LIST)) {
                     displayToolList(terminal, toolManager, false);
@@ -158,11 +163,13 @@ public class ChatMode extends BaseMode {
                 Type '%s' to display the details of available tools
                 Type '%s' to attach a file
                 Type '%s' to attach a URL
+                Type '%s' to display this help message
                 """.formatted(COMMAND_EXIT,
                               COMMAND_TOOLS_LIST,
                               COMMAND_TOOLS_DETAILS,
                               COMMAND_ATTACH_FILE,
-                              COMMAND_ATTACH_URL);
+                              COMMAND_ATTACH_URL,
+                              COMMAND_HELP);
         displayMessage(terminal, helpMessage);
     }
 

@@ -27,7 +27,8 @@ public class CustomChatModelProvider implements ModelProvider {
                               .finishReasonMappings(parameters.getFinishReasonMappings())
                               .toolCallsPath(parameters.getToolCallsPath())
                               .toolNamePath(parameters.getToolNamePath())
-                              .toolArgumentsPath(parameters.getToolArgumentsPath())
+                              .toolArgumentsDictPath(parameters.getToolArgumentsDictPath())
+                              .toolArgumentsStringPath(parameters.getToolArgumentsStringPath())
                               .logRequests(Boolean.TRUE)
                               .logResponses(Boolean.TRUE)
                               .build();

@@ -25,4 +25,4 @@ finishReasonMappings:
   length: MAX_TOKENS
 toolCallsPath: choices[0].message.tool_calls
 toolNamePath: function.name
-toolArgumentsPath: function.arguments
+toolArgumentsDictPath: function.arguments

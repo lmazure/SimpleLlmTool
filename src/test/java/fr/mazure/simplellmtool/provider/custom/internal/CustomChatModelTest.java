@@ -2,6 +2,7 @@ package fr.mazure.simplellmtool.provider.custom.internal;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -137,7 +138,8 @@ class CustomChatModelTest {
                               .finishReasonMappings(Map.of("STOP", CustomChatModel.FinishingReason.DONE))
                               .toolCallsPath("candidates[0].content.parts")
                               .toolNamePath("functionCall.name")
-                              .toolArgumentsPath("functionCall.args")
+                              .toolArgumentsDictPath(Optional.of("functionCall.args"))
+                              .toolArgumentsStringPath(Optional.empty())
                               .build();
     }
 }

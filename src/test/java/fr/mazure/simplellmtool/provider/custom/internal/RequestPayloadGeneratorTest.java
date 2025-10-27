@@ -753,7 +753,7 @@ class RequestPayloadGeneratorTest {
             RuntimeException.class,
             () -> RequestPayloadGenerator.generate(template, messages, "my-model-name", List.of(), "my-secret-API-key")
         );
-        Assertions.assertEquals("Failed to process Handlebars template", exception.getMessage());
+        Assertions.assertEquals("Failed to process Handlebars template\n001 Hello {{#messages}}{{role}", exception.getMessage());
     }
 
     @SuppressWarnings("static-method")

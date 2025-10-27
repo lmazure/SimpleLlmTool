@@ -20,19 +20,20 @@ import fr.mazure.simplellmtool.provider.custom.internal.CustomChatModel;
 /**
  * Parameters for the custom model provider.
  *
- * @param modelName            the name of the model
- * @param url                  the URL of the provider
- * @param apiKeyEnvVar         the name of the environment variable containing the API key
- * @param payloadTemplate      the payload template for the API calls
- * @param httpHeaders          the HTTP headers to be sent with the API requests
- * @param answerPath           the path to the answer in the API response
- * @param inputTokenPath       the path to the input token count in the API response
- * @param outputTokenPath      the path to the output token count in the API response
- * @param finishReasonPath     the path to the finish reason in the API response
- * @param finishReasonMappings the finish reason mappings
- * @param toolCallsPath        the path to the array of tool calls
- * @param toolNamePath         the path to the tool name within a tool call element
- * @param toolArgumentsPath    the path to the tool arguments dictionary within a tool call element
+ * @param modelName                the name of the model
+ * @param url                      the URL of the provider
+ * @param apiKeyEnvVar             the name of the environment variable containing the API key
+ * @param payloadTemplate          the payload template for the API calls
+ * @param httpHeaders              the HTTP headers to be sent with the API requests
+ * @param answerPath               the path to the answer in the API response
+ * @param inputTokenPath           the path to the input token count in the API response
+ * @param outputTokenPath          the path to the output token count in the API response
+ * @param finishReasonPath         the path to the finish reason in the API response
+ * @param finishReasonMappings     the finish reason mappings
+ * @param toolCallsPath            the path to the array of tool calls
+ * @param toolNamePath             the path to the tool name within a tool call element
+ * @param toolArgumentsDictPath    the path to the tool arguments dictionary within a tool call element
+ * @param toolArgumentsStringPath  the path to the tool arguments string within a tool call element
  */
 public class CustomModelParameters extends ModelParameters {
 
@@ -45,7 +46,8 @@ public class CustomModelParameters extends ModelParameters {
     private final Map<String, CustomChatModel.FinishingReason> finishReasonMappings;
     private final String toolCallsPath;
     private final String toolNamePath;
-    private final String toolArgumentsPath;
+    private final Optional<String> toolArgumentsDictPath;
+    private final Optional<String> toolArgumentsStringPath;
 
     public CustomModelParameters(final String modelName,
                                  final URL url,
@@ -59,7 +61,8 @@ public class CustomModelParameters extends ModelParameters {
                                  final Map<String, CustomChatModel.FinishingReason> finishReasonMappings,
                                  final String toolCallsPath,
                                  final String toolNamePath,
-                                 final String toolArgumentsPath) {
+                                 final Optional<String> toolArgumentsDictPath,
+                                 final Optional<String> toolArgumentsStringPath) {
         super(modelName, Optional.of(url), apiKeyEnvVar);
         this.payloadTemplate = payloadTemplate;
         this.httpHeaders = httpHeaders;
@@ -70,7 +73,8 @@ public class CustomModelParameters extends ModelParameters {
         this.finishReasonMappings = finishReasonMappings;
         this.toolCallsPath = toolCallsPath;
         this.toolNamePath = toolNamePath;
-        this.toolArgumentsPath = toolArgumentsPath;
+        this.toolArgumentsDictPath = toolArgumentsDictPath;
+        this.toolArgumentsStringPath = toolArgumentsStringPath;
     }
 
     public String getPayloadTemplate() {
@@ -109,8 +113,12 @@ public class CustomModelParameters extends ModelParameters {
         return this.toolNamePath;
     }
 
-    public String getToolArgumentsPath() {
-        return this.toolArgumentsPath;
+    public Optional<String> getToolArgumentsDictPath() {
+        return this.toolArgumentsDictPath;
+    }
+
+    public Optional<String> getToolArgumentsStringPath() {
+        return this.toolArgumentsStringPath;
     }
 
     /**
@@ -142,7 +150,8 @@ public class CustomModelParameters extends ModelParameters {
                                              getFinishReasonMappings(parameterMap),
                                              parameterMap.getString("toolCallsPath"),
                                              parameterMap.getString("toolNamePath"),
-                                             parameterMap.getString("toolArgumentsPath"));
+                                             parameterMap.getOptionalString("toolArgumentsDictPath"),
+                                             parameterMap.getOptionalString("toolArgumentsStringPath"));
         }
     }
 

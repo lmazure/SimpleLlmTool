@@ -58,7 +58,7 @@ public class RequestPayloadGenerator {
 
             return template.apply(context);
         } catch (final Exception e) {
-            throw new RuntimeException("Failed to process Handlebars template", e);
+            throw new RuntimeException("Failed to process Handlebars template\n" + StringUtils.addLineNumbers(handlebarsTemplate), e);
         }
     }
 

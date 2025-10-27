@@ -98,4 +98,4 @@ finishReasonMappings:
   STOP: DONE
 toolCallsPath: candidates[0].content.parts
 toolNamePath: functionCall.name
-toolArgumentsPath: functionCall.args
+toolArgumentsDictPath: functionCall.args

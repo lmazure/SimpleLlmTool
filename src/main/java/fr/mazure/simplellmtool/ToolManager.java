@@ -204,9 +204,14 @@ public class ToolManager {
 
     public static List<String> extractValues(final List<ToolParameter> parameters,
                                              final String jsonString) throws ToolManagerException {
-        final JSONObject jsonObject = new JSONObject(jsonString);
-        final List<String> result = new ArrayList<>();
+        JSONObject jsonObject;
+        try {
+            jsonObject = new JSONObject(jsonString);
+        } catch (final JSONException e) {
+            throw new ToolManagerException("The model return an invalid value for the tool parameters " + parameters + " in " + jsonString, e);
+        }
 
+        final List<String> result = new ArrayList<>();
         try {
             for (final String key: parameters.stream().map(ToolParameter::name).toList()) {
                 result.add(jsonObject.getString(key));
