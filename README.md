@@ -226,7 +226,8 @@ The following helpers are available:
     - `isIntegerType` (boolean)
     - `isNumberType` (boolean)
     - `isBooleanType` (boolean)
-- `convertToJsonString` (string): converts a string to a JSON string (including the double quotes) by escaping the special characters
+- `convertStringToJsonString` (string): converts a string to a JSON string (including the double quotes) by escaping the special characters
+- `convertToolParametersToJsonString` (string): converts a list of tool parameters to a JSON string
 
 #### Example 1 - OpenAI
 (see [this document](https://platform.openai.com/docs/api-reference/chat/create?lang=curl))
@@ -239,7 +240,7 @@ The following helpers are available:
             "messages": [
                 {{#each messages}}{
                     "role": "{{#if (isSystem role)}}system{{/if}}{{#if (isUser role)}}user{{/if}}{{#if (isModel role)}}assistant{{/if}}",
-                    "content": {{convertToJsonString content}}
+                    "content": {{convertStringToJsonString content}}
                 }{{#unless @last}},
                 {{/unless}}{{/each}}
             ],
@@ -313,7 +314,7 @@ Authorization: Bearer sec_DEADBEEF
           {{#each messages}}{{#if (isSystem role)}}"system_instruction": {
             "parts": [
               {
-                "text": {{convertToJsonString content}}
+                "text": {{convertStringToJsonString content}}
               }
             ]
           },{{/if}}{{/each}}
@@ -322,7 +323,7 @@ Authorization: Bearer sec_DEADBEEF
               "role": "user",
               "parts": [
                 {
-                  "text": {{convertToJsonString content}}
+                  "text": {{convertStringToJsonString content}}
                 }
               ]
             }{{#unless @last}},
@@ -330,7 +331,7 @@ Authorization: Bearer sec_DEADBEEF
               "role": "model",
               "parts": [
                 {
-                  "text": {{convertToJsonString content}}
+                  "text": {{convertStringToJsonString content}}
                 }
               ]
             }{{#unless @last}},

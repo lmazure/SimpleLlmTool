@@ -7,7 +7,7 @@ payloadTemplate: |
               "messages": [
                 {{#each messages}}{
                   "role": "{{#if (isSystem role)}}system{{/if}}{{#if (isUser role)}}user{{/if}}{{#if (isModel role)}}assistant{{/if}}",
-                  "content": {{convertToJsonString content}}
+                  "content": {{convertStringToJsonString content}}
                 }{{#unless @last}},
                 {{/unless}}{{/each}}
               ],

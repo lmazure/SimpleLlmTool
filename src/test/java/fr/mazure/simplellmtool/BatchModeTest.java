@@ -188,7 +188,7 @@ class BatchModeTest {
                               "messages": [
                                 {{#each messages}}{
                                   "role": "{{#if (isSystem role)}}system{{/if}}{{#if (isUser role)}}user{{/if}}{{#if (isModel role)}}assistant{{/if}}",
-                                  "content": {{convertToJsonString content}}
+                                  "content": {{convertStringToJsonString content}}
                                 }{{#unless @last}},
                                 {{/unless}}{{/each}}
                               ],
@@ -251,8 +251,8 @@ class BatchModeTest {
                 def main():
                     if len(sys.argv) == 2 and sys.argv[1] == "--description":
                         print("Calculate the number of days between start_date and end_date")
-                        print("start_date\tstart date formatted as YYYY-MM-DD")
-                        print("end_date\tend date formatted as YYYY-MM-DD")
+                        print("start_date\tstring\trequired\tstart date formatted as YYYY-MM-DD")
+                        print("end_date\tstring\trequired\tend date formatted as YYYY-MM-DD")
                         sys.exit(0)
 
                     if len(sys.argv) != 3:

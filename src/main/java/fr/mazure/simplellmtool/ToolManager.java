@@ -139,7 +139,7 @@ public class ToolManager {
                     throw new ToolManagerException("incorrect parameter description for '" + toolName + "'", e);
                     }
                 } else {
-                    throw new ToolManagerException("incorrect parameter description for '" + toolName + "' (it should be 4 compontents separated by tab, there are only " + parts.length + " components): " + line);
+                    throw new ToolManagerException("incorrect parameter description for '" + toolName + "' (it should be 4 components separated by tab, there are only " + parts.length + " components): " + line);
                 }
             }
             return new Tool(toolName, description, parameters);

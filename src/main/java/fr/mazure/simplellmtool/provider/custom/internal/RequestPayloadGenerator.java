@@ -71,7 +71,7 @@ public class RequestPayloadGenerator {
         handlebars.registerHelper("isModel",  (final MessageRound.Role role, final Options _) -> Boolean.valueOf(MessageRound.Role.MODEL.equals(role)));
         handlebars.registerHelper("isTool",   (final MessageRound.Role role, final Options _) -> Boolean.valueOf(MessageRound.Role.TOOL.equals(role)));
 
-        handlebars.registerHelper("convertToJsonString", (final String text, final Options _) -> jsonConverter(text));
+        handlebars.registerHelper("convertStringToJsonString", (final String text, final Options _) -> jsonConverter(text));
         handlebars.registerHelper("convertToolParametersToJsonString", (final List<Map<String, Object>> list, final Options _) -> jsonToolParametersConverter(list));
 
 

@@ -28,7 +28,7 @@ class RequestPayloadGeneratorTest {
               "messages": [
                 {{#each messages}}{
                   "role": "{{#if (isSystem role)}}system{{/if}}{{#if (isUser role)}}user{{/if}}{{#if (isModel role)}}assistant{{/if}}",
-                  "content": {{convertToJsonString content}}
+                  "content": {{convertStringToJsonString content}}
                 }{{#unless @last}},
                 {{/unless}}{{/each}}
               ],
@@ -96,7 +96,7 @@ class RequestPayloadGeneratorTest {
                   {{#each messages}}{{#if (isSystem role)}}"system_instruction": {
                     "parts": [
                       {
-                        "text": {{convertToJsonString content}}
+                        "text": {{convertStringToJsonString content}}
                       }
                     ]
                   },{{/if}}{{/each}}
@@ -105,7 +105,7 @@ class RequestPayloadGeneratorTest {
                       "role": "user",
                       "parts": [
                         {
-                          "text": {{convertToJsonString content}}
+                          "text": {{convertStringToJsonString content}}
                         }
                       ]
                     }{{#unless @last}},
@@ -113,7 +113,7 @@ class RequestPayloadGeneratorTest {
                       "role": "model",
                       "parts": [
                         {
-                          "text": {{convertToJsonString content}}
+                          "text": {{convertStringToJsonString content}}
                         }
                       ]
                     }{{#unless @last}},
@@ -217,7 +217,7 @@ class RequestPayloadGeneratorTest {
           {{#each messages}}{{#if (isSystem role)}}"system_instruction": {
             "parts": [
               {
-                "text": {{convertToJsonString content}}
+                "text": {{convertStringToJsonString content}}
               }
             ]
           },{{/if}}{{/each}}
@@ -226,7 +226,7 @@ class RequestPayloadGeneratorTest {
               "role": "user",
               "parts": [
                 {
-                  "text": {{convertToJsonString content}}
+                  "text": {{convertStringToJsonString content}}
                 }
               ]
             }{{#unless @last}},
@@ -234,7 +234,7 @@ class RequestPayloadGeneratorTest {
               "role": "model",
               "parts": [
                 {
-                  "text": {{convertToJsonString content}}
+                  "text": {{convertStringToJsonString content}}
                 }
               ]
             }{{#unless @last}},
@@ -244,19 +244,19 @@ class RequestPayloadGeneratorTest {
             {
               "function_declarations": [
                 {{#each tools}}{
-                  "name": {{convertToJsonString name}},
-                  "description": {{convertToJsonString description}},
+                  "name": {{convertStringToJsonString name}},
+                  "description": {{convertStringToJsonString description}},
                   "parameters": {
                     "type": "object",
                     "properties": {
-                      {{#each parameters}}{{convertToJsonString name}}: {
+                      {{#each parameters}}{{convertStringToJsonString name}}: {
                         "type": {{#if (isStringType type)}}"string"{{/if}}{{#if (isIntegerType type)}}"integer"{{/if}}{{#if (isNumberType type)}}"number"{{/if}}{{#if (isBooleanType type)}}"boolean"{{/if}},
-                        "description": {{convertToJsonString description}}
+                        "description": {{convertStringToJsonString description}}
                       }{{#unless @last}},
                       {{/unless}}{{/each}}
                     },
                     "required": [
-                      {{#each requiredParameters}}{{convertToJsonString name}}{{#unless @last}},
+                      {{#each requiredParameters}}{{convertStringToJsonString name}}{{#unless @last}},
                       {{/unless}}{{/each}}
                     ]
                   }
@@ -394,7 +394,7 @@ class RequestPayloadGeneratorTest {
           {{#each messages}}{{#if (isSystem role)}}"system_instruction": {
             "parts": [
               {
-                "text": {{convertToJsonString content}}
+                "text": {{convertStringToJsonString content}}
               }
             ]
           },{{/if}}{{/each}}
@@ -403,7 +403,7 @@ class RequestPayloadGeneratorTest {
               "role": "user",
               "parts": [
                 {
-                  "text": {{convertToJsonString content}}
+                  "text": {{convertStringToJsonString content}}
                 }
               ]
             }{{#unless @last}},
@@ -411,14 +411,14 @@ class RequestPayloadGeneratorTest {
               "role": "model",
               "parts": [
                 {{#if content}}{
-                  "text": {{convertToJsonString content}}
+                  "text": {{convertStringToJsonString content}}
                 }{{/if}}
                 {{#each toolCalls}}{
                 "functionCall": {
-                "name": {{convertToJsonString toolName}},
+                "name": {{convertStringToJsonString toolName}},
                   "args": {
                     {{#each toolParameters}}
-                    {{convertToJsonString parameterName}}: {{convertToJsonString parameterValue}}
+                    {{convertStringToJsonString parameterName}}: {{convertStringToJsonString parameterValue}}
                     {{#unless @last}},
                     {{/unless}}{{/each}}
                   }
@@ -432,9 +432,9 @@ class RequestPayloadGeneratorTest {
               "parts": [
                 {
                   "functionResponse": {
-                    "name": {{convertToJsonString toolName}},
+                    "name": {{convertStringToJsonString toolName}},
                     "response": {
-                      "result": {{convertToJsonString content}}
+                      "result": {{convertStringToJsonString content}}
                     }
                   }
                 }
@@ -446,19 +446,19 @@ class RequestPayloadGeneratorTest {
             {
               "function_declarations": [
                 {{#each tools}}{
-                  "name": {{convertToJsonString name}},
-                  "description": {{convertToJsonString description}},
+                  "name": {{convertStringToJsonString name}},
+                  "description": {{convertStringToJsonString description}},
                   "parameters": {
                     "type": "object",
                     "properties": {
-                      {{#each parameters}}{{convertToJsonString name}}: {
+                      {{#each parameters}}{{convertStringToJsonString name}}: {
                         "type": {{#if (isStringType type)}}"string"{{/if}}{{#if (isIntegerType type)}}"integer"{{/if}}{{#if (isNumberType type)}}"number"{{/if}}{{#if (isBooleanType type)}}"boolean"{{/if}},
-                        "description": {{convertToJsonString description}}
+                        "description": {{convertStringToJsonString description}}
                       }{{#unless @last}},
                       {{/unless}}{{/each}}
                     },
                     "required": [
-                      {{#each requiredParameters}}{{convertToJsonString name}}{{#unless @last}},
+                      {{#each requiredParameters}}{{convertStringToJsonString name}}{{#unless @last}},
                       {{/unless}}{{/each}}
                     ]
                   }
@@ -591,7 +591,7 @@ class RequestPayloadGeneratorTest {
               "messages": [
                 {{#each messages}}{
                   "role": "{{#if (isSystem role)}}system{{/if}}{{#if (isUser role)}}user{{/if}}{{#if (isModel role)}}assistant{{/if}}",
-                  "content": {{convertToJsonString content}}
+                  "content": {{convertStringToJsonString content}}
                 }{{#unless @last}},
                 {{/unless}}{{/each}}
               ],
@@ -694,7 +694,7 @@ class RequestPayloadGeneratorTest {
     @DisplayName("Should handle empty messages list")
     void testGenerateEmptyMessages() {
         // Given
-        final String template = "Messages: {{#messages}}{{convertToJsonString content}}{{/messages}}";
+        final String template = "Messages: {{#messages}}{{convertStringToJsonString content}}{{/messages}}";
         final List<MessageRound> messages = Collections.emptyList();
 
         // When
@@ -726,7 +726,7 @@ class RequestPayloadGeneratorTest {
     @DisplayName("Should handle special characters in messages")
     void testGenerateWithSpecialCharacters() {
         // Given
-        final String template = "Message: {{#messages}}{{convertToJsonString content}}{{/messages}}";
+        final String template = "Message: {{#messages}}{{convertStringToJsonString content}}{{/messages}}";
         final List<MessageRound> messages = Arrays.asList(
             new MessageRound(MessageRound.Role.USER, "Hello \"world\" with 'quotes' and \n newlines")
         );
