@@ -138,8 +138,6 @@ public class CustomChatModel implements ChatModel {
 
     private String buildRequestBody(final ChatRequest chatRequest,
                                     final List<ToolSpecification> toolSpecifications) {
-        System.out.println("messages=" + chatRequest.messages());
-        System.out.println("converted messages=" + convertMessages(chatRequest.messages()));
         return RequestPayloadGenerator.generate(this.payloadTemplate,
                                                 convertMessages(chatRequest.messages()),
                                                 this.modelName,
