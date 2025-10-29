@@ -10,19 +10,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 
-//TODO remove org.jaon from the pom file
-
-//TODO this class needs to be rewritten using Jackson
-
 public class ToolManager {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public enum ToolParameterType {
         STRING,
@@ -251,31 +249,40 @@ public class ToolManager {
 
     public static List<ToolParameterValue> extractValues(final List<ToolParameter> parameters,
                                                          final String jsonString) throws ToolManagerException {
-        JSONObject jsonObject;
+        JsonNode jsonNode;
         try {
-            jsonObject = new JSONObject(jsonString);
-        } catch (final JSONException e) {
-            throw new ToolManagerException("The model return an invalid value for the tool parameters " + parameters + " in " + jsonString, e);
+            jsonNode = OBJECT_MAPPER.readTree(jsonString);
+        } catch (final IOException e) {
+            throw new ToolManagerException("The model returned an invalid value for the tool parameters " + parameters + " in " + jsonString, e);
         }
 
         final List<ToolParameterValue> parameterValues = new ArrayList<>();
-        try {
-            for (final String key: parameters.stream().map(ToolParameter::name).toList()) {
-                final Object value = jsonObject.get(key);
-                if (value instanceof String) {
-                    parameterValues.add(new ToolParameterValue(ToolParameterType.STRING, value));
-                } else if (value instanceof Double) {
-                    parameterValues.add(new ToolParameterValue(ToolParameterType.NUMBER, value));
-                } else if (value instanceof Boolean) {
-                    parameterValues.add(new ToolParameterValue(ToolParameterType.BOOLEAN, value));
-                } else if (value instanceof Integer) {
-                    parameterValues.add(new ToolParameterValue(ToolParameterType.INTEGER, value));
-                } else {
-                    throw new ToolManagerException("The model return an invalid value for the tool parameters " + parameters + " in " + jsonString);
+        for (final ToolParameter parameter: parameters) {
+            final String key = parameter.name();
+            final JsonNode valueNode = jsonNode.get(key);
+            
+            if (valueNode == null || valueNode.isNull()) {
+                if (parameter.required()) {
+                    throw new ToolManagerException("The model did not return a value for required parameter '" + key + "' in " + jsonString);
                 }
+                continue;
             }
-        } catch (final JSONException e) {
-            throw new ToolManagerException("The model did not return a value for the tool parameters " + parameters + " in " + jsonString, e);
+
+            try {
+                if (valueNode.isTextual()) {
+                    parameterValues.add(new ToolParameterValue(ToolParameterType.STRING, valueNode.asText()));
+                } else if (valueNode.isInt()) {
+                    parameterValues.add(new ToolParameterValue(ToolParameterType.INTEGER, Integer.valueOf(valueNode.asInt())));
+                } else if (valueNode.isDouble() || valueNode.isFloat()) {
+                    parameterValues.add(new ToolParameterValue(ToolParameterType.NUMBER, Double.valueOf(valueNode.asDouble())));
+                } else if (valueNode.isBoolean()) {
+                    parameterValues.add(new ToolParameterValue(ToolParameterType.BOOLEAN, Boolean.valueOf(valueNode.asBoolean())));
+                } else {
+                    throw new ToolManagerException("The model returned a value of unexpected type for the tool parameter '" + key + "' in " + jsonString);
+                }
+            } catch (final IllegalArgumentException e) {
+                throw new ToolManagerException("The model returned an invalid value for the tool parameter '" + key + "' in " + jsonString, e);
+            }
         }
 
         return parameterValues;
