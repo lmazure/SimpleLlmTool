@@ -216,6 +216,7 @@ The following Handlebars variables are available:
 - `apiKey`: the API key
 
 The following helpers are available:
+- `convertStringToJsonString` (string): converts a string to a JSON string (including the start and end double quotes) by escaping the special characters
 - to be used on `messages.role`
     - `isSystem` (boolean): tests if this is a system message (a.k.a system prompt)
     - `isUser` (boolean): tests if this is a user message (a.k.a user prompt)
@@ -226,8 +227,8 @@ The following helpers are available:
     - `isIntegerType` (boolean)
     - `isNumberType` (boolean)
     - `isBooleanType` (boolean)
-- `convertStringToJsonString` (string): converts a string to a JSON string (including the double quotes) by escaping the special characters
-- `convertToolParametersToJsonString` (string): converts a list of tool parameters to a JSON string
+- to be used on `messages.toolCalls.toolParameters`
+    - `convertToolParametersToJsonString` (string): converts a list of tool parameters to a JSON string
 
 #### Example 1 - OpenAI
 (see [this document](https://platform.openai.com/docs/api-reference/chat/create?lang=curl))
