@@ -18,6 +18,10 @@ import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 
+//TODO remove org.jaon from the pom file
+
+//TODO this class needs to be rewritten using Jackson
+
 public class ToolManager {
 
     public enum ToolParameterType {
@@ -28,6 +32,49 @@ public class ToolManager {
     }
     public record ToolParameter(String name, String description, ToolParameterType type, boolean required) {}
     public record Tool(String name, String description, List<ToolParameter> parameters) {}
+    public record ToolParameterValue(ToolParameterType type, Object value) {
+        public ToolParameterValue {
+            Objects.requireNonNull(type, "type cannot be null");
+            Objects.requireNonNull(value, "value cannot be null");
+            
+            validateType(type, value);
+        }
+        
+        private static void validateType(ToolParameterType type, Object value) {
+            final boolean valid = switch (type) {
+                case STRING -> value instanceof String;
+                case INTEGER -> value instanceof Integer;
+                case NUMBER -> value instanceof Double;
+                case BOOLEAN -> value instanceof Boolean;
+            };
+            
+            if (!valid) {
+                throw new IllegalArgumentException("parameter value type mismatch: expected " + type + ", got " + value.getClass()
+                );
+            }
+        }
+        
+        // Getters can be simplified since constructor guarantees correctness
+        public String getString() {
+            return (String) this.value;
+        }
+        
+        public Integer getInteger() {
+            return (Integer) this.value;
+        }
+        
+        public Double getDouble() {
+            return (Double) this.value;
+        }
+        
+        public Boolean getBoolean() {
+            return (Boolean) this.value;
+        }
+
+        public String convertToString() {
+            return String.valueOf(this.value);
+        }
+    }
 
     private final Path toolsDir;
     private final List<Tool> toolList;
@@ -114,7 +161,7 @@ public class ToolManager {
     }
 
     private Tool getToolDescription(final String toolName) throws ToolManagerException {
-        final String output = executeTool(toolName, List.of("--description"));
+        final String output = executeTool(toolName, List.of(new ToolParameterValue(ToolParameterType.STRING, "--description")));
 
         final StringReader stringReader = new StringReader(output);
         final BufferedReader bufferedReader = new BufferedReader(stringReader);
@@ -167,7 +214,7 @@ public class ToolManager {
     }
 
     private String executeTool(final String toolName,
-                               final List<String> arguments) throws ToolManagerException {
+                               final List<ToolParameterValue> arguments) throws ToolManagerException {
         final File toolsDir = this.toolsDir.toFile();
         final File pythonFile = new File(toolsDir, toolName + ".py");
         if (!pythonFile.exists() || !pythonFile.isFile()) {
@@ -179,7 +226,7 @@ public class ToolManager {
             final List<String> args = new ArrayList<>();
             args.add("python");
             args.add(pythonFile.getAbsolutePath());
-            args.addAll(arguments);
+            arguments.stream().forEach(arg -> args.add(arg.convertToString()));
             final ProcessBuilder pb = new ProcessBuilder(args);
             pb.redirectErrorStream(true);
             final Process process = pb.start();
@@ -193,7 +240,7 @@ public class ToolManager {
 
             final int exitCode = process.waitFor();
             if (exitCode != 0) {
-                throw new ToolManagerException("Tool '" + toolName + "'' failed with exit code " + exitCode);
+                throw new ToolManagerException("Tool '" + toolName + "'' failed with exit code " + exitCode + ": " + output.toString());
             }
         } catch (final IOException | InterruptedException e) {
             throw new ToolManagerException("Failed to execute " + pythonFile, e);
@@ -202,8 +249,8 @@ public class ToolManager {
         return output.toString();
     }
 
-    public static List<String> extractValues(final List<ToolParameter> parameters,
-                                             final String jsonString) throws ToolManagerException {
+    public static List<ToolParameterValue> extractValues(final List<ToolParameter> parameters,
+                                                         final String jsonString) throws ToolManagerException {
         JSONObject jsonObject;
         try {
             jsonObject = new JSONObject(jsonString);
@@ -211,15 +258,26 @@ public class ToolManager {
             throw new ToolManagerException("The model return an invalid value for the tool parameters " + parameters + " in " + jsonString, e);
         }
 
-        final List<String> result = new ArrayList<>();
+        final List<ToolParameterValue> parameterValues = new ArrayList<>();
         try {
             for (final String key: parameters.stream().map(ToolParameter::name).toList()) {
-                result.add(jsonObject.getString(key));
+                final Object value = jsonObject.get(key);
+                if (value instanceof String) {
+                    parameterValues.add(new ToolParameterValue(ToolParameterType.STRING, value));
+                } else if (value instanceof Double) {
+                    parameterValues.add(new ToolParameterValue(ToolParameterType.NUMBER, value));
+                } else if (value instanceof Boolean) {
+                    parameterValues.add(new ToolParameterValue(ToolParameterType.BOOLEAN, value));
+                } else if (value instanceof Integer) {
+                    parameterValues.add(new ToolParameterValue(ToolParameterType.INTEGER, value));
+                } else {
+                    throw new ToolManagerException("The model return an invalid value for the tool parameters " + parameters + " in " + jsonString);
+                }
             }
         } catch (final JSONException e) {
             throw new ToolManagerException("The model did not return a value for the tool parameters " + parameters + " in " + jsonString, e);
         }
 
-        return result;
+        return parameterValues;
     }
 }
