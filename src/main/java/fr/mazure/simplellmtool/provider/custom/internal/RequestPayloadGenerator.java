@@ -58,7 +58,7 @@ public class RequestPayloadGenerator {
 
             return template.apply(context);
         } catch (final Exception e) {
-            throw new RuntimeException("Failed to process Handlebars template", e);
+            throw new RuntimeException("Failed to process Handlebars template\n" + StringUtils.addLineNumbers(handlebarsTemplate), e);
         }
     }
 
@@ -71,12 +71,38 @@ public class RequestPayloadGenerator {
         handlebars.registerHelper("isModel",  (final MessageRound.Role role, final Options _) -> Boolean.valueOf(MessageRound.Role.MODEL.equals(role)));
         handlebars.registerHelper("isTool",   (final MessageRound.Role role, final Options _) -> Boolean.valueOf(MessageRound.Role.TOOL.equals(role)));
 
-        handlebars.registerHelper("convertToJsonString", (final String text, final Options _) -> jsonConverter(text));
+        handlebars.registerHelper("convertStringToJsonString", (final String text, final Options _) -> jsonConverter(text));
+        handlebars.registerHelper("convertToolParametersToJsonString", (final List<Map<String, Object>> list, final Options _) -> jsonToolParametersConverter(list));
+
 
         handlebars.registerHelper("isStringType",  (final String type, final Options _) -> Boolean.valueOf("string".equals(type)));
         handlebars.registerHelper("isIntegerType", (final String type, final Options _) -> Boolean.valueOf("integer".equals(type)));
         handlebars.registerHelper("isNumberType",  (final String type, final Options _) -> Boolean.valueOf("number".equals(type)));
         handlebars.registerHelper("isBooleanType", (final String type, final Options _) -> Boolean.valueOf("boolean".equals(type)));
+    }
+
+    /**
+     * Converts a list of tool parameters to a JSON string
+     *
+     * @param list the list of tool parameters
+     * @return the JSON string
+     */
+    private static String jsonToolParametersConverter(final List<Map<String, Object>> list) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("\"{ ");
+        for (int i = 0; i < list.size(); i++) {
+            final Map<String, Object> map = list.get(i);
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append("\\\"");
+            sb.append(escapeString(map.get("parameterName").toString()));
+            sb.append("\\\": \\\"");
+            sb.append(escapeString(map.get("parameterValue").toString()));
+            sb.append("\\\"");
+        }
+        sb.append(" }\"");
+        return sb.toString();
     }
 
     /**
@@ -86,10 +112,19 @@ public class RequestPayloadGenerator {
      * @return the JSON string
      */
     private static String jsonConverter(final String input) {
-        if (Objects.isNull(input)) {
+        if (Objects.isNull(input)) { //TODO why to we need this?
             return null;
         }
+        return "\"" + escapeString(input) + "\"";
+    }
 
+    /**
+     * Escapes a string for JSON
+     *
+     * @param input the string to escape
+     * @return the escaped string
+     */
+    private static String escapeString(final String input) {
         final StringBuilder escaped = new StringBuilder();
 
         for (int i = 0; i < input.length(); i++) {
@@ -129,7 +164,7 @@ public class RequestPayloadGenerator {
             }
         }
 
-        return "\"" + escaped.toString() + "\"";
+        return escaped.toString();
     }
 
     /*

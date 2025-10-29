@@ -6,9 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -47,7 +46,8 @@ public class CustomChatModel implements ChatModel {
      */
     public enum FinishingReason {
         DONE(FinishReason.STOP),
-        MAX_TOKENS(FinishReason.LENGTH);
+        MAX_TOKENS(FinishReason.LENGTH),
+        TOOL_CALL(FinishReason.TOOL_EXECUTION);
         public final FinishReason reason;
         private FinishingReason(final FinishReason reason) {
             this.reason = reason;
@@ -68,7 +68,8 @@ public class CustomChatModel implements ChatModel {
     private final Map<String, FinishingReason> finishReasonMappings;
     private final String toolCallsPath;
     private final String toolNamePath;
-    private final String toolArgumentsPath;
+    private final Optional<String> toolArgumentsDictPath;
+    private final Optional<String> toolArgumentsStringPath;
     private final Boolean logRequests;
     private final Boolean logResponses;
 
@@ -88,7 +89,8 @@ public class CustomChatModel implements ChatModel {
         this.finishReasonMappings = builder.getFinishReasonMappings();
         this.toolCallsPath = builder.getToolCallsPath();
         this.toolNamePath = builder.getToolNamePath();
-        this.toolArgumentsPath = builder.getToolArgumentsPath();
+        this.toolArgumentsDictPath = builder.getToolArgumentsDictPath();
+        this.toolArgumentsStringPath = builder.getToolArgumentsStringPath();
         this.logRequests = builder.isLogRequests();
         this.logResponses = builder.isLogResponses();
 
@@ -118,7 +120,7 @@ public class CustomChatModel implements ChatModel {
         final String requestBody = buildRequestBody(chatRequest, toolSpecifications);
         final String jsonError = isValidJson(requestBody);
         if (Objects.nonNull(jsonError)) {
-            throw new IllegalArgumentException("The generated payload is invalid JSON: " + jsonError + "\n" + addLineNumbers(requestBody));
+            throw new IllegalArgumentException("The generated payload is invalid JSON: " + jsonError + "\n" + StringUtils.addLineNumbers(requestBody));
         }
         final HttpRequest request = buildRequest(chatRequest, requestBody, toolSpecifications);
 
@@ -218,7 +220,8 @@ public class CustomChatModel implements ChatModel {
         return new MessageRound(MessageRound.Role.MODEL, text, toolCalls);
     }
 
-    public ChatResponse parseApiResponse(final String responseBody) throws IOException, JsonPathExtractorException {
+    public ChatResponse parseApiResponse(final String responseBody) throws IOException,
+                                                                           JsonPathExtractorException {
         AiMessage aiMessage;
 
         final ObjectMapper objectMapper = new ObjectMapper();
@@ -234,7 +237,13 @@ public class CustomChatModel implements ChatModel {
 
                 for (final JsonNode toolCallNode: toolCallNodes) {
                     final String functionName = JsonPathExtractor.extractString(toolCallNode, this.toolNamePath);
-                    final JsonNode argsNode = JsonPathExtractor.extractNode(toolCallNode, this.toolArgumentsPath);
+                    final JsonNode argsNode;
+                    if (this.toolArgumentsDictPath.isPresent()) {
+                        argsNode = JsonPathExtractor.extractNode(toolCallNode, this.toolArgumentsDictPath.get());
+                    } else {
+                        final String argsString = JsonPathExtractor.extractString(toolCallNode, this.toolArgumentsStringPath.get());
+                        argsNode = objectMapper.readTree(argsString);
+                    }
 
                     // Convert args to a JSON string
                     final String arguments = argsNode.toString();
@@ -297,12 +306,5 @@ public class CustomChatModel implements ChatModel {
         } catch (final JsonProcessingException e) {
             return e.getMessage();
         }
-    }
-
-    private static String addLineNumbers(final String input) {
-        final AtomicInteger counter = new AtomicInteger();
-        return input.lines()
-                    .map(line -> "%03d %s".formatted(Integer.valueOf(counter.incrementAndGet()), line))
-                    .collect(Collectors.joining("\n"));
     }
 }

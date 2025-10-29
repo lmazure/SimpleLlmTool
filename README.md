@@ -72,6 +72,22 @@ SimpleLlmTool accepts the following parameters on the command line:
 | `--chat-mode`                                   | chat mode                                                                            |
 | `--help`                                        | display help and exit                                                                |
 
+`--system-prompt-string` and `--system-prompt-file` are mutually exclusive.  
+`--user-prompt-string` and `--user-prompt-file` are mutually exclusive.
+
+## Chat mode
+
+The following commands are available:
+
+| command                   | description                            |
+| ------------------------- | -------------------------------------- |
+| `/exit`                   | exit                                   |
+| `/help`                   | display the help message               |
+| `/tools list`             | display the list of available tools    |
+| `/tools details`          | display the details of available tools |
+| `/attach file <filename>` | attach a file                          |
+| `/attach url <url>`       | attach a URL                           |
+
 ## How to write a model file
 
 A model and its parameters are defined by a YAML file, see for example [gpt-4.1-nano@openai.yaml](examples/gpt-4.1-nano@openai.yaml).  
@@ -133,29 +149,35 @@ The provider is indicated on the command line with the `--provider <provider>` p
 
 ### custom
 
-| parameter               | description                                                   | type   | compulsory   |
-| ----------------------- | ------------------------------------------------------------- | ------ | ------------ |
-| `modelName`             | name of the model                                             | string | yes          |
-| `url`                   | URL of the provider                                           | string | yes          |
-| `apiKeyEnvVar`          | name of the environment variable containing the API key       | string | yes          |
-| `payloadTemplate`       | payload template for the API calls                            | string | yes          |
-| `httpHeaders`           | HTTP headers to send with the API calls†                      | list   | yes          |
-| - header name           | name of the HTTP header                                       | string | yes          |
-| - header value template | template for the value of the HTTP header                     | string | yes          |
-| `answerPath`            | JSON path to the field containing the answer                  | string | yes          |
-| `inputTokenPath`        | JSON path to the field containing the number of input tokens  | string | yes          |
-| `outputTokenPath`       | JSON path to the field containing the number of output tokens | string | yes          |
-| `finishReasonPath`      | JSON path to the field containing the finish reason           | string | yes          |
-| `finishReasonMappings`  | mappings of the finish reason of the model                    | list   | yes          |
-| - model reason          | finish reason as provided by the model                        | string | yes          |
-| - reason                | either `DONE` or `MAX_TOKEN`                                  | string | yes          |
-| `toolCallsPath`         | JSON path to the array of tool calls in the response          | string | yes          |
-| `toolNamePath`          | JSON path to the tool name within a tool call element         | string | yes          |
-| `toolArgumentsPath`     | JSON path to the tool arguments within a tool call element    | string | yes          |
+| parameter                 | description                                                   | type   | compulsory   |
+| ------------------------- | ------------------------------------------------------------- | ------ | ------------ |
+| `modelName`               | name of the model                                             | string | yes          |
+| `url`                     | URL of the provider                                           | string | yes          |
+| `apiKeyEnvVar`            | name of the environment variable containing the API key       | string | yes          |
+| `payloadTemplate`         | payload template for the API calls                            | string | yes          |
+| `httpHeaders`             | HTTP headers to send with the API calls†<br>this is a dictionary where the key is the header name and the value is the header value template | dictionary   | yes          |
+| `answerPath`              | JSON path to the field containing the answer                  | string | yes          |
+| `inputTokenPath`          | JSON path to the field containing the number of input tokens  | string | yes          |
+| `outputTokenPath`         | JSON path to the field containing the number of output tokens | string | yes          |
+| `finishReasonPath`        | JSON path to the field containing the finish reason           | string | yes          |
+| `finishReasonMappings`    | mappings of the finish reason of the model<br>this is a dictionary where the key is finish reason as provided by the model and the value is either `DONE` or `MAX_TOKEN`️‡ | dictionary   | yes          |
+| `toolCallsPath`           | JSON path to the array of tool calls in the response          | string | yes          |
+| `toolNamePath`            | JSON path to the tool name within a tool call element         | string | yes          |
+| `toolArgumentsDictPath`   | JSON path to the tool arguments dictionary within a tool call element    | string | yes          |
+| `toolArgumentsStringPath` | JSON path to the tool arguments string within a tool call element    | string | yes          |
+
+#### Notes
 
 † The HTTP header `Content-Type: application/json` is added automatically. It is possible to define no HTTP headers, but the `httpHeaders` still needs to be present.
 
-`payloadTemplate` and header value templates are evaluated using [Handlebars](https://jknack.github.io/handlebars.java/gettingStarted.html).
+️‡ The finish reasons supported by SimpleLlmTool are:
+- `DONE`: the model has finished generating text
+- `MAX_TOKENS`: the model has reached the maximum number of tokens
+- `TOOL_CALL`: the model has called a tool
+
+#### Templates
+
+`payloadTemplate` and `httpHeaders`'s header value templates are evaluated using [Handlebars](https://jknack.github.io/handlebars.java/gettingStarted.html).
 
 The following Handlebars variables are available:
 - `messages`: the list of messages  
@@ -164,13 +186,13 @@ The following Handlebars variables are available:
     - `content`  
        system prompt if `isSystem role` is true  
        message of the user if `isUser role` is true  
-       anwser generated by the moded if `isModel role` is true  
-       result generated bu the tool if `isTOol role` is true
+       answer generated by the moded if `isModel role` is true  
+       result generated by the tool if `isTOol role` is true
     - `toolCalls` the list of tool calls performed by the model  
       this list is available only if `isModel role` is true  
       each tool call has
       - `toolName` the name of the called tool
-      - `toolParameters` the list parameter value for the call  
+      - `toolParameters` the list parameter values for the call  
         each tool parameter has
         - `parameterName`
         - `parameterValue`
@@ -181,30 +203,32 @@ The following Handlebars variables are available:
     each tool has
     - `name`
     - `description`
-    - `parameters` the list of parameter
-        each parameter being defined has
-        - `anmee`
+    - `parameters` the list of parameters  
+        each parameter has the following attributes
+        - `name`
         - `type`
         - `description`
-    - `requiredParameters` the list of the names of the required parameters  
+    - `requiredParameters` the list of the required parameters  
+      each parameter has the following attributes
+      - `name`
+      - `type`
+      - `description`
 - `apiKey`: the API key
 
 The following helpers are available:
+- `convertStringToJsonString` (string): converts a string to a JSON string (including the start and end double quotes) by escaping the special characters
 - to be used on `messages.role`
     - `isSystem` (boolean): tests if this is a system message (a.k.a system prompt)
     - `isUser` (boolean): tests if this is a user message (a.k.a user prompt)
     - `isModel` (boolean): tests if this is a model message
     - `isTool` (boolean): tests if this is a message corresponding to a tool result
-- to be used on `messages.tools.parameters.type`
+- to be used on `messages.tools.parameters.type` or on `messages.tools.requiredParameters.type`
     - `isStringType` (boolean)
     - `isIntegerType` (boolean)
     - `isNumberType` (boolean)
-    - `isStriisBooleanTypengType` (boolean)
-- `convertToJsonString` (string): converts a string to a JSON string (including the double quotes) by escaping the special characters
-
-Possible finish reasons:
-- `DONE`: the full text has been produced
-- `MAX_TOKENS`: the max number of tokens has been reached
+    - `isBooleanType` (boolean)
+- to be used on `messages.toolCalls.toolParameters`
+    - `convertToolParametersToJsonString` (string): converts a list of tool parameters to a JSON string
 
 #### Example 1 - OpenAI
 (see [this document](https://platform.openai.com/docs/api-reference/chat/create?lang=curl))
@@ -217,7 +241,7 @@ Possible finish reasons:
             "messages": [
                 {{#each messages}}{
                     "role": "{{#if (isSystem role)}}system{{/if}}{{#if (isUser role)}}user{{/if}}{{#if (isModel role)}}assistant{{/if}}",
-                    "content": {{convertToJsonString content}}
+                    "content": {{convertStringToJsonString content}}
                 }{{#unless @last}},
                 {{/unless}}{{/each}}
             ],
@@ -282,7 +306,7 @@ Authorization: Bearer sec_DEADBEEF
 ```
 
 #### Example 2 - Gemini
-(see [this document](hhttps://ai.google.dev/gemini-api/docs#rest) and [this one for tools](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/function-calling#rest))
+(see [this document](https://ai.google.dev/gemini-api/docs#rest) and [this one for tools](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/function-calling#rest))
 
 - this YAML extract:
     ```yaml
@@ -291,7 +315,7 @@ Authorization: Bearer sec_DEADBEEF
           {{#each messages}}{{#if (isSystem role)}}"system_instruction": {
             "parts": [
               {
-                "text": {{convertToJsonString content}}
+                "text": {{convertStringToJsonString content}}
               }
             ]
           },{{/if}}{{/each}}
@@ -300,7 +324,7 @@ Authorization: Bearer sec_DEADBEEF
               "role": "user",
               "parts": [
                 {
-                  "text": {{convertToJsonString content}}
+                  "text": {{convertStringToJsonString content}}
                 }
               ]
             }{{#unless @last}},
@@ -308,7 +332,7 @@ Authorization: Bearer sec_DEADBEEF
               "role": "model",
               "parts": [
                 {
-                  "text": {{convertToJsonString content}}
+                  "text": {{convertStringToJsonString content}}
                 }
               ]
             }{{#unless @last}},
@@ -410,31 +434,45 @@ x-goog-api-key: sec_DEADBEEF
 
 #### JSON Paths for Tool Calls
 
-The three tool call JSON paths (`toolCallsPath`, `toolNamePath`, and `toolArgumentsPath`) work together to extract tool/function call information from the API response:
+The three tool call JSON paths (`toolCallsPath`, `toolNamePath`, `toolArgumentsDictPath`, and `toolArgumentsStringPath`) work together to extract tool/function call information from the API response:
 
+If arguments of tool calls are defined by using a dictionary, then:
 - **`toolCallsPath`**: Points to an array of tool calls in the response. If this path doesn't exist or the array is empty, the response is treated as a regular text response.
 - **`toolNamePath`**: A relative path from each tool call element to the function name. This path is applied to each element in the array found at `toolCallsPath`.
-- **`toolArgumentsPath`**: A relative path from each tool call element to the arguments object/dictionary. This path is applied to each element in the array found at `toolCallsPath`.
+- **`toolArgumentsDictPath`**: A relative path from each tool call element to the arguments object/dictionary. This path is applied to each element in the array found at `toolCallsPath`.
 
-**Example for Google Gemini:**
+If arguments of tool calls are defined by using a string, then:
+- **`toolCallsPath`**: Points to an array of tool calls in the response. If this path doesn't exist or the array is empty, the response is treated as a regular text response.
+- **`toolNamePath`**: A relative path from each tool call element to the function name. This path is applied to each element in the array found at `toolCallsPath`.
+- **`toolArgumentsStringPath`**: A relative path from each tool call element to the arguments string. This path is applied to each element in the array found at `toolCallsPath`.
 
-For a Gemini response like:
+**Example for Google Gemini 2.5:**
+
+For a Gemini 2.5 response like:
 ```json
 {
-  "candidates": [{
-    "content": {
-      "parts": [
-        {
-          "functionCall": {
-            "name": "get_weather",
-            "args": {
-              "location": "Paris"
-            }
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "functionCall": {
+              "name": "get_weather",
+              "args": {
+                "city": "Paris"
+              }
+            },
+            "thoughtSignature": "CqkCAdHtim9PyhV13VByr95JdS5u6VXc/fBCpK8qq7gUwcIlvD+/J3qTz1y8gYHRE1iNax3wPBJs6u5tKlFXq7B9vOPkp3dOiWAhU6MSqMW9ZzbBYQjR2Wzmnz5tHEYjQx5o2zp5jgf/AaAxLd2tIIJh8+Nf/DP7nlzYqjhuM5swX9Tf9Pu0WjkiempPiWGPh5Yc7Cpr0qtLFPtF4Tgkm0MOGx2BAgJyCtpOJWQu5Tlfa646Ob7EvNSPmV8c2SbF227BcNaPNC7M6sU9+8Xi0DrE+Ktei+UY2//0QlZ2D0Vtt8ANdBPmk0Au1XTlpVbLbR/CXclNbvKtbK0Nzxv3GkYMg5vY7+I1rnCZMAD+dQdwHF0xcWR93iYAFhdHvUKPcIzirbazR4Gum1HK"
           }
-        }
-      ]
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0,
+      "finishMessage": "Model generated function call(s)."
     }
-  }]
+  ],
+  ...
 }
 ```
 
@@ -442,7 +480,47 @@ The JSON paths would be:
 ```yaml
 toolCallsPath: candidates[0].content.parts
 toolNamePath: functionCall.name
-toolArgumentsPath: functionCall.args
+toolArgumentsDictPath: functionCall.args
+```
+
+**Example for OpenAI GPT-5:**
+
+For a OpenAI GPT-5 response like:
+```json
+{
+  ...
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": null,
+        "tool_calls": [
+          {
+            "id": "call_xP2egf4lnked4IAX2h1cRCgQ",
+            "type": "function",
+            "function": {
+              "name": "get_weather",
+              "arguments": "{\"city\":\"Paris\"}"
+            }
+          }
+        ],
+        "refusal": null,
+        "annotations": []
+      },
+      "finish_reason": "tool_calls"
+    }
+  ],
+  ...
+}
+
+```
+
+The JSON paths would be:
+```yaml
+toolCallsPath: choices[0].message.tool_calls
+toolNamePath: function.name
+toolArgumentsStringPath: function.arguments
 ```
 
 ### mock
@@ -456,9 +534,11 @@ Each script is a tool.
 
 Each script should, when called with the `--description` parameter, return the description of the tool formatted as:
 - first line: the description of the tool
-- following lines: one line per parameter, each line formatted as `parameter_name<tab>parameter_description` where
+- following lines: one line per parameter, each line formatted as `parameter_name<tab>parameter_type<tab>parameter_optionality<tab>parameter_description` where
+    - `<tab>` is a tab character,
     - `parameter_name` is the name of the parameter,
-    - `<tab>` is a tab character, and
+    - `parameter_type` is the type of the parameter, it must be equal to `string`, `integer`, `number`, or `boolean`,
+    - `parameter_optionality` is the optionality of the parameter, it must be equal to `required` or `optional`,
     - `parameter_description` is the description of the parameter.
 
 Each script should
@@ -495,7 +575,7 @@ java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar \
     --provider Anthropic \
     --model-file examples/claude-4-sonnet@anthropic.yaml \
     --tools-dir tools \
-    --system-prompt-string "You always provide an English anwer, followed by a precise translation in French" \
+    --system-prompt-string "You always provide an English answer, followed by a precise translation in French" \
     --user-prompt-string "What is the weather in Paris?"
 ```
 

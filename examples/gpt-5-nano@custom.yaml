@@ -1,0 +1,61 @@
+modelName: gpt-5-nano-2025-08-07
+url: https://api.openai.com/v1/chat/completions
+apiKeyEnvVar: OPENAI_API_KEY
+
+payloadTemplate: |
+  {
+    "model": "{{modelName}}",
+    "messages": [
+      {{#each messages}}{
+        "role": "{{#if (isSystem role)}}system{{/if}}{{#if (isUser role)}}user{{/if}}{{#if (isModel role)}}assistant{{/if}}{{#if (isTool role)}}tool{{/if}}",
+        "content": {{convertStringToJsonString content}}{{#if (isModel role)}}{{#if toolCalls}}null,
+        "tool_calls": [
+          {{#each toolCalls}}{
+            "id": "call_{{@index}}",
+            "type": "function",
+            "function": {
+              "name": {{convertStringToJsonString toolName}},
+              "arguments": {{convertToolParametersToJsonString toolParameters}}
+            }
+          }{{#unless @last}},{{/unless}}{{/each}}
+        ]{{/if}}{{/if}}{{#if (isTool role)}},
+        "tool_call_id": "call_0"{{/if}}
+      }{{#unless @last}},{{/unless}}{{/each}}
+    ]{{#if tools}},
+    "tools": [
+      {{#each tools}}{
+        "type": "function",
+        "function": {
+          "name": "{{name}}",
+          "description": {{convertStringToJsonString description}},
+          "parameters": {
+            "type": "object",
+            "properties": {
+              {{#each parameters}}"{{name}}": {
+                "type": "{{#if (isStringType type)}}string{{/if}}{{#if (isIntegerType type)}}integer{{/if}}{{#if (isNumberType type)}}number{{/if}}{{#if (isBooleanType type)}}boolean{{/if}}",
+                "description": {{convertStringToJsonString description}}
+              }{{#unless @last}},{{/unless}}{{/each}}
+            },
+            "required": [{{#each requiredParameters}}{{convertStringToJsonString name}}{{#unless @last}},{{/unless}}{{/each}}]
+          }
+        }
+      }{{#unless @last}},{{/unless}}{{/each}}
+    ]{{/if}}
+  }
+
+httpHeaders:
+  Authorization: Bearer {{apiKey}}
+
+answerPath: choices[0].message.content
+inputTokenPath: usage.prompt_tokens
+outputTokenPath: usage.completion_tokens
+finishReasonPath: choices[0].finish_reason
+
+finishReasonMappings:
+  stop: DONE
+  length: MAX_TOKENS
+  tool_calls: TOOL_CALL
+
+toolCallsPath: choices[0].message.tool_calls
+toolNamePath: function.name
+toolArgumentsStringPath: function.arguments

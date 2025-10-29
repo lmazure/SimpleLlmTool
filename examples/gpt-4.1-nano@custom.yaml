@@ -7,7 +7,7 @@ payloadTemplate: |
               "messages": [
                 {{#each messages}}{
                   "role": "{{#if (isSystem role)}}system{{/if}}{{#if (isUser role)}}user{{/if}}{{#if (isModel role)}}assistant{{/if}}",
-                  "content": {{convertToJsonString content}}
+                  "content": {{convertStringToJsonString content}}
                 }{{#unless @last}},
                 {{/unless}}{{/each}}
               ],
@@ -25,4 +25,4 @@ finishReasonMappings:
   length: MAX_TOKENS
 toolCallsPath: choices[0].message.tool_calls
 toolNamePath: function.name
-toolArgumentsPath: function.arguments
+toolArgumentsDictPath: function.arguments

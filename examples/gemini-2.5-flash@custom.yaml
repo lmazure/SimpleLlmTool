@@ -6,7 +6,7 @@ payloadTemplate: |
           {{#each messages}}{{#if (isSystem role)}}"system_instruction": {
             "parts": [
               {
-                "text": {{convertToJsonString content}}
+                "text": {{convertStringToJsonString content}}
               }
             ]
           },{{/if}}{{/each}}
@@ -15,7 +15,7 @@ payloadTemplate: |
               "role": "user",
               "parts": [
                 {
-                  "text": {{convertToJsonString content}}
+                  "text": {{convertStringToJsonString content}}
                 }
               ]
             }{{#unless @last}},
@@ -23,14 +23,14 @@ payloadTemplate: |
               "role": "model",
               "parts": [
                 {{#if content}}{
-                  "text": {{convertToJsonString content}}
+                  "text": {{convertStringToJsonString content}}
                 }{{/if}}
                 {{#each toolCalls}}{
                 "functionCall": {
-                "name": {{convertToJsonString toolName}},
+                "name": {{convertStringToJsonString toolName}},
                   "args": {
                     {{#each toolParameters}}
-                    {{convertToJsonString parameterName}}: {{convertToJsonString parameterValue}}
+                    {{convertStringToJsonString parameterName}}: {{convertStringToJsonString parameterValue}}
                     {{#unless @last}},
                     {{/unless}}{{/each}}
                   }
@@ -44,9 +44,9 @@ payloadTemplate: |
               "parts": [
                 {
                   "functionResponse": {
-                    "name": {{convertToJsonString toolName}},
+                    "name": {{convertStringToJsonString toolName}},
                     "response": {
-                      "result": {{convertToJsonString content}}
+                      "result": {{convertStringToJsonString content}}
                     }
                   }
                 }
@@ -58,19 +58,19 @@ payloadTemplate: |
             {
               "function_declarations": [
                 {{#each tools}}{
-                  "name": {{convertToJsonString name}},
-                  "description": {{convertToJsonString description}},
+                  "name": {{convertStringToJsonString name}},
+                  "description": {{convertStringToJsonString description}},
                   "parameters": {
                     "type": "object",
                     "properties": {
-                      {{#each parameters}}{{convertToJsonString name}}: {
+                      {{#each parameters}}{{convertStringToJsonString name}}: {
                         "type": {{#if (isStringType type)}}"string"{{/if}}{{#if (isIntegerType type)}}"integer"{{/if}}{{#if (isNumberType type)}}"number"{{/if}}{{#if (isBooleanType type)}}"boolean"{{/if}},
-                        "description": {{convertToJsonString description}}
+                        "description": {{convertStringToJsonString description}}
                       }{{#unless @last}},
                       {{/unless}}{{/each}}
                     },
                     "required": [
-                      {{#each requiredParameters}}{{convertToJsonString name}}{{#unless @last}},
+                      {{#each requiredParameters}}{{convertStringToJsonString name}}{{#unless @last}},
                       {{/unless}}{{/each}}
                     ]
                   }
@@ -98,4 +98,4 @@ finishReasonMappings:
   STOP: DONE
 toolCallsPath: candidates[0].content.parts
 toolNamePath: functionCall.name
-toolArgumentsPath: functionCall.args
+toolArgumentsDictPath: functionCall.args

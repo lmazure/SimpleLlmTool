@@ -32,7 +32,7 @@ public class ToolManager {
     private final Path toolsDir;
     private final List<Tool> toolList;
 
-    public ToolManager(final Path toolsDir) {
+    public ToolManager(final Path toolsDir) throws ToolManagerException {
         this.toolsDir = toolsDir;
         this.toolList = initToolList(toolsDir);
     }
@@ -41,7 +41,7 @@ public class ToolManager {
         return this.toolList;
     }
 
-    public List<ToolSpecification> getSpecifications() {
+    public List<ToolSpecification> getSpecifications() throws ToolManagerException {
         final List<ToolSpecification> specifications = new ArrayList<>();
         for (final Tool tool: this.toolList) {
             specifications.add(getSpecification(tool));
@@ -49,7 +49,7 @@ public class ToolManager {
         return specifications;
     }
 
-    public static ToolSpecification getSpecification(final Tool tool) {
+    public static ToolSpecification getSpecification(final Tool tool) throws ToolManagerException {
         final ToolSpecification.Builder builder = ToolSpecification.builder()
                                                                    .name(tool.name())
                                                                    .description(tool.description());
@@ -61,7 +61,7 @@ public class ToolManager {
                 case INTEGER -> jsonBuilder.addIntegerProperty(parameter.name(), parameter.description);
                 case NUMBER -> jsonBuilder.addNumberProperty(parameter.name(), parameter.description);
                 case BOOLEAN -> jsonBuilder.addBooleanProperty(parameter.name(), parameter.description);
-                default -> throw new IllegalArgumentException("type " + parameter.type() + " is not supported");
+                default -> throw new ToolManagerException("type '" + parameter.type() + "' is not supported");
             }
         }
         jsonBuilder.required(tool.parameters().stream().filter(ToolParameter::required).map(ToolParameter::name).toList());
@@ -70,7 +70,7 @@ public class ToolManager {
         return builder.build();
     }
 
-    public List<ToolExecutionResultMessage> handleToolExecutionRequests(final List<ToolExecutionRequest> requests) {
+    public List<ToolExecutionResultMessage> handleToolExecutionRequests(final List<ToolExecutionRequest> requests) throws ToolManagerException {
         final List<ToolExecutionResultMessage> resultMessages = new ArrayList<>();
         for (final ToolExecutionRequest request: requests) {
             resultMessages.add(handleToolExecutionRequest(request));
@@ -78,7 +78,7 @@ public class ToolManager {
         return resultMessages;
     }
 
-    private ToolExecutionResultMessage handleToolExecutionRequest(final ToolExecutionRequest request) {
+    private ToolExecutionResultMessage handleToolExecutionRequest(final ToolExecutionRequest request) throws ToolManagerException {
 
         final String toolName = request.name();
         final Tool tool = this.toolList.stream()
@@ -86,22 +86,22 @@ public class ToolManager {
                                        .findFirst()
                                        .orElse(null);
         if (Objects.isNull(tool)) {
-            throw new RuntimeException("The model called a tool " + toolName + " that does not exist.");
+            throw new RuntimeException("The model called a tool '" + toolName + "'' that does not exist.");
         }
         final String output = executeTool(toolName, extractValues(tool.parameters(), request.arguments()));
         return new ToolExecutionResultMessage(request.id(), toolName, output);
     }
 
-    private List<Tool> initToolList(final Path toolsDir) {
+    private List<Tool> initToolList(final Path toolsDir) throws ToolManagerException {
         final List<Tool> toolList = new ArrayList<>();
 
         final File dir = toolsDir.toFile();
-        if (!dir.exists() || !dir.isDirectory()) {
-            throw new RuntimeException("Tools directory not found: " + toolsDir);
+        if (!dir.isDirectory()) {
+            throw new ToolManagerException("Tools directory not found: " + toolsDir);
         }
 
         final File[] pythonFiles = dir.listFiles((_, name) -> name.endsWith(".py"));
-        if (Objects.isNull(pythonFiles) || pythonFiles.length == 0) {
+        if (Objects.isNull(pythonFiles) || (pythonFiles.length == 0)) {
             return toolList;
         }
 
@@ -113,7 +113,7 @@ public class ToolManager {
         return toolList;
     }
 
-    private Tool getToolDescription(final String toolName) {
+    private Tool getToolDescription(final String toolName) throws ToolManagerException {
         final String output = executeTool(toolName, List.of("--description"));
 
         final StringReader stringReader = new StringReader(output);
@@ -122,30 +122,56 @@ public class ToolManager {
         try {
             final String description = bufferedReader.readLine();
             if (Objects.isNull(description)) {
-                throw new RuntimeException("failed to get description of " + toolName);
+                throw new ToolManagerException("failed to get description of '" + toolName + "'");
             }
             final List<ToolParameter> parameters = new ArrayList<>();
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 final String[] parts = line.split("\t");
-                if (parts.length == 2) {
-                    parameters.add(new ToolParameter(parts[0].trim(), parts[1].trim(), ToolParameterType.STRING, true));
+                if (parts.length == 4) {
+                    try {
+                        final String argName = parts[0].trim();
+                        final ToolParameterType argType = convertStringToArgType(parts[1].trim());
+                        final boolean argOptionality = convertStringToArgOptiunality(parts[2].trim());
+                        final String argDescription = parts[3].trim();
+                        parameters.add(new ToolParameter(argName, argDescription, argType, argOptionality));
+                    } catch (final ToolManagerException e) {
+                    throw new ToolManagerException("incorrect parameter description for '" + toolName + "'", e);
+                    }
                 } else {
-                    throw new RuntimeException("incorrect parameter description for " + toolName);
+                    throw new ToolManagerException("incorrect parameter description for '" + toolName + "' (it should be 4 components separated by tab, there are only " + parts.length + " components): " + line);
                 }
             }
             return new Tool(toolName, description, parameters);
         } catch (final IOException e) {
-            throw new RuntimeException("failed to get description of " + toolName, e);
+            throw new ToolManagerException("failed to get description of '" + toolName + "'", e);
         }
     }
 
+    private static ToolParameterType convertStringToArgType(final String str) throws ToolManagerException {
+        return switch (str) {
+            case "string" -> ToolParameterType.STRING;
+            case "integer" -> ToolParameterType.INTEGER;
+            case "number" -> ToolParameterType.NUMBER;
+            case "boolean" -> ToolParameterType.BOOLEAN;
+            default -> throw new ToolManagerException("'"+ str + "' is not a supported tool argument type");
+        };
+    }
+
+    private static boolean convertStringToArgOptiunality(final String str) throws ToolManagerException {
+        return switch (str) {
+            case "required" -> true;
+            case "optional" -> false;
+            default -> throw new ToolManagerException("'"+ str + "' is not a supported tool argument optionality");
+        };
+    }
+
     private String executeTool(final String toolName,
-                               final List<String> arguments) {
+                               final List<String> arguments) throws ToolManagerException {
         final File toolsDir = this.toolsDir.toFile();
         final File pythonFile = new File(toolsDir, toolName + ".py");
         if (!pythonFile.exists() || !pythonFile.isFile()) {
-            throw new RuntimeException("Tool " + toolName + " not found.");
+            throw new ToolManagerException("Tool '" + toolName + "'' not found.");
         }
 
         final StringBuilder output = new StringBuilder();
@@ -167,26 +193,31 @@ public class ToolManager {
 
             final int exitCode = process.waitFor();
             if (exitCode != 0) {
-                throw new RuntimeException("Tool " + toolName + " failed with exit code " + exitCode);
+                throw new ToolManagerException("Tool '" + toolName + "'' failed with exit code " + exitCode);
             }
         } catch (final IOException | InterruptedException e) {
-            throw new RuntimeException("failed to execute " + pythonFile, e);
+            throw new ToolManagerException("Failed to execute " + pythonFile, e);
         }
 
         return output.toString();
     }
 
     public static List<String> extractValues(final List<ToolParameter> parameters,
-                                             final String jsonString) {
-        final JSONObject jsonObject = new JSONObject(jsonString);
-        final List<String> result = new ArrayList<>();
+                                             final String jsonString) throws ToolManagerException {
+        JSONObject jsonObject;
+        try {
+            jsonObject = new JSONObject(jsonString);
+        } catch (final JSONException e) {
+            throw new ToolManagerException("The model return an invalid value for the tool parameters " + parameters + " in " + jsonString, e);
+        }
 
+        final List<String> result = new ArrayList<>();
         try {
             for (final String key: parameters.stream().map(ToolParameter::name).toList()) {
                 result.add(jsonObject.getString(key));
             }
         } catch (final JSONException e) {
-            throw new RuntimeException("the model did not return a value for the tool parameters " + parameters + " in " + jsonString, e);
+            throw new ToolManagerException("The model did not return a value for the tool parameters " + parameters + " in " + jsonString, e);
         }
 
         return result;

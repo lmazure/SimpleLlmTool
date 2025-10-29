@@ -65,7 +65,9 @@ public class MistralAiModelParameters extends ModelParameters {
      * @throws InvalidModelParameter if a parameter has an incorrect value
      */
     public static MistralAiModelParameters loadFromFile(final Path yamlFilePath,
-                                                        final Optional<String> overridingModelName) throws IOException, MissingModelParameter, InvalidModelParameter {
+                                                        final Optional<String> overridingModelName) throws IOException,
+                                                                                                           MissingModelParameter,
+                                                                                                           InvalidModelParameter {
         try (final InputStream inputStream = new FileInputStream(yamlFilePath.toFile())) {
             final Yaml yaml = new Yaml();
             final ParameterMap parameterMap = new ParameterMap(yaml.load(inputStream));

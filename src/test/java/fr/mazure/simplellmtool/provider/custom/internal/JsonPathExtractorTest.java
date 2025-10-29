@@ -65,7 +65,8 @@ class JsonPathExtractorTest {
 
     @SuppressWarnings("static-method")
     @Test
-    void basicScalarString() throws IOException, JsonPathExtractorException {
+    void basicScalarString() throws IOException,
+                                    JsonPathExtractorException {
         final JsonNode node = parseJson("{\"a\": \"b\"}");
         Assertions.assertEquals("b",
                                 JsonPathExtractor.extractString(node,
@@ -74,7 +75,8 @@ class JsonPathExtractorTest {
 
     @SuppressWarnings("static-method")
     @Test
-    void basicScalarInteger() throws IOException, JsonPathExtractorException {
+    void basicScalarInteger() throws IOException,
+                                     JsonPathExtractorException {
         final JsonNode node = parseJson("{\"a\": 62}");
         Assertions.assertEquals("62",
                                 JsonPathExtractor.extractString(node,
@@ -83,7 +85,8 @@ class JsonPathExtractorTest {
 
     @SuppressWarnings("static-method")
     @Test
-    void basicArrayString() throws IOException, JsonPathExtractorException {
+    void basicArrayString() throws IOException,
+                                   JsonPathExtractorException {
         final JsonNode node = parseJson("[ \"aa\", \"bb\", \"cc\" ]");
         Assertions.assertEquals("bb",
                                 JsonPathExtractor.extractString(node,
@@ -92,7 +95,8 @@ class JsonPathExtractorTest {
 
     @SuppressWarnings("static-method")
     @Test
-    void basicArrayInteger() throws IOException, JsonPathExtractorException {
+    void basicArrayInteger() throws IOException,
+                                    JsonPathExtractorException {
         final JsonNode node = parseJson("[ 11, 22, 33 ]");
         Assertions.assertEquals("22",
                                 JsonPathExtractor.extractString(node,
@@ -101,7 +105,8 @@ class JsonPathExtractorTest {
 
     @SuppressWarnings("static-method")
     @Test
-    void arrayInArray() throws IOException, JsonPathExtractorException {
+    void arrayInArray() throws IOException,
+                               JsonPathExtractorException {
         final JsonNode node = parseJson("[ \"aa\", [ \"bb\", \"cc\", \"dd\", \"ee\" ], \"ff\" ]");
         Assertions.assertEquals("dd",
                                 JsonPathExtractor.extractString(node,
@@ -110,7 +115,8 @@ class JsonPathExtractorTest {
 
     @SuppressWarnings("static-method")
     @Test
-    void dictInDict() throws IOException, JsonPathExtractorException {
+    void dictInDict() throws IOException,
+                             JsonPathExtractorException {
         final JsonNode node = parseJson("{ \"aa\": { \"bb\": \"cc\", \"dd\": \"ee\", \"ff\": \"gg\" }, \"hh\": \"ii\" }");
         Assertions.assertEquals("ee",
                                 JsonPathExtractor.extractString(node,
@@ -119,7 +125,8 @@ class JsonPathExtractorTest {
 
     @SuppressWarnings("static-method")
     @Test
-    void dictInArray() throws IOException, JsonPathExtractorException {
+    void dictInArray() throws IOException,
+                              JsonPathExtractorException {
         final JsonNode node = parseJson("[ { \"aa\": \"bb\", \"cc\": \"dd\", \"ee\": \"ff\" }, { \"gg\": \"hh\", \"ii\": \"jj\", \"kk\": \"ll\" } ]");
         Assertions.assertEquals("jj",
                                 JsonPathExtractor.extractString(node,
@@ -129,7 +136,8 @@ class JsonPathExtractorTest {
 
     @SuppressWarnings("static-method")
     @Test
-    void arrayInDict() throws IOException, JsonPathExtractorException {
+    void arrayInDict() throws IOException,
+                              JsonPathExtractorException {
         final JsonNode node = parseJson("{ \"aa\": \"bb\", \"cc\": [ \"dd\", \"ee\", \"ff\" ], \"gg\": \"hh\" }");
         Assertions.assertEquals("ff",
                                 JsonPathExtractor.extractString(node,
@@ -139,7 +147,8 @@ class JsonPathExtractorTest {
 
     @SuppressWarnings("static-method")
     @Test
-    void realWorld() throws IOException, JsonPathExtractorException {
+    void realWorld() throws IOException,
+                            JsonPathExtractorException {
         final JsonNode node = parseJson("{\"name\":\"John\", \"age\":30, \"cars\":[\"Ford\", \"BMW\", \"Fiat\"]}");
         Assertions.assertEquals("Fiat",
                                 JsonPathExtractor.extractString(node,
@@ -148,7 +157,8 @@ class JsonPathExtractorTest {
 
     @SuppressWarnings("static-method")
     @Test
-    void realWorld2() throws IOException, JsonPathExtractorException {
+    void realWorld2() throws IOException,
+                             JsonPathExtractorException {
         final JsonNode node = parseJson("{\"name\":\"John\", \"age\":30, \"cars\":[ { \"model\":\"Ford\", \"year\":2017 }, { \"model\":\"BMW\", \"year\":2018 }, { \"model\":\"Fiat\", \"year\":2019 } ]}");
         Assertions.assertEquals("2017",
                                 JsonPathExtractor.extractString(node,

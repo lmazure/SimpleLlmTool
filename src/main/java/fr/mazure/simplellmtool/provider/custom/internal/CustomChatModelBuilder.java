@@ -3,6 +3,7 @@ package fr.mazure.simplellmtool.provider.custom.internal;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import fr.mazure.simplellmtool.provider.custom.internal.CustomChatModel.FinishingReason;
 
@@ -23,7 +24,8 @@ public class CustomChatModelBuilder {
     private Map<String, FinishingReason> finishReasonMappings;
     private String toolCallsPath;
     private String toolNamePath;
-    private String toolArgumentsPath;
+    private Optional<String> toolArgumentsDictPath = Optional.empty();
+    private Optional<String> toolArgumentsStringPath = Optional.empty();
     private Boolean logRequests = Boolean.FALSE;
     private Boolean logResponses = Boolean.FALSE;
 
@@ -145,11 +147,22 @@ public class CustomChatModelBuilder {
     /**
      * Sets the JSON path to the tool arguments dictionary within a tool call element
      */
-    public CustomChatModelBuilder toolArgumentsPath(final String toolArgumentsPath) {
-        if (!JsonPathExtractor.isPathValid(toolArgumentsPath)) {
-             throw new IllegalArgumentException("Invalid tool arguments path: " + toolArgumentsPath);
+    public CustomChatModelBuilder toolArgumentsDictPath(final Optional<String> toolArgumentsDictPath) {
+        if (toolArgumentsDictPath.isPresent() && !JsonPathExtractor.isPathValid(toolArgumentsDictPath.get())) {
+             throw new IllegalArgumentException("Invalid tool arguments path: " + toolArgumentsDictPath.get());
         }
-        this.toolArgumentsPath = toolArgumentsPath;
+        this.toolArgumentsDictPath = toolArgumentsDictPath;
+        return this;
+    }
+
+    /**
+     * Sets the JSON path to the tool arguments string within a tool call element
+     */
+    public CustomChatModelBuilder toolArgumentsStringPath(final Optional<String> toolArgumentsStringPath) {
+        if (toolArgumentsStringPath.isPresent() && !JsonPathExtractor.isPathValid(toolArgumentsStringPath.get())) {
+             throw new IllegalArgumentException("Invalid tool arguments path: " + toolArgumentsStringPath.get());
+        }
+        this.toolArgumentsStringPath = toolArgumentsStringPath;
         return this;
     }
 
@@ -234,8 +247,13 @@ public class CustomChatModelBuilder {
         if (Objects.isNull(this.toolNamePath) || this.toolNamePath.trim().isEmpty()) {
             throw new IllegalArgumentException("Tool name path is required");
         }
-        if (Objects.isNull(this.toolArgumentsPath) || this.toolArgumentsPath.trim().isEmpty()) {
-            throw new IllegalArgumentException("Tool arguments path is required");
+        final boolean toolArgumentsDictPathIsSet = this.toolArgumentsDictPath.isPresent() && !this.toolArgumentsDictPath.get().trim().isEmpty();
+        final boolean toolArgumentsStringPathIsSet = this.toolArgumentsStringPath.isPresent() && !this.toolArgumentsStringPath.get().trim().isEmpty();
+        if (!(toolArgumentsDictPathIsSet || toolArgumentsStringPathIsSet)) {
+            throw new IllegalArgumentException("Either tool arguments dictonary path or tool arguments dictonary string is required");
+        }
+        if (toolArgumentsDictPathIsSet && toolArgumentsStringPathIsSet) {
+            throw new IllegalArgumentException("Tool arguments dictonary path and tool arguments dictonary string cannot both be set");
         }
     }
 
@@ -252,7 +270,8 @@ public class CustomChatModelBuilder {
     Map<String, FinishingReason> getFinishReasonMappings() { return this.finishReasonMappings;}
     String getToolCallsPath() { return this.toolCallsPath; }
     String getToolNamePath() { return this.toolNamePath; }
-    String getToolArgumentsPath() { return this.toolArgumentsPath; }
+    Optional<String> getToolArgumentsDictPath() { return this.toolArgumentsDictPath; }
+    Optional<String> getToolArgumentsStringPath() { return this.toolArgumentsStringPath; }
     Boolean isLogRequests() { return this.logRequests; }
     Boolean isLogResponses() { return this.logResponses; }
 }

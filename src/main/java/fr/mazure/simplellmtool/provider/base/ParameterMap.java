@@ -15,7 +15,8 @@ public class ParameterMap {
         this.data = data;
     }
 
-    public String getString(final String parameterName) throws MissingModelParameter, InvalidModelParameter {
+    public String getString(final String parameterName) throws MissingModelParameter,
+                                                               InvalidModelParameter {
         final Optional<String> string = getOptionalString(parameterName);
         if (string.isEmpty()) {
             throw new MissingModelParameter(parameterName);
@@ -23,7 +24,8 @@ public class ParameterMap {
         return string.get();
     }
 
-    public URL getUrl(final String parameterName) throws MissingModelParameter, InvalidModelParameter {
+    public URL getUrl(final String parameterName) throws MissingModelParameter,
+                                                         InvalidModelParameter {
         final Optional<URL> url = getOptionalUrl(parameterName);
         if (url.isEmpty()) {
             throw new MissingModelParameter(parameterName);
@@ -31,7 +33,8 @@ public class ParameterMap {
         return url.get();
     }
 
-    public Map<String, String> getStringMap(final String parameterName) throws MissingModelParameter, InvalidModelParameter {
+    public Map<String, String> getStringMap(final String parameterName) throws MissingModelParameter,
+                                                                               InvalidModelParameter {
         final Optional<Map<String, String>> map = getOptionalStringMap(parameterName);
         if (map.isEmpty()) {
             throw new MissingModelParameter(parameterName);

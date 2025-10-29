@@ -275,10 +275,10 @@ public class CommandLine {
         final String executableName = "textimprover.jar";
         System.err.println("Usage: java -jar " +
                            executableName +
-                           " {--user-prompt-string <user-prompt-string>|--user-prompt-file <user-prompt-file>}\n" +
-                           "    [--system-prompt-string <system-prompt-string>]  [--system-prompt-file <system-prompt-file>]\n" +
+                           "[--system-prompt-string <system-prompt-string>] [--system-prompt-file <system-prompt-file>]\n" +
+                           "    [--user-prompt-string <user-prompt-string>] [--user-prompt-file <user-prompt-file>]\n" +
                            "    [--attachment-file <filename>] [--attachment-url <url>]\n" +
-                           "    [--provider <provider>] [--model-file <model-file>] [--model-name <model-name>]\n" +
+                           "    [-tools-dir <tools-dir>] [--provider <provider>] [--model-file <model-file>] [--model-name <model-name>]\n" +
                            "    [--output-file <output-file>] [--error-file <error-file>] [--log-file <log-file>]\n" +
                            "    [--log-level <log-level>] [--chat-mode] [--help]");
         System.err.println(

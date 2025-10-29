@@ -176,7 +176,9 @@ class BatchModeTest {
     @Test
     @Tag("e2e")
     @Tag("e2e_openai")
-    void testBasicCustom() throws MalformedURLException, URISyntaxException, MissingEnvironmentVariable {
+    void testBasicCustom() throws MalformedURLException,
+                                  URISyntaxException,
+                                  MissingEnvironmentVariable {
         // Given
         final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         final PrintStream output = new PrintStream(outputBuffer);
@@ -186,7 +188,7 @@ class BatchModeTest {
                               "messages": [
                                 {{#each messages}}{
                                   "role": "{{#if (isSystem role)}}system{{/if}}{{#if (isUser role)}}user{{/if}}{{#if (isModel role)}}assistant{{/if}}",
-                                  "content": {{convertToJsonString content}}
+                                  "content": {{convertStringToJsonString content}}
                                 }{{#unless @last}},
                                 {{/unless}}{{/each}}
                               ],
@@ -206,7 +208,8 @@ class BatchModeTest {
                                                                            Map.of("stop", CustomChatModel.FinishingReason.DONE),
                                                                            "choices[0].message.tool_calls",
                                                                            "function.name",
-                                                                           "function.arguments");
+                                                                           Optional.empty(),
+                                                                           Optional.of("function.arguments"));
         final ChatModel model = CustomChatModelProvider.createChatModel(parameters);
         final Optional<String> sysPrompt = Optional.of("You must answer in one word.");
         final String userPrompt = "What is the capital of France?";
@@ -221,13 +224,18 @@ class BatchModeTest {
 
     /**
      * Tool test for OpenAI.
+     *
+     * @throws IOException If an I/O error occurs.
      * @throws MissingEnvironmentVariable
+     * @throws ToolManagerException In case of a tool execution error
      */
     @SuppressWarnings("static-method")
     @Test
     @Tag("e2e")
     @Tag("e2e_openai")
-    void testToolOpenAi(@TempDir final Path tempDir) throws IOException, MissingEnvironmentVariable {
+    void testToolOpenAi(@TempDir final Path tempDir) throws IOException,
+                                                            MissingEnvironmentVariable,
+                                                            ToolManagerException {
         // Given
         final String pythonScript = """
                 import sys
@@ -243,8 +251,8 @@ class BatchModeTest {
                 def main():
                     if len(sys.argv) == 2 and sys.argv[1] == "--description":
                         print("Calculate the number of days between start_date and end_date")
-                        print("start_date\tstart date formatted as YYYY-MM-DD")
-                        print("end_date\tend date formatted as YYYY-MM-DD")
+                        print("start_date\tstring\trequired\tstart date formatted as YYYY-MM-DD")
+                        print("end_date\tstring\trequired\tend date formatted as YYYY-MM-DD")
                         sys.exit(0)
 
                     if len(sys.argv) != 3:

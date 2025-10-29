@@ -32,7 +32,10 @@ class MistralAiModelParametersTest {
      */
     @SuppressWarnings("static-method")
     @Test
-    void testLoadFromFileWithAllParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter, URISyntaxException {
+    void testLoadFromFileWithAllParameters(@TempDir final Path tempDir) throws IOException,
+                                                                               MissingModelParameter,
+                                                                               InvalidModelParameter,
+                                                                               URISyntaxException {
         // Given
         final String configContent = """
                 modelName: mistral-large-latest
@@ -68,7 +71,9 @@ class MistralAiModelParametersTest {
      */
     @SuppressWarnings("static-method")
     @Test
-    void testLoadFromFileWithMinimalParameters(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter {
+    void testLoadFromFileWithMinimalParameters(@TempDir final Path tempDir) throws IOException,
+                                                                                   MissingModelParameter,
+                                                                                   InvalidModelParameter {
         // Given
         final String configContent = """
                 modelName: mistral-small-latest
@@ -100,7 +105,9 @@ class MistralAiModelParametersTest {
      */
     @SuppressWarnings("static-method")
     @Test
-    void testLoadFromFileWithOverriddenModelName(@TempDir final Path tempDir) throws IOException, MissingModelParameter, InvalidModelParameter {
+    void testLoadFromFileWithOverriddenModelName(@TempDir final Path tempDir) throws IOException,
+                                                                                     MissingModelParameter,
+                                                                                     InvalidModelParameter {
         // Given
         final String configContent = """
                 modelName: mistral-small-latest

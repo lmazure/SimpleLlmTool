@@ -10,6 +10,7 @@ package fr.mazure.simplellmtool;
  *     <li>{@link #FILE_ERROR}: there was an error reading or writing a file</li>
  *     <li>{@link #INVALID_PROVIDER}: the provider was invalid</li>
  *     <li>{@link #MODEL_ERROR}: there was an error with the model</li>
+ *     <li>{@link #TOOL_ERROR}: there was an error with a tool</li>
  *     <li>{@link #ATTACHMENT_ERROR}: there was an error with the attachments</li>
  * </ul>
  */
@@ -20,6 +21,7 @@ public enum ExitCode {
     FILE_ERROR(2, "reading/writing file error"),
     INVALID_PROVIDER(3, "invalid provider"),
     MODEL_ERROR(4, "model error"),
+    TOOL_ERROR(5, "tool error"),
     ATTACHMENT_ERROR(5, "attachment error");
 
     private final int code;
