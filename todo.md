@@ -1,19 +1,9 @@
-
-dans la partie context de 
-on peut factoriser
-{{#unless @last}},
-            {{/unless}}
-
-
-gérer les types des paramètres
-+ ajouter l'UT correspondant
-
-gérer l'optionnel des paramètres
-+ ajouter l'UT correspondant
-
-ajouter des tests
-
-modifier examples\gpt-4.1-nano@custom.yaml pour qu'il prenne en compte ci-dessus
+- move ToolParameterValue in is own class
+- support of paeameter type in when providing the result of a tool call in order to properly format the parameters (regarder ce qur font les providers natifs)
+- test boolean parameters
+- test float parameters
+- add unit tests for all parameter types
+- test optional parameters
 
 
 ----------------------------------------

@@ -24,6 +24,7 @@ public class CustomChatModelBuilder {
     private Map<String, FinishingReason> finishReasonMappings;
     private String toolCallsPath;
     private String toolNamePath;
+    private Optional<String> toolCallIdPath = Optional.empty();
     private Optional<String> toolArgumentsDictPath = Optional.empty();
     private Optional<String> toolArgumentsStringPath = Optional.empty();
     private Boolean logRequests = Boolean.FALSE;
@@ -141,6 +142,17 @@ public class CustomChatModelBuilder {
              throw new IllegalArgumentException("Invalid tool name path: " + toolNamePath);
         }
         this.toolNamePath = toolNamePath;
+        return this;
+    }
+
+    /**
+     * Sets the JSON path to the tool call id within a tool call element
+     */
+    public CustomChatModelBuilder toolCallIdPath(final Optional<String> toolCallIdPath) {
+        if (toolCallIdPath.isPresent() && !JsonPathExtractor.isPathValid(toolCallIdPath.get())) {
+             throw new IllegalArgumentException("Invalid tool call id path: " + toolCallIdPath.get());
+        }
+        this.toolCallIdPath = toolCallIdPath;
         return this;
     }
 
@@ -270,6 +282,7 @@ public class CustomChatModelBuilder {
     Map<String, FinishingReason> getFinishReasonMappings() { return this.finishReasonMappings;}
     String getToolCallsPath() { return this.toolCallsPath; }
     String getToolNamePath() { return this.toolNamePath; }
+    Optional<String> getToolCallIdPath() { return this.toolCallIdPath; }
     Optional<String> getToolArgumentsDictPath() { return this.toolArgumentsDictPath; }
     Optional<String> getToolArgumentsStringPath() { return this.toolArgumentsStringPath; }
     Boolean isLogRequests() { return this.logRequests; }

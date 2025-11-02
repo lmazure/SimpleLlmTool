@@ -18,7 +18,6 @@ class StringUtils {
                     .collect(Collectors.joining("\n"));
     }
 
-
     /**
      * Escapes a string for JSON
      *

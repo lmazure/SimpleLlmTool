@@ -5,18 +5,18 @@ import java.util.List;
 /**
  * Represents a round of message exchange.
  */
-public record MessageRound(Role role, String content, List<ToolCall> toolCalls, String tool) {
+public record MessageRound(Role role, String content, List<ToolCall> toolCalls, String tool, String toolCallId) {
 
     public MessageRound(final Role role, final String content, List<ToolCall> toolCalls) {
-        this(role, content, toolCalls, null);
+        this(role, content, toolCalls, null, null);
     }
 
     public MessageRound(final Role role, final String content) {
-        this(role, content, List.of(), null);
+        this(role, content, List.of(), null, null);
     }
 
-    public MessageRound(final Role role, final String content, String tool) {
-        this(role, content, List.of(), tool);
+    public MessageRound(final Role role, final String content, String tool, String toolCallId) {
+        this(role, content, List.of(), tool, toolCallId);
     }
 
     /**
@@ -36,7 +36,7 @@ public record MessageRound(Role role, String content, List<ToolCall> toolCalls, 
     /*
      * Represents a tool call in a round of message exchange
      */
-    public record ToolCall(String toolName, List<ToolParameter> toolParameters) {
+    public record ToolCall(String toolName, String toolCallId, List<ToolParameter> toolParameters) {
     }
 
     /*

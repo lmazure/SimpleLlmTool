@@ -130,6 +130,7 @@ public class RequestPayloadGenerator {
             tool.put("content", round.content());
             tool.put("toolCalls", convertMessageRoundToolCalls(round.toolCalls()));
             tool.put("toolName", round.tool());
+            tool.put("toolCallId", round.toolCallId());
             tools.add(tool);
         }
         return tools;
@@ -144,6 +145,7 @@ public class RequestPayloadGenerator {
         for (final MessageRound.ToolCall toolCall: toolCalls) {
             final Map<String, Object> tool = new HashMap<>();
             tool.put("toolName", toolCall.toolName());
+            tool.put("toolCallId", toolCall.toolCallId());
             tool.put("toolParameters", convertMessageRoundToolParameters(toolCall.toolParameters()));
             tools.add(tool);
         }

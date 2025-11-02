@@ -481,8 +481,8 @@ class RequestPayloadGeneratorTest {
         final List<MessageRound> messages = Arrays.asList(
             new MessageRound(MessageRound.Role.SYSTEM, "You always provide an English anwer, followed by a precise translation in French"),
             new MessageRound(MessageRound.Role.USER, "What is the weather in Paris?"),
-            new MessageRound(MessageRound.Role.MODEL, "", List.of(new MessageRound.ToolCall("get_weather", List.of(new MessageRound.ToolParameter("city", "Paris"))))),
-            new MessageRound(MessageRound.Role.TOOL, "Paris, ?le-de-France, France: 14.0?C, Mainly Clear, Feels like 13.3?C, Humidity 88%", "get_weather")
+            new MessageRound(MessageRound.Role.MODEL, "", List.of(new MessageRound.ToolCall("get_weather", "call_XX01", List.of(new MessageRound.ToolParameter("city", "Paris"))))),
+            new MessageRound(MessageRound.Role.TOOL, "Paris, ?le-de-France, France: 14.0?C, Mainly Clear, Feels like 13.3?C, Humidity 88%", "get_weather", "call_XX01")
         );
 
         final ToolManager.Tool getWeatherTool = new ToolManager.Tool("get_weather",

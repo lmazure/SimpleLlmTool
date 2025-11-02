@@ -68,6 +68,7 @@ public class CustomChatModel implements ChatModel {
     private final Map<String, FinishingReason> finishReasonMappings;
     private final String toolCallsPath;
     private final String toolNamePath;
+    private final Optional<String> toolCallIdPath;
     private final Optional<String> toolArgumentsDictPath;
     private final Optional<String> toolArgumentsStringPath;
     private final Boolean logRequests;
@@ -89,6 +90,7 @@ public class CustomChatModel implements ChatModel {
         this.finishReasonMappings = builder.getFinishReasonMappings();
         this.toolCallsPath = builder.getToolCallsPath();
         this.toolNamePath = builder.getToolNamePath();
+        this.toolCallIdPath = builder.getToolCallIdPath();
         this.toolArgumentsDictPath = builder.getToolArgumentsDictPath();
         this.toolArgumentsStringPath = builder.getToolArgumentsStringPath();
         this.logRequests = builder.isLogRequests();
@@ -173,10 +175,15 @@ public class CustomChatModel implements ChatModel {
 
     private MessageRound convertMessage(final ChatMessage message) {
         return switch (message) {
-            case UserMessage userMessage -> new MessageRound(MessageRound.Role.USER, userMessage.singleText());
+            case UserMessage userMessage -> new MessageRound(MessageRound.Role.USER,
+                                                             userMessage.singleText());
             case AiMessage aiMessage -> buildModelMessageRound(aiMessage);
-            case SystemMessage systemMessage -> new MessageRound(MessageRound.Role.SYSTEM, systemMessage.text());
-            case ToolExecutionResultMessage toolExecutionResultMessage -> new MessageRound(MessageRound.Role.TOOL, toolExecutionResultMessage.text(), toolExecutionResultMessage.toolName());
+            case SystemMessage systemMessage -> new MessageRound(MessageRound.Role.SYSTEM,
+                                                                 systemMessage.text());
+            case ToolExecutionResultMessage toolExecutionResultMessage -> new MessageRound(MessageRound.Role.TOOL,
+                                                                                           toolExecutionResultMessage.text(),
+                                                                                           toolExecutionResultMessage.toolName(),
+                                                                                           toolExecutionResultMessage.id());
             default -> throw new IllegalArgumentException("Unsupported message type: " + message.getClass());
         };
     }
@@ -212,7 +219,7 @@ public class CustomChatModel implements ChatModel {
                 throw new RuntimeException("Failed to parse tool arguments", e);
             }
 
-            toolCalls.add(new MessageRound.ToolCall(request.name(), toolParameters));
+            toolCalls.add(new MessageRound.ToolCall(request.name(), request.id(), toolParameters));
         }
 
         return new MessageRound(MessageRound.Role.MODEL, text, toolCalls);
@@ -223,6 +230,10 @@ public class CustomChatModel implements ChatModel {
         AiMessage aiMessage;
 
         final ObjectMapper objectMapper = new ObjectMapper();
+        final String jsonError = isValidJson(responseBody);
+        if (Objects.nonNull(jsonError)) {
+            throw new IllegalArgumentException("The received payload is invalid JSON: " + jsonError + "\n" + StringUtils.addLineNumbers(responseBody));
+        }
         final JsonNode rootNode = objectMapper.readTree(responseBody);
 
         // Try to extract tool calls using the configured path
@@ -246,9 +257,10 @@ public class CustomChatModel implements ChatModel {
                     // Convert args to a JSON string
                     final String arguments = argsNode.toString();
 
-                    // Create a unique ID for this tool execution request
-                    final String id = UUID.randomUUID().toString();
-
+                    // get the call ID if there is one
+                    // otherwise create a unique ID for this tool execution request
+                    final String id = this.toolCallIdPath.isPresent() ? JsonPathExtractor.extractString(toolCallNode, this.toolCallIdPath.get())
+                                                                      : UUID.randomUUID().toString();
                     final ToolExecutionRequest toolRequest = ToolExecutionRequest.builder()
                                                                                  .id(id)
                                                                                  .name(functionName)

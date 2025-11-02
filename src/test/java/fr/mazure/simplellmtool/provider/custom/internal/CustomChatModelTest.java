@@ -19,7 +19,7 @@ class CustomChatModelTest {
     void canParseGeminiToolCalls() throws IOException,
                                           JsonPathExtractorException {
         // Given
-        final CustomChatModel model = builGeminiModel();
+        final CustomChatModel model = buildGeminiModel();
         final String answer = """
             {
               "candidates": [
@@ -80,7 +80,7 @@ class CustomChatModelTest {
     void canParseGeminiFinalAnswer() throws IOException,
                                             JsonPathExtractorException {
         // Given
-        final CustomChatModel model = builGeminiModel();
+        final CustomChatModel model = buildGeminiModel();
         final String answer = """
             {
               "candidates": [
@@ -124,7 +124,77 @@ class CustomChatModelTest {
         Assertions.assertEquals(FinishReason.STOP, response.finishReason());
     }
 
-    private static CustomChatModel builGeminiModel() {
+    @SuppressWarnings("static-method")
+    @Test
+    @DisplayName("Can parse GPT-5 tool calls")
+    void canParseGPT5ToolCalls() throws IOException,
+                                        JsonPathExtractorException {
+        // Given
+        final CustomChatModel model = buildGPT5Model();
+        final String answer = """
+            {
+              "id": "chatcmpl-CXOK93wMx3plCJWQw7IjVDwRDBh5B",
+              "object": "chat.completion",
+              "created": 1762074361,
+              "model": "gpt-5-nano-2025-08-07",
+              "choices": [
+                {
+                  "index": 0,
+                  "message": {
+                    "role": "assistant",
+                    "content": null,
+                    "tool_calls": [
+                      {
+                        "id": "call_t2CEgA6YKxLRDnU6IuwEcch4",
+                        "type": "function",
+                        "function": {
+                          "name": "get_weather",
+                          "arguments": "{\\"city\\":\\"Paris\\"}"
+                        }
+                      }
+                    ],
+                    "refusal": null,
+                    "annotations": []
+                  },
+                  "finish_reason": "tool_calls"
+                }
+              ],
+              "usage": {
+                "prompt_tokens": 291,
+                "completion_tokens": 87,
+                "total_tokens": 378,
+                "prompt_tokens_details": {
+                  "cached_tokens": 0,
+                  "audio_tokens": 0
+                },
+                "completion_tokens_details": {
+                  "reasoning_tokens": 64,
+                  "audio_tokens": 0,
+                  "accepted_prediction_tokens": 0,
+                  "rejected_prediction_tokens": 0
+                }
+              },
+              "service_tier": "default",
+              "system_fingerprint": null
+            }
+            """;
+
+        // When
+        final ChatResponse response = model.parseApiResponse(answer);
+
+        // Then
+        Assertions.assertEquals(null, response.aiMessage().text());
+        Assertions.assertTrue(response.aiMessage().hasToolExecutionRequests());
+        Assertions.assertEquals(1, response.aiMessage().toolExecutionRequests().size());
+        Assertions.assertEquals("get_weather", response.aiMessage().toolExecutionRequests().get(0).name());
+        Assertions.assertEquals("call_t2CEgA6YKxLRDnU6IuwEcch4", response.aiMessage().toolExecutionRequests().get(0).id());
+        Assertions.assertEquals("{\"city\":\"Paris\"}", response.aiMessage().toolExecutionRequests().get(0).arguments());
+        Assertions.assertEquals(291, response.tokenUsage().inputTokenCount());
+        Assertions.assertEquals(87, response.tokenUsage().outputTokenCount());
+        Assertions.assertEquals(FinishReason.TOOL_EXECUTION, response.finishReason());
+    }
+
+    private static CustomChatModel buildGeminiModel() {
         return CustomChatModel.builder()
                               .baseUrl("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent")
                               .modelName("unused")
@@ -138,8 +208,31 @@ class CustomChatModelTest {
                               .finishReasonMappings(Map.of("STOP", CustomChatModel.FinishingReason.DONE))
                               .toolCallsPath("candidates[0].content.parts")
                               .toolNamePath("functionCall.name")
+                              .toolCallIdPath(Optional.empty())
                               .toolArgumentsDictPath(Optional.of("functionCall.args"))
                               .toolArgumentsStringPath(Optional.empty())
+                              .build();
+    }
+
+    private static CustomChatModel buildGPT5Model() {
+        return CustomChatModel.builder()
+                              .baseUrl("https://api.openai.com/v1/chat/completions")
+                              .modelName("gpt-5-nano-2025-08-07")
+                              .apiKey("OPENAI_API_KEY")
+                              .payloadTemplate("unused")
+                              .httpHeaders(Map.of())
+                              .answerPath("choices[0].message.content")
+                              .inputTokenPath("usage.prompt_tokens")
+                              .outputTokenPath("usage.completion_tokens")
+                              .finishReasonPath("choices[0].finish_reason")
+                              .finishReasonMappings(Map.of("stop", CustomChatModel.FinishingReason.DONE,
+                                                           "length", CustomChatModel.FinishingReason.MAX_TOKENS,
+                                                           "tool_calls", CustomChatModel.FinishingReason.TOOL_CALL))
+                              .toolCallsPath("choices[0].message.tool_calls")
+                              .toolNamePath("function.name")
+                              .toolCallIdPath(Optional.of("id"))
+                              .toolArgumentsDictPath(Optional.empty())
+                              .toolArgumentsStringPath(Optional.of("function.arguments"))
                               .build();
     }
 }
