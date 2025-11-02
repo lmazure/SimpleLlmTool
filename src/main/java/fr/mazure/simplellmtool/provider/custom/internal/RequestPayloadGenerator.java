@@ -96,9 +96,9 @@ public class RequestPayloadGenerator {
                 sb.append(", ");
             }
             sb.append("\\\"");
-            sb.append(escapeString(map.get("parameterName").toString()));
+            sb.append(StringUtils.escapeStringForJson(map.get("parameterName").toString()));
             sb.append("\\\": \\\"");
-            sb.append(escapeString(map.get("parameterValue").toString()));
+            sb.append(StringUtils.escapeStringForJson(map.get("parameterValue").toString()));
             sb.append("\\\"");
         }
         sb.append(" }\"");
@@ -115,56 +115,7 @@ public class RequestPayloadGenerator {
         if (Objects.isNull(input)) { //TODO why to we need this?
             return null;
         }
-        return "\"" + escapeString(input) + "\"";
-    }
-
-    /**
-     * Escapes a string for JSON
-     *
-     * @param input the string to escape
-     * @return the escaped string
-     */
-    private static String escapeString(final String input) {
-        final StringBuilder escaped = new StringBuilder();
-
-        for (int i = 0; i < input.length(); i++) {
-            final char c = input.charAt(i);
-
-            switch (c) {
-                case '"':
-                    escaped.append("\\\"");
-                    break;
-                case '\\':
-                    escaped.append("\\\\");
-                    break;
-                case '\b':
-                    escaped.append("\\b");
-                    break;
-                case '\f':
-                    escaped.append("\\f");
-                    break;
-                case '\n':
-                    escaped.append("\\n");
-                    break;
-                case '\r':
-                    escaped.append("\\r");
-                    break;
-                case '\t':
-                    escaped.append("\\t");
-                    break;
-                default:
-                    if (c < 0x20) {
-                        // Only escape control characters (0x00-0x1F)
-                        escaped.append(String.format("\\u%04x", Integer.valueOf(c)));
-                    } else {
-                        // Preserve all other characters including emojis
-                        escaped.append(c);
-                    }
-                    break;
-            }
-        }
-
-        return escaped.toString();
+        return "\"" + StringUtils.escapeStringForJson(input) + "\"";
     }
 
     /*
