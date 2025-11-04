@@ -8,19 +8,19 @@ import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class JsonPathExtractor {
+class JsonPathExtractor {
 
     private static class JsonPathExtractorInternalException extends Exception {
 
         private final String partialPath;
 
-        public JsonPathExtractorInternalException(final String message,
-                                                  final String partialPath) {
+        JsonPathExtractorInternalException(final String message,
+                                           final String partialPath) {
             super(message);
             this.partialPath = partialPath;
         }
 
-        public String getPartialPath() {
+        String getPartialPath() {
             return this.partialPath;
         }
     }
@@ -29,7 +29,7 @@ public class JsonPathExtractor {
     static final Pattern validJsonPathPattern = Pattern.compile("((\\p{L}|\\d|_)+|\\[\\d+])" +        // first component
                                                                 "(\\.(\\p{L}|\\d|_)+|\\[\\d+])*");    // following components
 
-    public static boolean isPathValid(final String path) {
+    static boolean isPathValid(final String path) {
         return validJsonPathPattern.matcher(path).matches();
     }
 
@@ -41,8 +41,8 @@ public class JsonPathExtractor {
      * @return the extracted string
      * @throws JsonPathExtractorException if the path is invalid or the element is not found
      */
-    public static String extractString(final JsonNode rootNode,
-                                       final String path) throws JsonPathExtractorException {
+    static String extractString(final JsonNode rootNode,
+                                final String path) throws JsonPathExtractorException {
         try {
             return extract(rootNode, split(path), 0).asText();
         } catch (final JsonPathExtractorInternalException e) {
@@ -58,8 +58,8 @@ public class JsonPathExtractor {
      * @return a list of JsonNode elements from the array
      * @throws JsonPathExtractorException if the path is invalid or the element is not found
      */
-    public static List<JsonNode> extractArray(final JsonNode rootNode,
-                                              final String path) throws JsonPathExtractorException {
+    static List<JsonNode> extractArray(final JsonNode rootNode,
+                                       final String path) throws JsonPathExtractorException {
         try {
             final JsonNode arrayNode = extract(rootNode, split(path), 0);
             if (!arrayNode.isArray()) {
@@ -81,8 +81,8 @@ public class JsonPathExtractor {
      * @return the extracted JsonNode
      * @throws JsonPathExtractorException if the path is invalid or the element is not found
      */
-    public static JsonNode extractNode(final JsonNode node,
-                                       final String path) throws JsonPathExtractorException {
+    static JsonNode extractNode(final JsonNode node,
+                                final String path) throws JsonPathExtractorException {
         try {
             return extract(node, split(path), 0);
         } catch (final JsonPathExtractorInternalException e) {

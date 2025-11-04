@@ -24,7 +24,7 @@ import dev.langchain4j.model.chat.request.json.JsonStringSchema;
 /*
  * Generates a payload by evaluating Handlebars templates
  */
-public class RequestPayloadGenerator {
+class RequestPayloadGenerator {
 
     /**
      * Generates a payload by evaluating a Handlebars template with the provided messages.
@@ -36,11 +36,11 @@ public class RequestPayloadGenerator {
      * @param apiKey the API key
      * @return the evaluated template as a string
      */
-    public static String generate(final String handlebarsTemplate,
-                                  final List<MessageRound> messages,
-                                  final String modelName,
-                                  final List<ToolSpecification> tools,
-                                  final String apiKey) {
+    static String generate(final String handlebarsTemplate,
+                           final List<MessageRound> messages,
+                           final String modelName,
+                           final List<ToolSpecification> tools,
+                           final String apiKey) {
         try {
             final Handlebars handlebars = new Handlebars();
 

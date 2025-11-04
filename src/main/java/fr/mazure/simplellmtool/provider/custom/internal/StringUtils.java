@@ -11,7 +11,7 @@ class StringUtils {
     /*
      * Adds line numbers to the input string.
      */
-    public static String addLineNumbers(final String input) {
+    static String addLineNumbers(final String input) {
         final AtomicInteger counter = new AtomicInteger();
         return input.lines()
                     .map(line -> "%03d %s".formatted(Integer.valueOf(counter.incrementAndGet()), line))
@@ -24,7 +24,7 @@ class StringUtils {
      * @param input the string to escape
      * @return the escaped string
      */
-    public static String escapeStringForJson(final String input) {
+    static String escapeStringForJson(final String input) {
         final StringBuilder escaped = new StringBuilder();
 
         for (int i = 0; i < input.length(); i++) {
