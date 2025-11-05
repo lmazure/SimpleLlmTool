@@ -20,8 +20,8 @@ import dev.langchain4j.model.chat.request.json.JsonNumberSchema;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 import dev.langchain4j.model.chat.request.json.JsonSchemaElement;
 import dev.langchain4j.model.chat.request.json.JsonStringSchema;
-import fr.mazure.simplellmtool.ToolParameterType;
-import fr.mazure.simplellmtool.ToolParameterValue;
+import fr.mazure.simplellmtool.tools.ToolParameterType;
+import fr.mazure.simplellmtool.tools.ToolParameterValue;
 
 /*
  * Generates a payload by evaluating Handlebars templates

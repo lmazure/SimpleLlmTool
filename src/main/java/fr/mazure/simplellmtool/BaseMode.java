@@ -10,6 +10,8 @@ import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.request.ChatRequestParameters;
 import dev.langchain4j.model.chat.response.ChatResponse;
+import fr.mazure.simplellmtool.tools.ToolManager;
+import fr.mazure.simplellmtool.tools.ToolManagerException;
 
 /**
  * Base class for BatchMode and ChatMode.

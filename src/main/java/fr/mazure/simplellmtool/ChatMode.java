@@ -28,6 +28,8 @@ import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.TokenUsage;
 import fr.mazure.simplellmtool.CommandLine.Attachment;
+import fr.mazure.simplellmtool.tools.ToolManager;
+import fr.mazure.simplellmtool.tools.ToolManagerException;
 
 /**
  * The ChatMode class handles interactive chat processing.

@@ -9,10 +9,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
-import fr.mazure.simplellmtool.ToolManager;
-import fr.mazure.simplellmtool.ToolManagerException;
-import fr.mazure.simplellmtool.ToolParameterType;
-import fr.mazure.simplellmtool.ToolParameterValue;
+import fr.mazure.simplellmtool.tools.ToolManager;
+import fr.mazure.simplellmtool.tools.ToolManagerException;
+import fr.mazure.simplellmtool.tools.ToolParameterType;
+import fr.mazure.simplellmtool.tools.ToolParameterValue;
 
 /**
  * Tests for the {@link RequestPayloadGenerator} class.

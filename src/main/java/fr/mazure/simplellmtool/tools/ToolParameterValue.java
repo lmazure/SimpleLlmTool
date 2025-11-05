@@ -1,4 +1,4 @@
-package fr.mazure.simplellmtool;
+package fr.mazure.simplellmtool.tools;
 
 import java.util.Objects;
 

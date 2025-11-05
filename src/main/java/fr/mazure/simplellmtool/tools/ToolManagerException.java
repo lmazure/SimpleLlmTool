@@ -1,4 +1,4 @@
-package fr.mazure.simplellmtool;
+package fr.mazure.simplellmtool.tools;
 
 /*
  * ToolManagerException is thrown when a tool cannot be managed

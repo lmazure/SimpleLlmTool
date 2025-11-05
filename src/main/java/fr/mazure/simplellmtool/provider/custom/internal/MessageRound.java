@@ -2,7 +2,7 @@ package fr.mazure.simplellmtool.provider.custom.internal;
 
 import java.util.List;
 
-import fr.mazure.simplellmtool.ToolParameterValue;
+import fr.mazure.simplellmtool.tools.ToolParameterValue;
 
 /**
  * Represents a round of message exchange.

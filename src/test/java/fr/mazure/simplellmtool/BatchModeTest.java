@@ -35,6 +35,8 @@ import fr.mazure.simplellmtool.provider.mock.MockChatModelProvider;
 import fr.mazure.simplellmtool.provider.mock.MockModelParameters;
 import fr.mazure.simplellmtool.provider.openai.OpenAiChatModelProvider;
 import fr.mazure.simplellmtool.provider.openai.OpenAiModelParameters;
+import fr.mazure.simplellmtool.tools.ToolManager;
+import fr.mazure.simplellmtool.tools.ToolManagerException;
 
 /**
  * Tests for the {@link BatchMode} class.

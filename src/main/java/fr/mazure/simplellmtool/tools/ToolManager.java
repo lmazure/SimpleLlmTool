@@ -1,4 +1,4 @@
-package fr.mazure.simplellmtool;
+package fr.mazure.simplellmtool.tools;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,7 +19,7 @@ import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 
 /*
- * ToolManager manges the tools (implemented as Ptyhon scripts)
+ * ToolManager manages the tools (implemented as Ptyhon scripts)
  */
 public class ToolManager {
 
