@@ -19,8 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import dev.langchain4j.model.chat.ChatModel;
-import fr.mazure.simplellmtool.CommandLine.Attachment;
-import fr.mazure.simplellmtool.CommandLine.AttachmentSource;
+import fr.mazure.simplellmtool.attachments.Attachment;
 import fr.mazure.simplellmtool.provider.anthropic.AnthropicChatModelProvider;
 import fr.mazure.simplellmtool.provider.anthropic.AnthropicModelParameters;
 import fr.mazure.simplellmtool.provider.base.MissingEnvironmentVariable;
@@ -315,7 +314,7 @@ class BatchModeTest {
         final ChatModel model = MockChatModelProvider.createChatModel(new MockModelParameters());
         final Optional<String> sysPrompt = Optional.of("You are a helpful assistant.");
         final String userPrompt = "What is the capital of France?";
-        final List<Attachment> attachments = List.of(new Attachment(AttachmentSource.FILE, "invalid_file.jpg"));
+        final List<Attachment> attachments = List.of(new Attachment(Attachment.AttachmentSource.FILE, "invalid_file.jpg"));
 
         // When
         final int exitCode = BatchMode.handleBatch(model, sysPrompt, userPrompt, attachments, output, error, Optional.empty());
@@ -341,7 +340,7 @@ class BatchModeTest {
         final ChatModel model = MockChatModelProvider.createChatModel(new MockModelParameters());
         final Optional<String> sysPrompt = Optional.of("You are a helpful assistant.");
         final String userPrompt = "What is the capital of France?";
-        final List<Attachment> attachments = List.of(new Attachment(AttachmentSource.URL, "http://example.com/path with spaces/file.jpg"));
+        final List<Attachment> attachments = List.of(new Attachment(Attachment.AttachmentSource.URL, "http://example.com/path with spaces/file.jpg"));
 
         // When
         final int exitCode = BatchMode.handleBatch(model, sysPrompt, userPrompt, attachments, output, error, Optional.empty());
@@ -375,7 +374,7 @@ class BatchModeTest {
                                                                                  Optional.empty());
         final ChatModel model = AnthropicChatModelProvider.createChatModel(parameters);
         final String userPrompt = "Describe the image";
-        final List<Attachment> attachments = List.of(new Attachment(AttachmentSource.FILE, "src/test/data/whiteCrossInRedDisk.jpg"));
+        final List<Attachment> attachments = List.of(new Attachment(Attachment.AttachmentSource.FILE, "src/test/data/whiteCrossInRedDisk.jpg"));
 
         // When
         final int exitCode = BatchMode.handleBatch(model, Optional.empty(), userPrompt, attachments, output, error, Optional.empty());
@@ -409,7 +408,7 @@ class BatchModeTest {
                                                                                  Optional.empty());
         final ChatModel model = AnthropicChatModelProvider.createChatModel(parameters);
         final String userPrompt = "Describe the image";
-        final List<Attachment> attachments = List.of(new Attachment(AttachmentSource.URL, "https://raw.githubusercontent.com/lmazure/SimpleLlmTool/main/src/test/data/whiteCrossInRedDisk.jpg"));
+        final List<Attachment> attachments = List.of(new Attachment(Attachment.AttachmentSource.URL, "https://raw.githubusercontent.com/lmazure/SimpleLlmTool/main/src/test/data/whiteCrossInRedDisk.jpg"));
 
         // When
         final int exitCode = BatchMode.handleBatch(model, Optional.empty(), userPrompt, attachments, output, error, Optional.empty());
@@ -443,7 +442,7 @@ class BatchModeTest {
                                                                                  Optional.empty());
         final ChatModel model = AnthropicChatModelProvider.createChatModel(parameters);
         final String userPrompt = "What is John birthday? Write only the date formatted as YYYY-MM-DD.";
-        final List<Attachment> attachments = List.of(new Attachment(AttachmentSource.FILE, "src/test/data/john.pdf"));
+        final List<Attachment> attachments = List.of(new Attachment(Attachment.AttachmentSource.FILE, "src/test/data/john.pdf"));
 
         // When
         final int exitCode = BatchMode.handleBatch(model, Optional.empty(), userPrompt, attachments, output, error, Optional.empty());
@@ -478,7 +477,7 @@ class BatchModeTest {
                                                                                  Optional.empty());
         final ChatModel model = AnthropicChatModelProvider.createChatModel(parameters);
         final String userPrompt = "What is John birthday? Write only the date formatted as YYYY-MM-DD.";
-        final List<Attachment> attachments = List.of(new Attachment(AttachmentSource.URL, "https://raw.githubusercontent.com/lmazure/SimpleLlmTool/main/src/test/data/john.pdf"));
+        final List<Attachment> attachments = List.of(new Attachment(Attachment.AttachmentSource.URL, "https://raw.githubusercontent.com/lmazure/SimpleLlmTool/main/src/test/data/john.pdf"));
 
         // When
         final int exitCode = BatchMode.handleBatch(model, Optional.empty(), userPrompt, attachments, output, error, Optional.empty());
@@ -515,7 +514,7 @@ class BatchModeTest {
                                                                            Optional.empty());
         final ChatModel model = OpenAiChatModelProvider.createChatModel(parameters);
         final String userPrompt = "What is John birthday? Write only the date formatted as YYYY-MM-DD.";
-        final List<Attachment> attachments = List.of(new Attachment(AttachmentSource.URL, "https://raw.githubusercontent.com/lmazure/SimpleLlmTool/main/src/test/data/john.pdf"));
+        final List<Attachment> attachments = List.of(new Attachment(Attachment.AttachmentSource.URL, "https://raw.githubusercontent.com/lmazure/SimpleLlmTool/main/src/test/data/john.pdf"));
 
         // When
         final int exitCode = BatchMode.handleBatch(model, Optional.empty(), userPrompt, attachments, output, error, Optional.empty());
