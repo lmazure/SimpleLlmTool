@@ -1,4 +1,4 @@
-package fr.mazure.simplellmtool;
+package fr.mazure.simplellmtool.attachments;
 
 /*
  * AttachmentManagerException is thrown when an attachment cannot be managed

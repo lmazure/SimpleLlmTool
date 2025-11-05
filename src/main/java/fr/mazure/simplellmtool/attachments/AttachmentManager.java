@@ -1,4 +1,4 @@
-package fr.mazure.simplellmtool;
+package fr.mazure.simplellmtool.attachments;
 
 import java.io.IOException;
 import java.net.URI;
@@ -15,8 +15,6 @@ import dev.langchain4j.data.message.Content;
 import dev.langchain4j.data.message.ImageContent;
 import dev.langchain4j.data.message.PdfFileContent;
 import dev.langchain4j.data.message.VideoContent;
-import fr.mazure.simplellmtool.CommandLine.Attachment;
-import fr.mazure.simplellmtool.CommandLine.AttachmentSource;
 
 /*
  * AttachmentManager is a class that manages attachments
@@ -35,8 +33,8 @@ public class AttachmentManager {
             return attachments.stream()
                             .map(attachment -> {
                                 try {
-                                    return ((attachment.source() == AttachmentSource.FILE) ? getFileContent(Paths.get(attachment.path()))
-                                                                                           : getUriContent(new URI(attachment.path())));
+                                    return ((attachment.source() == Attachment.AttachmentSource.FILE) ? getFileContent(Paths.get(attachment.path()))
+                                                                                                      : getUriContent(new URI(attachment.path())));
                                 } catch (final AttachmentManagerException|URISyntaxException e) {
                                     throw new RuntimeException(e);
                                 }

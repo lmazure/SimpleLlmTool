@@ -27,7 +27,9 @@ import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.TokenUsage;
-import fr.mazure.simplellmtool.CommandLine.Attachment;
+import fr.mazure.simplellmtool.attachments.Attachment;
+import fr.mazure.simplellmtool.attachments.AttachmentManager;
+import fr.mazure.simplellmtool.attachments.AttachmentManagerException;
 import fr.mazure.simplellmtool.tools.ToolManager;
 import fr.mazure.simplellmtool.tools.ToolManagerException;
 
