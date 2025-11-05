@@ -18,62 +18,15 @@ import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 
+/*
+ * ToolManager manges the tools (implemented as Ptyhon scripts)
+ */
 public class ToolManager {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    public enum ToolParameterType {
-        STRING,
-        INTEGER,
-        NUMBER,
-        BOOLEAN
-    }
     public record ToolParameter(String name, String description, ToolParameterType type, boolean required) {}
     public record Tool(String name, String description, List<ToolParameter> parameters) {}
-    public record ToolParameterValue(ToolParameterType type, Object value) {
-        public ToolParameterValue {
-            Objects.requireNonNull(type, "type cannot be null");
-            Objects.requireNonNull(value, "value cannot be null");
-            
-            validateType(type, value);
-        }
-        
-        private static void validateType(ToolParameterType type, Object value) {
-            final boolean valid = switch (type) {
-                case STRING -> value instanceof String;
-                case INTEGER -> value instanceof Integer;
-                case NUMBER -> value instanceof Double;
-                case BOOLEAN -> value instanceof Boolean;
-            };
-            
-            if (!valid) {
-                throw new IllegalArgumentException("parameter value type mismatch: expected " + type + ", got " + value.getClass()
-                );
-            }
-        }
-        
-        // Getters can be simplified since constructor guarantees correctness
-        public String getString() {
-            return (String) this.value;
-        }
-        
-        public Integer getInteger() {
-            return (Integer) this.value;
-        }
-        
-        public Double getDouble() {
-            return (Double) this.value;
-        }
-        
-        public Boolean getBoolean() {
-            return (Boolean) this.value;
-        }
-
-        public String convertToString() {
-            return String.valueOf(this.value);
-        }
-    }
-
     private final Path toolsDir;
     private final List<Tool> toolList;
 

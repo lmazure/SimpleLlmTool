@@ -8,6 +8,9 @@ import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+/*
+ * Utility methods to extract data from a JSON payloac
+ */
 class JsonPathExtractor {
 
     private static class JsonPathExtractorInternalException extends Exception {

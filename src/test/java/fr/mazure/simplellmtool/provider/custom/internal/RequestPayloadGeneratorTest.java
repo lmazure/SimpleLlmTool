@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import fr.mazure.simplellmtool.ToolManager;
 import fr.mazure.simplellmtool.ToolManagerException;
+import fr.mazure.simplellmtool.ToolParameterType;
+import fr.mazure.simplellmtool.ToolParameterValue;
 
 /**
  * Tests for the {@link RequestPayloadGenerator} class.
@@ -283,13 +285,13 @@ class RequestPayloadGeneratorTest {
 
         final ToolManager.Tool getWeatherTool = new ToolManager.Tool("getWeather",
                                                                      "Get the weather",
-                                                                     List.of(new ToolManager.ToolParameter("city", "The city to get the weather for", ToolManager.ToolParameterType.STRING, true)));
+                                                                     List.of(new ToolManager.ToolParameter("city", "The city to get the weather for", ToolParameterType.STRING, true)));
         final ToolManager.Tool fooTool = new ToolManager.Tool("foo",
                                                               "Perform foo",
-                                                              List.of(new ToolManager.ToolParameter("alpha", "first argument", ToolManager.ToolParameterType.STRING, true),
-                                                                      new ToolManager.ToolParameter("beta", "second argument", ToolManager.ToolParameterType.INTEGER, true),
-                                                                      new ToolManager.ToolParameter("gamma", "third argument", ToolManager.ToolParameterType.NUMBER, false),
-                                                                      new ToolManager.ToolParameter("delta", "fourth argument", ToolManager.ToolParameterType.BOOLEAN, true)));
+                                                              List.of(new ToolManager.ToolParameter("alpha", "first argument", ToolParameterType.STRING, true),
+                                                                      new ToolManager.ToolParameter("beta", "second argument", ToolParameterType.INTEGER, true),
+                                                                      new ToolManager.ToolParameter("gamma", "third argument", ToolParameterType.NUMBER, false),
+                                                                      new ToolManager.ToolParameter("delta", "fourth argument", ToolParameterType.BOOLEAN, true)));
 
         final List<ToolSpecification> tools = List.of(
           ToolManager.getSpecification(getWeatherTool),
@@ -418,7 +420,7 @@ class RequestPayloadGeneratorTest {
                 "name": {{convertStringToJsonString toolName}},
                   "args": {
                     {{#each toolParameters}}
-                    {{convertStringToJsonString parameterName}}: {{convertStringToJsonString parameterValue}}
+                    {{convertStringToJsonString parameterName}}: {{convertToolParameterValueToJsonString parameterValue}}
                     {{#unless @last}},
                     {{/unless}}{{/each}}
                   }
@@ -481,13 +483,13 @@ class RequestPayloadGeneratorTest {
         final List<MessageRound> messages = Arrays.asList(
             new MessageRound(MessageRound.Role.SYSTEM, "You always provide an English anwer, followed by a precise translation in French"),
             new MessageRound(MessageRound.Role.USER, "What is the weather in Paris?"),
-            new MessageRound(MessageRound.Role.MODEL, "", List.of(new MessageRound.ToolCall("get_weather", "call_XX01", List.of(new MessageRound.ToolParameter("city", "Paris"))))),
+            new MessageRound(MessageRound.Role.MODEL, "", List.of(new MessageRound.ToolCall("get_weather", "call_XX01", List.of(new MessageRound.ToolParameter("city", new ToolParameterValue(ToolParameterType.STRING, "Paris")))))),
             new MessageRound(MessageRound.Role.TOOL, "Paris, ?le-de-France, France: 14.0?C, Mainly Clear, Feels like 13.3?C, Humidity 88%", "get_weather", "call_XX01")
         );
 
         final ToolManager.Tool getWeatherTool = new ToolManager.Tool("get_weather",
                                                                      "Returns the current weather for a given city",
-                                                                     List.of(new ToolManager.ToolParameter("city", "The city for which the weather forecast should be returned, only the city name should be present", ToolManager.ToolParameterType.STRING, true)));
+                                                                     List.of(new ToolManager.ToolParameter("city", "The city for which the weather forecast should be returned, only the city name should be present", ToolParameterType.STRING, true)));
 
         final List<ToolSpecification> tools = List.of(
           ToolManager.getSpecification(getWeatherTool)

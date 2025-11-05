@@ -20,6 +20,8 @@ import dev.langchain4j.model.chat.request.json.JsonNumberSchema;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 import dev.langchain4j.model.chat.request.json.JsonSchemaElement;
 import dev.langchain4j.model.chat.request.json.JsonStringSchema;
+import fr.mazure.simplellmtool.ToolParameterType;
+import fr.mazure.simplellmtool.ToolParameterValue;
 
 /*
  * Generates a payload by evaluating Handlebars templates
@@ -73,7 +75,7 @@ class RequestPayloadGenerator {
 
         handlebars.registerHelper("convertStringToJsonString", (final String text, final Options _) -> jsonConverter(text));
         handlebars.registerHelper("convertToolParametersToJsonString", (final List<Map<String, Object>> list, final Options _) -> jsonToolParametersConverter(list));
-
+        handlebars.registerHelper("convertToolParameterValueToJsonString", (final ToolParameterValue value, final Options _) -> jsonToolParameterConverter(value));
 
         handlebars.registerHelper("isStringType",  (final String type, final Options _) -> Boolean.valueOf("string".equals(type)));
         handlebars.registerHelper("isIntegerType", (final String type, final Options _) -> Boolean.valueOf("integer".equals(type)));
@@ -81,6 +83,15 @@ class RequestPayloadGenerator {
         handlebars.registerHelper("isBooleanType", (final String type, final Options _) -> Boolean.valueOf("boolean".equals(type)));
     }
 
+    private static String jsonToolParameterConverter(final ToolParameterValue value) {
+        return switch (value.type()) {
+            case ToolParameterType.STRING -> "\"" + StringUtils.escapeStringForJson(value.getString()) + "\"";
+            case ToolParameterType.INTEGER -> value.getInteger().toString();
+            case ToolParameterType.NUMBER -> value.getDouble().toString();
+            case ToolParameterType.BOOLEAN -> value.getBoolean().toString();
+        };
+    }
+    
     /**
      * Converts a list of tool parameters to a JSON string
      *
@@ -97,9 +108,14 @@ class RequestPayloadGenerator {
             }
             sb.append("\\\"");
             sb.append(StringUtils.escapeStringForJson(map.get("parameterName").toString()));
-            sb.append("\\\": \\\"");
-            sb.append(StringUtils.escapeStringForJson(map.get("parameterValue").toString()));
-            sb.append("\\\"");
+            sb.append("\\\": ");
+            final ToolParameterValue value = (ToolParameterValue)map.get("parameterValue");
+            switch (value.type()) {
+                case ToolParameterType.STRING -> sb.append("\\\"" + StringUtils.escapeStringForJson(value.getString()) + "\\\"");
+                case ToolParameterType.INTEGER -> sb.append(value.getInteger().toString());
+                case ToolParameterType.NUMBER -> sb.append(value.getDouble().toString());
+                case ToolParameterType.BOOLEAN -> sb.append(value.getBoolean().toString());
+            }
         }
         sb.append(" }\"");
         return sb.toString();

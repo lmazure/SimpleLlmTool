@@ -196,7 +196,7 @@ The following Handlebars variables are available:
       each tool call has
       - `toolName` the name of the called tool
       - `toolCallId` the ID of the call
-      - `toolParameters` the list parameter values for the call  
+      - `toolParameters` the list parameter names and values for the call  
         each tool parameter has
         - `parameterName`
         - `parameterValue`
@@ -234,7 +234,9 @@ The following helpers are available:
     - `isNumberType` (boolean)
     - `isBooleanType` (boolean)
 - to be used on `messages.toolCalls.toolParameters`
-    - `convertToolParametersToJsonString` (string): converts a list of tool parameters to a JSON string
+    - `convertToolParametersToJsonString` (string): converts a list of tool parameter names and values to a JSON string
+- to be used on `messages.toolCalls.toolParameters.parameterValue`
+    - `convertToolParameterValueToJsonString` (string): converts a tool parameter value to a JSON string
 
 #### Example 1 - OpenAI
 (see [this document](https://platform.openai.com/docs/api-reference/chat/create?lang=curl))

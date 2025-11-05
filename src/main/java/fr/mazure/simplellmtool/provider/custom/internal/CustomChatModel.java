@@ -35,6 +35,7 @@ import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.TokenUsage;
+import fr.mazure.simplellmtool.ToolParameterValue;
 
 /*
  * Represents a fully customizable chat model that can be used in the LangChain4j framework
@@ -208,8 +209,8 @@ public class CustomChatModel implements ChatModel {
 
                     // Convert each entry to a MessageRoundToolPamameter
                     for (Map.Entry<String, Object> entry: argumentsMap.entrySet()) {
-                        final String paramValue = (entry.getValue() != null) ? entry.getValue().toString()
-                                                                             : null;
+                        final ToolParameterValue paramValue = (entry.getValue() != null) ? ToolParameterValue.convert(entry.getValue())
+                                                                                         : null;
                         toolParameters.add(new MessageRound.ToolParameter(entry.getKey(), paramValue));
                     }
                 }

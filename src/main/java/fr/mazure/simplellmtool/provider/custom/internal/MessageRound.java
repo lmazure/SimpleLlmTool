@@ -2,6 +2,8 @@ package fr.mazure.simplellmtool.provider.custom.internal;
 
 import java.util.List;
 
+import fr.mazure.simplellmtool.ToolParameterValue;
+
 /**
  * Represents a round of message exchange.
  */
@@ -42,6 +44,6 @@ record MessageRound(Role role, String content, List<ToolCall> toolCalls, String 
     /*
      * Represents a parameter in a tool call in a round of message exchange
      */
-    record ToolParameter(String parameterName, String parameterValue) {
+    record ToolParameter(String parameterName, ToolParameterValue parameterValue) { // TODO the ToolParameterValue dependance is incorrect
     }
 }
