@@ -407,6 +407,226 @@ class RequestPayloadGeneratorTest {
 
     @SuppressWarnings("static-method")
     @Test
+    @DisplayName("Should generate GPT5 payload with multiple messages")
+    void testGenerateMultipleMessagesForGPT5() {
+        // Given
+        final String template = buildGPT5Template();
+
+        final List<MessageRound> messages = Arrays.asList(
+            new MessageRound(MessageRound.Role.SYSTEM, "You are a helpful assistant"),
+            new MessageRound(MessageRound.Role.USER, "What is the weather?"),
+            new MessageRound(MessageRound.Role.MODEL, "I don't have access to weather data"),
+            new MessageRound(MessageRound.Role.USER, "What day is it?"),
+            new MessageRound(MessageRound.Role.MODEL, "April fools' day"),
+            new MessageRound(MessageRound.Role.USER, "So, tell me a joke!")
+        );
+
+        // When
+        final String result = RequestPayloadGenerator.generate(template, messages, "gpt-5-nano-2025-08-07", List.of(), "my-secret-API-key");
+
+        // Then
+        final String expectedResult = """
+                {
+                  "model": "gpt-5-nano-2025-08-07",
+                  "messages": [
+                    {
+                      "role": "system",
+                      "content": "You are a helpful assistant"
+                    },{
+                      "role": "user",
+                      "content": "What is the weather?"
+                    },{
+                      "role": "assistant",
+                      "content": "I don't have access to weather data"
+                    },{
+                      "role": "user",
+                      "content": "What day is it?"
+                    },{
+                      "role": "assistant",
+                      "content": "April fools' day"
+                    },{
+                      "role": "user",
+                      "content": "So, tell me a joke!"
+                    }
+                  ]
+                }
+                """;
+        Assertions.assertEquals(expectedResult, result);
+    }
+
+    @SuppressWarnings("static-method")
+    @Test
+    @DisplayName("Should generate GPT5 payload with multiple tools")
+    void testGenerateMultipleToolsForGPT5() throws ToolManagerException {
+        // Given
+        final String template = buildGPT5Template();
+
+        final List<MessageRound> messages = Arrays.asList(
+            new MessageRound(MessageRound.Role.SYSTEM, "You are a helpful assistant"),
+            new MessageRound(MessageRound.Role.USER, "What is the weather?")
+        );
+
+        final ToolManager.Tool getWeatherTool = new ToolManager.Tool("getWeather",
+                                                                     "Get the weather",
+                                                                     List.of(new ToolManager.ToolParameter("city", "The city to get the weather for", ToolParameterType.STRING, true)));
+        final ToolManager.Tool fooTool = new ToolManager.Tool("foo",
+                                                              "Perform foo",
+                                                              List.of(new ToolManager.ToolParameter("alpha", "first argument", ToolParameterType.STRING, true),
+                                                                      new ToolManager.ToolParameter("beta", "second argument", ToolParameterType.INTEGER, true),
+                                                                      new ToolManager.ToolParameter("gamma", "third argument", ToolParameterType.NUMBER, false),
+                                                                      new ToolManager.ToolParameter("delta", "fourth argument", ToolParameterType.BOOLEAN, true)));
+
+        final List<ToolSpecification> tools = List.of(
+          ToolManager.getSpecification(getWeatherTool),
+          ToolManager.getSpecification(fooTool)
+        );
+
+        // When
+        final String result = RequestPayloadGenerator.generate(template, messages, "gpt-5-nano-2025-08-07", tools, "my-secret-API-key");
+
+        // Then
+        final String expectedResult = """
+            {
+              "model": "gpt-5-nano-2025-08-07",
+              "messages": [
+                {
+                  "role": "system",
+                  "content": "You are a helpful assistant"
+                },{
+                  "role": "user",
+                  "content": "What is the weather?"
+                }
+              ],
+              "tools": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "getWeather",
+                    "description": "Get the weather",
+                    "parameters": {
+                      "type": "object",
+                      "properties": {
+                        "city": {
+                          "type": "string",
+                          "description": "The city to get the weather for"
+                        }
+                      },
+                      "required": ["city"]
+                    }
+                  }
+                },{
+                  "type": "function",
+                  "function": {
+                    "name": "foo",
+                    "description": "Perform foo",
+                    "parameters": {
+                      "type": "object",
+                      "properties": {
+                        "alpha": {
+                          "type": "string",
+                          "description": "first argument"
+                        },"beta": {
+                          "type": "integer",
+                          "description": "second argument"
+                        },"gamma": {
+                          "type": "number",
+                          "description": "third argument"
+                        },"delta": {
+                          "type": "boolean",
+                          "description": "fourth argument"
+                        }
+                      },
+                      "required": ["alpha","beta","delta"]
+                    }
+                  }
+                }
+              ]
+            }
+            """;
+        Assertions.assertEquals(expectedResult, result);
+    }
+
+    @SuppressWarnings("static-method")
+    @Test
+    @DisplayName("Should generate GPT5 payload with tool call results")
+    void testGenerateToolCallResultsForGPT5() throws ToolManagerException {
+        // Given
+        final String template = buildGPT5Template();
+
+        final List<MessageRound> messages = Arrays.asList(
+            new MessageRound(MessageRound.Role.SYSTEM, "You always provide an English anwer, followed by a precise translation in French"),
+            new MessageRound(MessageRound.Role.USER, "What is the weather in Paris?"),
+            new MessageRound(MessageRound.Role.MODEL, "", List.of(new MessageRound.ToolCall("get_weather", "call_XX01", List.of(new MessageRound.ToolParameter("city", new ToolParameterValue(ToolParameterType.STRING, "Paris")))))),
+            new MessageRound(MessageRound.Role.TOOL, "Paris, ?le-de-France, France: 14.0?C, Mainly Clear, Feels like 13.3?C, Humidity 88%", "get_weather", "call_XX01")
+        );
+
+        final ToolManager.Tool getWeatherTool = new ToolManager.Tool("get_weather",
+                                                                     "Returns the current weather for a given city",
+                                                                     List.of(new ToolManager.ToolParameter("city", "The city for which the weather forecast should be returned, only the city name should be present", ToolParameterType.STRING, true)));
+
+        final List<ToolSpecification> tools = List.of(
+          ToolManager.getSpecification(getWeatherTool)
+        );
+
+        // When
+        final String result = RequestPayloadGenerator.generate(template, messages, "gpt-5-nano-2025-08-07", tools, "my-secret-API-key");
+
+        // Then
+        final String expectedResult = """
+            {
+              "model": "gpt-5-nano-2025-08-07",
+              "messages": [
+                {
+                  "role": "system",
+                  "content": "You always provide an English anwer, followed by a precise translation in French"
+                },{
+                  "role": "user",
+                  "content": "What is the weather in Paris?"
+                },{
+                  "role": "assistant",
+                  "content": ""null,
+                  "tool_calls": [
+                    {
+                      "id": "call_XX01",
+                      "type": "function",
+                      "function": {
+                        "name": "get_weather",
+                        "arguments": "{ \\"city\\": \\"Paris\\" }"
+                      }
+                    }
+                  ]
+                },{
+                  "role": "tool",
+                  "content": "Paris, ?le-de-France, France: 14.0?C, Mainly Clear, Feels like 13.3?C, Humidity 88%",
+                  "tool_call_id": "call_XX01"
+                }
+              ],
+              "tools": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "get_weather",
+                    "description": "Returns the current weather for a given city",
+                    "parameters": {
+                      "type": "object",
+                      "properties": {
+                        "city": {
+                          "type": "string",
+                          "description": "The city for which the weather forecast should be returned, only the city name should be present"
+                        }
+                      },
+                      "required": ["city"]
+                    }
+                  }
+                }
+              ]
+            }
+            """;
+        Assertions.assertEquals(expectedResult, result);
+    }
+
+    @SuppressWarnings("static-method")
+    @Test
     @DisplayName("Should manage model name")
     void testGenerateModelName() {
         // Given
@@ -599,94 +819,137 @@ class RequestPayloadGeneratorTest {
     }
 
     private static String buildGeminiTemplate() {
-        final String template = """
-        {
-          {{#each messages}}{{#if (isSystem role)}}"system_instruction": {
-            "parts": [
-              {
-                "text": {{convertStringToJsonString content}}
-              }
-            ]
-          },{{/if}}{{/each}}
-          "contents": [
-            {{#each messages}}{{#if (isUser role)}}{
-              "role": "user",
-              "parts": [
-                {
-                  "text": {{convertStringToJsonString content}}
-                }
-              ]
-            }{{#unless @last}},
-            {{/unless}}{{/if}}{{#if (isModel role)}}{
-              "role": "model",
-              "parts": [
-                {{#if content}}{
-                  "text": {{convertStringToJsonString content}}
-                }{{/if}}
-                {{#each toolCalls}}{
-                "functionCall": {
-                "name": {{convertStringToJsonString toolName}},
-                  "args": {
-                    {{#each toolParameters}}
-                    {{convertStringToJsonString parameterName}}: {{convertToolParameterValueToJsonString parameterValue}}
-                    {{#unless @last}},
-                    {{/unless}}{{/each}}
+        return """
+            {
+              {{#each messages}}{{#if (isSystem role)}}"system_instruction": {
+                "parts": [
+                  {
+                    "text": {{convertStringToJsonString content}}
                   }
-                }
-                {{#unless @last}},
-                {{/unless}} } {{/each}}
-              ]
-            }{{#unless @last}},
-            {{/unless}}{{/if}}{{#if (isTool role)}}{
-              "role": "function",
-              "parts": [
-                {
-                  "functionResponse": {
+                ]
+              },{{/if}}{{/each}}
+              "contents": [
+                {{#each messages}}{{#if (isUser role)}}{
+                  "role": "user",
+                  "parts": [
+                    {
+                      "text": {{convertStringToJsonString content}}
+                    }
+                  ]
+                }{{#unless @last}},
+                {{/unless}}{{/if}}{{#if (isModel role)}}{
+                  "role": "model",
+                  "parts": [
+                    {{#if content}}{
+                      "text": {{convertStringToJsonString content}}
+                    }{{/if}}
+                    {{#each toolCalls}}{
+                    "functionCall": {
                     "name": {{convertStringToJsonString toolName}},
-                    "response": {
-                      "result": {{convertStringToJsonString content}}
+                      "args": {
+                        {{#each toolParameters}}
+                        {{convertStringToJsonString parameterName}}: {{convertToolParameterValueToJsonString parameterValue}}
+                        {{#unless @last}},
+                        {{/unless}}{{/each}}
+                      }
+                    }
+                    {{#unless @last}},
+                    {{/unless}} } {{/each}}
+                  ]
+                }{{#unless @last}},
+                {{/unless}}{{/if}}{{#if (isTool role)}}{
+                  "role": "function",
+                  "parts": [
+                    {
+                      "functionResponse": {
+                        "name": {{convertStringToJsonString toolName}},
+                        "response": {
+                          "result": {{convertStringToJsonString content}}
+                        }
+                      }
+                    }
+                  ]
+                }{{#unless @last}},
+                {{/unless}}{{/if}}{{/each}}
+              ],
+              "tools": [
+                {
+                  "function_declarations": [
+                    {{#each tools}}{
+                      "name": {{convertStringToJsonString name}},
+                      "description": {{convertStringToJsonString description}},
+                      "parameters": {
+                        "type": "object",
+                        "properties": {
+                          {{#each parameters}}{{convertStringToJsonString name}}: {
+                            "type": {{#if (isStringType type)}}"string"{{/if}}{{#if (isIntegerType type)}}"integer"{{/if}}{{#if (isNumberType type)}}"number"{{/if}}{{#if (isBooleanType type)}}"boolean"{{/if}},
+                            "description": {{convertStringToJsonString description}}
+                          }{{#unless @last}},
+                          {{/unless}}{{/each}}
+                        },
+                        "required": [
+                          {{#each requiredParameters}}{{convertStringToJsonString name}}{{#unless @last}},
+                          {{/unless}}{{/each}}
+                        ]
+                      }
+                    }{{#unless @last}},
+                    {{/unless}}{{/each}}
+                  ]
+                }
+              ],
+              "generationConfig": {
+                "stopSequences": [
+                  "Title"
+                ],
+                "temperature": 1.0,
+                "topP": 0.8,
+                "topK": 10
+              }
+            }
+            """;
+    }
+
+    private static String buildGPT5Template() {
+        return """
+            {
+              "model": "{{modelName}}",
+              "messages": [
+                {{#each messages}}{
+                  "role": "{{#if (isSystem role)}}system{{/if}}{{#if (isUser role)}}user{{/if}}{{#if (isModel role)}}assistant{{/if}}{{#if (isTool role)}}tool{{/if}}",
+                  "content": {{convertStringToJsonString content}}{{#if (isModel role)}}{{#if toolCalls}}null,
+                  "tool_calls": [
+                    {{#each toolCalls}}{
+                      "id": {{convertStringToJsonString toolCallId}},
+                      "type": "function",
+                      "function": {
+                        "name": {{convertStringToJsonString toolName}},
+                        "arguments": {{convertToolParametersToJsonString toolParameters}}
+                      }
+                    }{{#unless @last}},{{/unless}}{{/each}}
+                  ]{{/if}}{{/if}}{{#if (isTool role)}},
+                  "tool_call_id": {{convertStringToJsonString toolCallId}}{{/if}}
+                }{{#unless @last}},{{/unless}}{{/each}}
+              ]{{#if tools}},
+              "tools": [
+                {{#each tools}}{
+                  "type": "function",
+                  "function": {
+                    "name": "{{name}}",
+                    "description": {{convertStringToJsonString description}},
+                    "parameters": {
+                      "type": "object",
+                      "properties": {
+                        {{#each parameters}}"{{name}}": {
+                          "type": "{{#if (isStringType type)}}string{{/if}}{{#if (isIntegerType type)}}integer{{/if}}{{#if (isNumberType type)}}number{{/if}}{{#if (isBooleanType type)}}boolean{{/if}}",
+                          "description": {{convertStringToJsonString description}}
+                        }{{#unless @last}},{{/unless}}{{/each}}
+                      },
+                      "required": [{{#each requiredParameters}}{{convertStringToJsonString name}}{{#unless @last}},{{/unless}}{{/each}}]
                     }
                   }
-                }
-              ]
-            }{{#unless @last}},
-            {{/unless}}{{/if}}{{/each}}
-          ],
-          "tools": [
-            {
-              "function_declarations": [
-                {{#each tools}}{
-                  "name": {{convertStringToJsonString name}},
-                  "description": {{convertStringToJsonString description}},
-                  "parameters": {
-                    "type": "object",
-                    "properties": {
-                      {{#each parameters}}{{convertStringToJsonString name}}: {
-                        "type": {{#if (isStringType type)}}"string"{{/if}}{{#if (isIntegerType type)}}"integer"{{/if}}{{#if (isNumberType type)}}"number"{{/if}}{{#if (isBooleanType type)}}"boolean"{{/if}},
-                        "description": {{convertStringToJsonString description}}
-                      }{{#unless @last}},
-                      {{/unless}}{{/each}}
-                    },
-                    "required": [
-                      {{#each requiredParameters}}{{convertStringToJsonString name}}{{#unless @last}},
-                      {{/unless}}{{/each}}
-                    ]
-                  }
-                }{{#unless @last}},
-                {{/unless}}{{/each}}
-              ]
+                }{{#unless @last}},{{/unless}}{{/each}}
+              ]{{/if}}
             }
-          ],
-          "generationConfig": {
-            "stopSequences": [
-              "Title"
-            ],
-            "temperature": 1.0,
-            "topP": 0.8,
-            "topK": 10
-          }
-        }
-        """;
-      return template;
+            """;
     }
 }
