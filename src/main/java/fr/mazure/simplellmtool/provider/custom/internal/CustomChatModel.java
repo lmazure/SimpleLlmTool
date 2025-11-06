@@ -35,13 +35,14 @@ import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.TokenUsage;
+import fr.mazure.simplellmtool.tools.ToolParameterValue;
 
-/*
- * Represents a fully customizable chat model that can be used in the LangChain4j framework
+/**
+ * CustomChatModel represents a fully customizable chat model that can be used in the LangChain4j framework
  */
 public class CustomChatModel implements ChatModel {
 
-    /*
+    /**
      * Represents the reason why the model stopped text generation
      */
     public enum FinishingReason {
@@ -68,6 +69,7 @@ public class CustomChatModel implements ChatModel {
     private final Map<String, FinishingReason> finishReasonMappings;
     private final String toolCallsPath;
     private final String toolNamePath;
+    private final Optional<String> toolCallIdPath;
     private final Optional<String> toolArgumentsDictPath;
     private final Optional<String> toolArgumentsStringPath;
     private final Boolean logRequests;
@@ -89,6 +91,7 @@ public class CustomChatModel implements ChatModel {
         this.finishReasonMappings = builder.getFinishReasonMappings();
         this.toolCallsPath = builder.getToolCallsPath();
         this.toolNamePath = builder.getToolNamePath();
+        this.toolCallIdPath = builder.getToolCallIdPath();
         this.toolArgumentsDictPath = builder.getToolArgumentsDictPath();
         this.toolArgumentsStringPath = builder.getToolArgumentsStringPath();
         this.logRequests = builder.isLogRequests();
@@ -138,8 +141,6 @@ public class CustomChatModel implements ChatModel {
 
     private String buildRequestBody(final ChatRequest chatRequest,
                                     final List<ToolSpecification> toolSpecifications) {
-        System.out.println("messages=" + chatRequest.messages());
-        System.out.println("converted messages=" + convertMessages(chatRequest.messages()));
         return RequestPayloadGenerator.generate(this.payloadTemplate,
                                                 convertMessages(chatRequest.messages()),
                                                 this.modelName,
@@ -175,10 +176,15 @@ public class CustomChatModel implements ChatModel {
 
     private MessageRound convertMessage(final ChatMessage message) {
         return switch (message) {
-            case UserMessage userMessage -> new MessageRound(MessageRound.Role.USER, userMessage.singleText());
+            case UserMessage userMessage -> new MessageRound(MessageRound.Role.USER,
+                                                             userMessage.singleText());
             case AiMessage aiMessage -> buildModelMessageRound(aiMessage);
-            case SystemMessage systemMessage -> new MessageRound(MessageRound.Role.SYSTEM, systemMessage.text());
-            case ToolExecutionResultMessage toolExecutionResultMessage -> new MessageRound(MessageRound.Role.TOOL, toolExecutionResultMessage.text(), toolExecutionResultMessage.toolName());
+            case SystemMessage systemMessage -> new MessageRound(MessageRound.Role.SYSTEM,
+                                                                 systemMessage.text());
+            case ToolExecutionResultMessage toolExecutionResultMessage -> new MessageRound(MessageRound.Role.TOOL,
+                                                                                           toolExecutionResultMessage.text(),
+                                                                                           toolExecutionResultMessage.toolName(),
+                                                                                           toolExecutionResultMessage.id());
             default -> throw new IllegalArgumentException("Unsupported message type: " + message.getClass());
         };
     }
@@ -203,8 +209,8 @@ public class CustomChatModel implements ChatModel {
 
                     // Convert each entry to a MessageRoundToolPamameter
                     for (Map.Entry<String, Object> entry: argumentsMap.entrySet()) {
-                        final String paramValue = (entry.getValue() != null) ? entry.getValue().toString()
-                                                                             : null;
+                        final ToolParameterValue paramValue = (entry.getValue() != null) ? ToolParameterValue.convert(entry.getValue())
+                                                                                         : null;
                         toolParameters.add(new MessageRound.ToolParameter(entry.getKey(), paramValue));
                     }
                 }
@@ -214,7 +220,7 @@ public class CustomChatModel implements ChatModel {
                 throw new RuntimeException("Failed to parse tool arguments", e);
             }
 
-            toolCalls.add(new MessageRound.ToolCall(request.name(), toolParameters));
+            toolCalls.add(new MessageRound.ToolCall(request.name(), request.id(), toolParameters));
         }
 
         return new MessageRound(MessageRound.Role.MODEL, text, toolCalls);
@@ -225,6 +231,10 @@ public class CustomChatModel implements ChatModel {
         AiMessage aiMessage;
 
         final ObjectMapper objectMapper = new ObjectMapper();
+        final String jsonError = isValidJson(responseBody);
+        if (Objects.nonNull(jsonError)) {
+            throw new IllegalArgumentException("The received payload is invalid JSON: " + jsonError + "\n" + StringUtils.addLineNumbers(responseBody));
+        }
         final JsonNode rootNode = objectMapper.readTree(responseBody);
 
         // Try to extract tool calls using the configured path
@@ -248,9 +258,10 @@ public class CustomChatModel implements ChatModel {
                     // Convert args to a JSON string
                     final String arguments = argsNode.toString();
 
-                    // Create a unique ID for this tool execution request
-                    final String id = UUID.randomUUID().toString();
-
+                    // get the call ID if there is one
+                    // otherwise create a unique ID for this tool execution request
+                    final String id = this.toolCallIdPath.isPresent() ? JsonPathExtractor.extractString(toolCallNode, this.toolCallIdPath.get())
+                                                                      : UUID.randomUUID().toString();
                     final ToolExecutionRequest toolRequest = ToolExecutionRequest.builder()
                                                                                  .id(id)
                                                                                  .name(functionName)

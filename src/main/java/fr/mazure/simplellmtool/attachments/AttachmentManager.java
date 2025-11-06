@@ -1,4 +1,4 @@
-package fr.mazure.simplellmtool;
+package fr.mazure.simplellmtool.attachments;
 
 import java.io.IOException;
 import java.net.URI;
@@ -15,11 +15,9 @@ import dev.langchain4j.data.message.Content;
 import dev.langchain4j.data.message.ImageContent;
 import dev.langchain4j.data.message.PdfFileContent;
 import dev.langchain4j.data.message.VideoContent;
-import fr.mazure.simplellmtool.CommandLine.Attachment;
-import fr.mazure.simplellmtool.CommandLine.AttachmentSource;
 
-/*
- * AttachmentManager is a class that manages attachments
+/**
+ * AttachmentManager manages attachments
  */
 public class AttachmentManager {
 
@@ -35,8 +33,8 @@ public class AttachmentManager {
             return attachments.stream()
                             .map(attachment -> {
                                 try {
-                                    return ((attachment.source() == AttachmentSource.FILE) ? getFileContent(Paths.get(attachment.path()))
-                                                                                           : getUriContent(new URI(attachment.path())));
+                                    return ((attachment.source() == Attachment.AttachmentSource.FILE) ? getFileContent(Paths.get(attachment.path()))
+                                                                                                      : getUriContent(new URI(attachment.path())));
                                 } catch (final AttachmentManagerException|URISyntaxException e) {
                                     throw new RuntimeException(e);
                                 }
@@ -54,7 +52,7 @@ public class AttachmentManager {
         }
     }
 
-    /*
+    /**
      * Returns the content of a file
      *
      * @param filePath The path of the file
@@ -76,7 +74,7 @@ public class AttachmentManager {
         };
     }
 
-    /*
+    /**
      * Returns the content of a URI
      *
      * @param uri The URI of the file
@@ -97,7 +95,7 @@ public class AttachmentManager {
         };
     }
 
-    /*
+    /**
      * Returns the type of an attachment
      *
      * @param extension The extension of the file
@@ -116,7 +114,7 @@ public class AttachmentManager {
         };
     }
 
-    /*
+    /**
      * Returns the content of an image file
      *
      * @param filePath The path of the file
@@ -135,7 +133,7 @@ public class AttachmentManager {
         return ImageContent.from(base64Data, "image/" + fileExtension);
     }
 
-    /*
+    /**
      * Returns the content of an audio file
      *
      * @param filePath The path of the file
@@ -152,7 +150,7 @@ public class AttachmentManager {
     }
 
 
-    /*
+    /**
      * Returns the content of a video file
      *
      * @param filePath The path of the file
@@ -168,7 +166,7 @@ public class AttachmentManager {
         return VideoContent.from(base64Data, "video/" + fileExtension);
     }
 
-    /*
+    /**
      * Returns the content of a PDF file
      *
      * @param filePath The path of the file
@@ -182,7 +180,7 @@ public class AttachmentManager {
         return PdfFileContent.from(base64Data, "application/pdf");
     }
 
-    /*
+    /**
      * Returns the extension of a filename or URL
      *
      * @param filename The filename or URL
@@ -193,7 +191,7 @@ public class AttachmentManager {
         return filename.toString().substring(filename.toString().lastIndexOf('.') + 1).toLowerCase();
     }
 
-    /*
+    /**
      * Returns the content of a file as a base64 string
      *
      * @param filePath The path of the file

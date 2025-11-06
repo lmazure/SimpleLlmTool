@@ -20,11 +20,13 @@ import dev.langchain4j.model.chat.request.json.JsonNumberSchema;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 import dev.langchain4j.model.chat.request.json.JsonSchemaElement;
 import dev.langchain4j.model.chat.request.json.JsonStringSchema;
+import fr.mazure.simplellmtool.tools.ToolParameterType;
+import fr.mazure.simplellmtool.tools.ToolParameterValue;
 
-/*
+/**
  * Generates a payload by evaluating Handlebars templates
  */
-public class RequestPayloadGenerator {
+class RequestPayloadGenerator {
 
     /**
      * Generates a payload by evaluating a Handlebars template with the provided messages.
@@ -36,11 +38,11 @@ public class RequestPayloadGenerator {
      * @param apiKey the API key
      * @return the evaluated template as a string
      */
-    public static String generate(final String handlebarsTemplate,
-                                  final List<MessageRound> messages,
-                                  final String modelName,
-                                  final List<ToolSpecification> tools,
-                                  final String apiKey) {
+    static String generate(final String handlebarsTemplate,
+                           final List<MessageRound> messages,
+                           final String modelName,
+                           final List<ToolSpecification> tools,
+                           final String apiKey) {
         try {
             final Handlebars handlebars = new Handlebars();
 
@@ -62,7 +64,7 @@ public class RequestPayloadGenerator {
         }
     }
 
-    /*
+    /**
      * Registers custom Handlebars helpers for template evaluation
      */
     private static void registerHelpers(final Handlebars handlebars) {
@@ -73,12 +75,27 @@ public class RequestPayloadGenerator {
 
         handlebars.registerHelper("convertStringToJsonString", (final String text, final Options _) -> jsonConverter(text));
         handlebars.registerHelper("convertToolParametersToJsonString", (final List<Map<String, Object>> list, final Options _) -> jsonToolParametersConverter(list));
-
+        handlebars.registerHelper("convertToolParameterValueToJsonString", (final ToolParameterValue value, final Options _) -> jsonToolParameterConverter(value));
 
         handlebars.registerHelper("isStringType",  (final String type, final Options _) -> Boolean.valueOf("string".equals(type)));
         handlebars.registerHelper("isIntegerType", (final String type, final Options _) -> Boolean.valueOf("integer".equals(type)));
         handlebars.registerHelper("isNumberType",  (final String type, final Options _) -> Boolean.valueOf("number".equals(type)));
         handlebars.registerHelper("isBooleanType", (final String type, final Options _) -> Boolean.valueOf("boolean".equals(type)));
+    }
+
+    /**
+     * Converts a tool parameter value to a JSON string
+     *
+     * @param value the tool parameter value
+     * @return the JSON string
+     */
+    private static String jsonToolParameterConverter(final ToolParameterValue value) {
+        return switch (value.type()) {
+            case ToolParameterType.STRING -> "\"" + StringUtils.escapeStringForJson(value.getString()) + "\"";
+            case ToolParameterType.INTEGER -> value.getInteger().toString();
+            case ToolParameterType.NUMBER -> value.getDouble().toString();
+            case ToolParameterType.BOOLEAN -> value.getBoolean().toString();
+        };
     }
 
     /**
@@ -96,17 +113,22 @@ public class RequestPayloadGenerator {
                 sb.append(", ");
             }
             sb.append("\\\"");
-            sb.append(escapeString(map.get("parameterName").toString()));
-            sb.append("\\\": \\\"");
-            sb.append(escapeString(map.get("parameterValue").toString()));
-            sb.append("\\\"");
+            sb.append(StringUtils.escapeStringForJson(map.get("parameterName").toString()));
+            sb.append("\\\": ");
+            final ToolParameterValue value = (ToolParameterValue)map.get("parameterValue");
+            switch (value.type()) {
+                case ToolParameterType.STRING -> sb.append("\\\"" + StringUtils.escapeStringForJson(value.getString()) + "\\\"");
+                case ToolParameterType.INTEGER -> sb.append(value.getInteger().toString());
+                case ToolParameterType.NUMBER -> sb.append(value.getDouble().toString());
+                case ToolParameterType.BOOLEAN -> sb.append(value.getBoolean().toString());
+            }
         }
         sb.append(" }\"");
         return sb.toString();
     }
 
     /**
-     * Convert a string to a JSON string (including the enclosing quotes)
+     * Converts a string to a JSON string (including the enclosing quotes)
      *
      * @param text the string to convert
      * @return the JSON string
@@ -115,59 +137,10 @@ public class RequestPayloadGenerator {
         if (Objects.isNull(input)) { //TODO why to we need this?
             return null;
         }
-        return "\"" + escapeString(input) + "\"";
+        return "\"" + StringUtils.escapeStringForJson(input) + "\"";
     }
 
     /**
-     * Escapes a string for JSON
-     *
-     * @param input the string to escape
-     * @return the escaped string
-     */
-    private static String escapeString(final String input) {
-        final StringBuilder escaped = new StringBuilder();
-
-        for (int i = 0; i < input.length(); i++) {
-            final char c = input.charAt(i);
-
-            switch (c) {
-                case '"':
-                    escaped.append("\\\"");
-                    break;
-                case '\\':
-                    escaped.append("\\\\");
-                    break;
-                case '\b':
-                    escaped.append("\\b");
-                    break;
-                case '\f':
-                    escaped.append("\\f");
-                    break;
-                case '\n':
-                    escaped.append("\\n");
-                    break;
-                case '\r':
-                    escaped.append("\\r");
-                    break;
-                case '\t':
-                    escaped.append("\\t");
-                    break;
-                default:
-                    if (c < 0x20) {
-                        // Only escape control characters (0x00-0x1F)
-                        escaped.append(String.format("\\u%04x", Integer.valueOf(c)));
-                    } else {
-                        // Preserve all other characters including emojis
-                        escaped.append(c);
-                    }
-                    break;
-            }
-        }
-
-        return escaped.toString();
-    }
-
-    /*
      * Converts a list of MessageRound objects into a list of maps suitable for template evaluation.
      */
     private static List<Map<String, Object>> convertMessageRounds(final List<MessageRound> rounds) {
@@ -179,12 +152,13 @@ public class RequestPayloadGenerator {
             tool.put("content", round.content());
             tool.put("toolCalls", convertMessageRoundToolCalls(round.toolCalls()));
             tool.put("toolName", round.tool());
+            tool.put("toolCallId", round.toolCallId());
             tools.add(tool);
         }
         return tools;
     }
 
-    /*
+    /**
      * Converts a list of ToolCall objects to a list of maps for template data.
      */
     private static List<Map<String, Object>> convertMessageRoundToolCalls(final List<MessageRound.ToolCall> toolCalls) {
@@ -193,13 +167,14 @@ public class RequestPayloadGenerator {
         for (final MessageRound.ToolCall toolCall: toolCalls) {
             final Map<String, Object> tool = new HashMap<>();
             tool.put("toolName", toolCall.toolName());
+            tool.put("toolCallId", toolCall.toolCallId());
             tool.put("toolParameters", convertMessageRoundToolParameters(toolCall.toolParameters()));
             tools.add(tool);
         }
         return tools;
     }
 
-    /*
+    /**
      * Converts a list of ToolParameter objects to a list of maps for template data.
      */
     private static List<Map<String, Object>> convertMessageRoundToolParameters(final List<MessageRound.ToolParameter> parameters) {

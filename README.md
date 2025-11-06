@@ -149,31 +149,34 @@ The provider is indicated on the command line with the `--provider <provider>` p
 
 ### custom
 
-| parameter                 | description                                                   | type   | compulsory   |
-| ------------------------- | ------------------------------------------------------------- | ------ | ------------ |
-| `modelName`               | name of the model                                             | string | yes          |
-| `url`                     | URL of the provider                                           | string | yes          |
-| `apiKeyEnvVar`            | name of the environment variable containing the API key       | string | yes          |
-| `payloadTemplate`         | payload template for the API calls                            | string | yes          |
-| `httpHeaders`             | HTTP headers to send with the API calls†<br>this is a dictionary where the key is the header name and the value is the header value template | dictionary   | yes          |
-| `answerPath`              | JSON path to the field containing the answer                  | string | yes          |
-| `inputTokenPath`          | JSON path to the field containing the number of input tokens  | string | yes          |
-| `outputTokenPath`         | JSON path to the field containing the number of output tokens | string | yes          |
-| `finishReasonPath`        | JSON path to the field containing the finish reason           | string | yes          |
-| `finishReasonMappings`    | mappings of the finish reason of the model<br>this is a dictionary where the key is finish reason as provided by the model and the value is either `DONE` or `MAX_TOKEN`️‡ | dictionary   | yes          |
-| `toolCallsPath`           | JSON path to the array of tool calls in the response          | string | yes          |
-| `toolNamePath`            | JSON path to the tool name within a tool call element         | string | yes          |
-| `toolArgumentsDictPath`   | JSON path to the tool arguments dictionary within a tool call element    | string | yes          |
-| `toolArgumentsStringPath` | JSON path to the tool arguments string within a tool call element    | string | yes          |
+| parameter                 | description                                                            | type   | compulsory   |
+| ------------------------- | ---------------------------------------------------------------------- | ------ | ------------ |
+| `modelName`               | name of the model                                                      | string | yes          |
+| `url`                     | URL of the provider                                                    | string | yes          |
+| `apiKeyEnvVar`            | name of the environment variable containing the API key                | string | yes          |
+| `payloadTemplate`         | payload template for the API calls                                     | string | yes          |
+| `httpHeaders`             | HTTP headers to send with the API calls*<br>this is a dictionary where the key is the header name and the value is the header value template | dictionary   | yes          |
+| `answerPath`              | JSON path to the field containing the answer                           | string | yes          |
+| `inputTokenPath`          | JSON path to the field containing the number of input tokens           | string | yes          |
+| `outputTokenPath`         | JSON path to the field containing the number of output tokens          | string | yes         *|
+| `finishReasonPath`        | JSON path to the field containing the finish reason                    | string | yes          |
+| `finishReasonMappings`    | mappings of the finish reason of the model<br>this is a dictionary where<br>- the key is finish reason as provided by the model<br>- the value is either `DONE`, `MAX_TOKEN`️, or `TOOL_CALL`‡ | dictionary   | yes          |
+| `toolCallsPath`           | JSON path to the array of tool calls in the response‡                  | string | yes          |
+| `toolNamePath`            | JSON path to the tool name within a tool call element‡                 | string | yes          |
+| `toolCallId`              | JSON path to the call ID within a tool call element‡                   | string | no           |
+| `toolArgumentsDictPath`   | JSON path to the tool arguments dictionary within a tool call element‡ | string | yes          |
+| `toolArgumentsStringPath` | JSON path to the tool arguments string within a tool call element‡     | string | yes          |
 
 #### Notes
 
-† The HTTP header `Content-Type: application/json` is added automatically. It is possible to define no HTTP headers, but the `httpHeaders` still needs to be present.
+* The HTTP header `Content-Type: application/json` is added automatically. It is possible to define no HTTP headers, but the `httpHeaders` still needs to be present.
 
-️‡ The finish reasons supported by SimpleLlmTool are:
+️† The finish reasons supported by SimpleLlmTool are:
 - `DONE`: the model has finished generating text
 - `MAX_TOKENS`: the model has reached the maximum number of tokens
 - `TOOL_CALL`: the model has called a tool
+
+‡ See [paragraph below](#json-paths-for-tool-calls).
 
 #### Templates
 
@@ -187,16 +190,19 @@ The following Handlebars variables are available:
        system prompt if `isSystem role` is true  
        message of the user if `isUser role` is true  
        answer generated by the moded if `isModel role` is true  
-       result generated by the tool if `isTOol role` is true
+       result generated by the tool if `isTool role` is true
     - `toolCalls` the list of tool calls performed by the model  
       this list is available only if `isModel role` is true  
       each tool call has
       - `toolName` the name of the called tool
-      - `toolParameters` the list parameter values for the call  
+      - `toolCallId` the ID of the call
+      - `toolParameters` the list parameter names and values for the call  
         each tool parameter has
         - `parameterName`
         - `parameterValue`
-    - `toolName` the name of the tool that generated the result
+    - `toolCallId` the ID of the tool call that generated the result  
+       available only if `isTool role` is true
+    - `toolName` the name of the tool that generated the result  
        available only if `isTool role` is true
 - `modelName`: the name of the model
 - `tools` : the list of available tools  
@@ -228,7 +234,9 @@ The following helpers are available:
     - `isNumberType` (boolean)
     - `isBooleanType` (boolean)
 - to be used on `messages.toolCalls.toolParameters`
-    - `convertToolParametersToJsonString` (string): converts a list of tool parameters to a JSON string
+    - `convertToolParametersToJsonString` (string): converts a list of tool parameter names and values to a JSON string
+- to be used on `messages.toolCalls.toolParameters.parameterValue`
+    - `convertToolParameterValueToJsonString` (string): converts a tool parameter value to a JSON string
 
 #### Example 1 - OpenAI
 (see [this document](https://platform.openai.com/docs/api-reference/chat/create?lang=curl))

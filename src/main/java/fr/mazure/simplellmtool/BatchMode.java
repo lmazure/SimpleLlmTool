@@ -13,7 +13,11 @@ import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.response.ChatResponse;
-import fr.mazure.simplellmtool.CommandLine.Attachment;
+import fr.mazure.simplellmtool.attachments.Attachment;
+import fr.mazure.simplellmtool.attachments.AttachmentManager;
+import fr.mazure.simplellmtool.attachments.AttachmentManagerException;
+import fr.mazure.simplellmtool.tools.ToolManager;
+import fr.mazure.simplellmtool.tools.ToolManagerException;
 
 /**
  * The BatchMode class handles batch processing.
@@ -34,12 +38,12 @@ public class BatchMode extends BaseMode {
      * @return The exit code.
      */
     static int handleBatch(final ChatModel model,
-                            final Optional<String> sysPrompt,
-                            final String userPrompt,
-                            final List<Attachment> initialAttachments,
-                            final PrintStream output,
-                            final PrintStream error,
-                            final Optional<ToolManager> toolManager) {
+                           final Optional<String> sysPrompt,
+                           final String userPrompt,
+                           final List<Attachment> initialAttachments,
+                           final PrintStream output,
+                           final PrintStream error,
+                           final Optional<ToolManager> toolManager) {
         final ChatMemory memory = MessageWindowChatMemory.withMaxMessages(15);
 
         if (sysPrompt.isPresent()) {

@@ -11,17 +11,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import fr.mazure.simplellmtool.attachments.Attachment;
+
 /**
  * The CommandLine class parses command-line arguments to configure a chat application.
  */
 public class CommandLine {
 
-    public enum AttachmentSource {
-        FILE,
-        URL;
-    }
-
-    public record Attachment(AttachmentSource source, String path) {}
     /**
      * Parameters for the chat application.
      *
@@ -128,7 +124,7 @@ public class CommandLine {
                     System.err.println("Missing argument for --attachment-file");
                     System.exit(ExitCode.INVALID_COMMAND_LINE.getCode());
                 }
-                attachments.add(new Attachment(AttachmentSource.FILE, args[i + 1]));
+                attachments.add(new Attachment(Attachment.AttachmentSource.FILE, args[i + 1]));
                 i++;
                 continue;
             }
@@ -137,7 +133,7 @@ public class CommandLine {
                     System.err.println("Missing argument for --attachment-url");
                     System.exit(ExitCode.INVALID_COMMAND_LINE.getCode());
                 }
-                attachments.add(new Attachment(AttachmentSource.URL, args[i + 1]));
+                attachments.add(new Attachment(Attachment.AttachmentSource.URL, args[i + 1]));
                 i++;
                 continue;
             }

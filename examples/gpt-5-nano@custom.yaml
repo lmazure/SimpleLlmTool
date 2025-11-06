@@ -11,7 +11,7 @@ payloadTemplate: |
         "content": {{convertStringToJsonString content}}{{#if (isModel role)}}{{#if toolCalls}}null,
         "tool_calls": [
           {{#each toolCalls}}{
-            "id": "call_{{@index}}",
+            "id": {{convertStringToJsonString toolCallId}},
             "type": "function",
             "function": {
               "name": {{convertStringToJsonString toolName}},
@@ -19,7 +19,7 @@ payloadTemplate: |
             }
           }{{#unless @last}},{{/unless}}{{/each}}
         ]{{/if}}{{/if}}{{#if (isTool role)}},
-        "tool_call_id": "call_0"{{/if}}
+        "tool_call_id": {{convertStringToJsonString toolCallId}}{{/if}}
       }{{#unless @last}},{{/unless}}{{/each}}
     ]{{#if tools}},
     "tools": [
@@ -58,4 +58,5 @@ finishReasonMappings:
 
 toolCallsPath: choices[0].message.tool_calls
 toolNamePath: function.name
+toolCallId : id
 toolArgumentsStringPath: function.arguments

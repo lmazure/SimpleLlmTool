@@ -1,4 +1,4 @@
-package fr.mazure.simplellmtool;
+package fr.mazure.simplellmtool.tools;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,25 +10,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 
+/**
+ * ToolManager manages the tools (implemented as Python scripts)
+ */
 public class ToolManager {
 
-    public enum ToolParameterType {
-        STRING,
-        INTEGER,
-        NUMBER,
-        BOOLEAN
-    }
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     public record ToolParameter(String name, String description, ToolParameterType type, boolean required) {}
     public record Tool(String name, String description, List<ToolParameter> parameters) {}
-
     private final Path toolsDir;
     private final List<Tool> toolList;
 
@@ -114,7 +112,7 @@ public class ToolManager {
     }
 
     private Tool getToolDescription(final String toolName) throws ToolManagerException {
-        final String output = executeTool(toolName, List.of("--description"));
+        final String output = executeTool(toolName, List.of(new ToolParameterValue(ToolParameterType.STRING, "--description")));
 
         final StringReader stringReader = new StringReader(output);
         final BufferedReader bufferedReader = new BufferedReader(stringReader);
@@ -167,7 +165,7 @@ public class ToolManager {
     }
 
     private String executeTool(final String toolName,
-                               final List<String> arguments) throws ToolManagerException {
+                               final List<ToolParameterValue> arguments) throws ToolManagerException {
         final File toolsDir = this.toolsDir.toFile();
         final File pythonFile = new File(toolsDir, toolName + ".py");
         if (!pythonFile.exists() || !pythonFile.isFile()) {
@@ -179,7 +177,7 @@ public class ToolManager {
             final List<String> args = new ArrayList<>();
             args.add("python");
             args.add(pythonFile.getAbsolutePath());
-            args.addAll(arguments);
+            arguments.stream().forEach(arg -> args.add(arg.convertToString()));
             final ProcessBuilder pb = new ProcessBuilder(args);
             pb.redirectErrorStream(true);
             final Process process = pb.start();
@@ -193,7 +191,7 @@ public class ToolManager {
 
             final int exitCode = process.waitFor();
             if (exitCode != 0) {
-                throw new ToolManagerException("Tool '" + toolName + "'' failed with exit code " + exitCode);
+                throw new ToolManagerException("Tool '" + toolName + "'' failed with exit code " + exitCode + ": " + output.toString());
             }
         } catch (final IOException | InterruptedException e) {
             throw new ToolManagerException("Failed to execute " + pythonFile, e);
@@ -202,24 +200,44 @@ public class ToolManager {
         return output.toString();
     }
 
-    public static List<String> extractValues(final List<ToolParameter> parameters,
-                                             final String jsonString) throws ToolManagerException {
-        JSONObject jsonObject;
+    public static List<ToolParameterValue> extractValues(final List<ToolParameter> parameters,
+                                                         final String jsonString) throws ToolManagerException {
+        JsonNode jsonNode;
         try {
-            jsonObject = new JSONObject(jsonString);
-        } catch (final JSONException e) {
-            throw new ToolManagerException("The model return an invalid value for the tool parameters " + parameters + " in " + jsonString, e);
+            jsonNode = OBJECT_MAPPER.readTree(jsonString);
+        } catch (final IOException e) {
+            throw new ToolManagerException("The model returned an invalid value for the tool parameters " + parameters + " in " + jsonString, e);
         }
 
-        final List<String> result = new ArrayList<>();
-        try {
-            for (final String key: parameters.stream().map(ToolParameter::name).toList()) {
-                result.add(jsonObject.getString(key));
+        final List<ToolParameterValue> parameterValues = new ArrayList<>();
+        for (final ToolParameter parameter: parameters) {
+            final String key = parameter.name();
+            final JsonNode valueNode = jsonNode.get(key);
+
+            if (valueNode == null || valueNode.isNull()) {
+                if (parameter.required()) {
+                    throw new ToolManagerException("The model did not return a value for required parameter '" + key + "' in " + jsonString);
+                }
+                continue;
             }
-        } catch (final JSONException e) {
-            throw new ToolManagerException("The model did not return a value for the tool parameters " + parameters + " in " + jsonString, e);
+
+            try {
+                if (valueNode.isTextual()) {
+                    parameterValues.add(new ToolParameterValue(ToolParameterType.STRING, valueNode.asText()));
+                } else if (valueNode.isInt()) {
+                    parameterValues.add(new ToolParameterValue(ToolParameterType.INTEGER, Integer.valueOf(valueNode.asInt())));
+                } else if (valueNode.isDouble() || valueNode.isFloat()) {
+                    parameterValues.add(new ToolParameterValue(ToolParameterType.NUMBER, Double.valueOf(valueNode.asDouble())));
+                } else if (valueNode.isBoolean()) {
+                    parameterValues.add(new ToolParameterValue(ToolParameterType.BOOLEAN, Boolean.valueOf(valueNode.asBoolean())));
+                } else {
+                    throw new ToolManagerException("The model returned a value of unexpected type for the tool parameter '" + key + "' in " + jsonString);
+                }
+            } catch (final IllegalArgumentException e) {
+                throw new ToolManagerException("The model returned an invalid value for the tool parameter '" + key + "' in " + jsonString, e);
+            }
         }
 
-        return result;
+        return parameterValues;
     }
 }

@@ -30,7 +30,7 @@ payloadTemplate: |
                 "name": {{convertStringToJsonString toolName}},
                   "args": {
                     {{#each toolParameters}}
-                    {{convertStringToJsonString parameterName}}: {{convertStringToJsonString parameterValue}}
+                    {{convertStringToJsonString parameterName}}: {{convertToolParameterValueToJsonString parameterValue}}
                     {{#unless @last}},
                     {{/unless}}{{/each}}
                   }
