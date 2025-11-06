@@ -3,12 +3,12 @@ package fr.mazure.simplellmtool.provider.custom.internal;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-/*
- * Utility class for string operations. 
+/**
+ * Utility class for string operations
  */
 class StringUtils {
-    
-    /*
+
+    /**
      * Adds line numbers to the input string.
      */
     static String addLineNumbers(final String input) {

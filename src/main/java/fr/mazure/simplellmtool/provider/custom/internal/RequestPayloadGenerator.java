@@ -23,7 +23,7 @@ import dev.langchain4j.model.chat.request.json.JsonStringSchema;
 import fr.mazure.simplellmtool.tools.ToolParameterType;
 import fr.mazure.simplellmtool.tools.ToolParameterValue;
 
-/*
+/**
  * Generates a payload by evaluating Handlebars templates
  */
 class RequestPayloadGenerator {
@@ -64,7 +64,7 @@ class RequestPayloadGenerator {
         }
     }
 
-    /*
+    /**
      * Registers custom Handlebars helpers for template evaluation
      */
     private static void registerHelpers(final Handlebars handlebars) {
@@ -83,6 +83,12 @@ class RequestPayloadGenerator {
         handlebars.registerHelper("isBooleanType", (final String type, final Options _) -> Boolean.valueOf("boolean".equals(type)));
     }
 
+    /**
+     * Converts a tool parameter value to a JSON string
+     *
+     * @param value the tool parameter value
+     * @return the JSON string
+     */
     private static String jsonToolParameterConverter(final ToolParameterValue value) {
         return switch (value.type()) {
             case ToolParameterType.STRING -> "\"" + StringUtils.escapeStringForJson(value.getString()) + "\"";
@@ -91,7 +97,7 @@ class RequestPayloadGenerator {
             case ToolParameterType.BOOLEAN -> value.getBoolean().toString();
         };
     }
-    
+
     /**
      * Converts a list of tool parameters to a JSON string
      *
@@ -122,7 +128,7 @@ class RequestPayloadGenerator {
     }
 
     /**
-     * Convert a string to a JSON string (including the enclosing quotes)
+     * Converts a string to a JSON string (including the enclosing quotes)
      *
      * @param text the string to convert
      * @return the JSON string
@@ -134,7 +140,7 @@ class RequestPayloadGenerator {
         return "\"" + StringUtils.escapeStringForJson(input) + "\"";
     }
 
-    /*
+    /**
      * Converts a list of MessageRound objects into a list of maps suitable for template evaluation.
      */
     private static List<Map<String, Object>> convertMessageRounds(final List<MessageRound> rounds) {
@@ -152,7 +158,7 @@ class RequestPayloadGenerator {
         return tools;
     }
 
-    /*
+    /**
      * Converts a list of ToolCall objects to a list of maps for template data.
      */
     private static List<Map<String, Object>> convertMessageRoundToolCalls(final List<MessageRound.ToolCall> toolCalls) {
@@ -168,7 +174,7 @@ class RequestPayloadGenerator {
         return tools;
     }
 
-    /*
+    /**
      * Converts a list of ToolParameter objects to a list of maps for template data.
      */
     private static List<Map<String, Object>> convertMessageRoundToolParameters(final List<MessageRound.ToolParameter> parameters) {

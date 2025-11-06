@@ -7,7 +7,7 @@ import java.util.Optional;
 
 import fr.mazure.simplellmtool.provider.custom.internal.CustomChatModel.FinishingReason;
 
-/*
+/**
  * Represents a builder for the CustomChatModel class
  */
 public class CustomChatModelBuilder {

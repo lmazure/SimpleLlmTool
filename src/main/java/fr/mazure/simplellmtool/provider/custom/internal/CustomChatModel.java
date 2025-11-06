@@ -37,12 +37,12 @@ import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.TokenUsage;
 import fr.mazure.simplellmtool.tools.ToolParameterValue;
 
-/*
- * Represents a fully customizable chat model that can be used in the LangChain4j framework
+/**
+ * CustomChatModel represents a fully customizable chat model that can be used in the LangChain4j framework
  */
 public class CustomChatModel implements ChatModel {
 
-    /*
+    /**
      * Represents the reason why the model stopped text generation
      */
     public enum FinishingReason {

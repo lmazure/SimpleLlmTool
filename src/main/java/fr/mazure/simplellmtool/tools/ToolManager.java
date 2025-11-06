@@ -18,8 +18,8 @@ import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 
-/*
- * ToolManager manages the tools (implemented as Ptyhon scripts)
+/**
+ * ToolManager manages the tools (implemented as Python scripts)
  */
 public class ToolManager {
 
@@ -213,7 +213,7 @@ public class ToolManager {
         for (final ToolParameter parameter: parameters) {
             final String key = parameter.name();
             final JsonNode valueNode = jsonNode.get(key);
-            
+
             if (valueNode == null || valueNode.isNull()) {
                 if (parameter.required()) {
                     throw new ToolManagerException("The model did not return a value for required parameter '" + key + "' in " + jsonString);

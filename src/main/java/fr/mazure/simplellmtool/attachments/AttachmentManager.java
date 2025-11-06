@@ -16,8 +16,8 @@ import dev.langchain4j.data.message.ImageContent;
 import dev.langchain4j.data.message.PdfFileContent;
 import dev.langchain4j.data.message.VideoContent;
 
-/*
- * AttachmentManager is a class that manages attachments
+/**
+ * AttachmentManager manages attachments
  */
 public class AttachmentManager {
 
@@ -52,7 +52,7 @@ public class AttachmentManager {
         }
     }
 
-    /*
+    /**
      * Returns the content of a file
      *
      * @param filePath The path of the file
@@ -74,7 +74,7 @@ public class AttachmentManager {
         };
     }
 
-    /*
+    /**
      * Returns the content of a URI
      *
      * @param uri The URI of the file
@@ -95,7 +95,7 @@ public class AttachmentManager {
         };
     }
 
-    /*
+    /**
      * Returns the type of an attachment
      *
      * @param extension The extension of the file
@@ -114,7 +114,7 @@ public class AttachmentManager {
         };
     }
 
-    /*
+    /**
      * Returns the content of an image file
      *
      * @param filePath The path of the file
@@ -133,7 +133,7 @@ public class AttachmentManager {
         return ImageContent.from(base64Data, "image/" + fileExtension);
     }
 
-    /*
+    /**
      * Returns the content of an audio file
      *
      * @param filePath The path of the file
@@ -150,7 +150,7 @@ public class AttachmentManager {
     }
 
 
-    /*
+    /**
      * Returns the content of a video file
      *
      * @param filePath The path of the file
@@ -166,7 +166,7 @@ public class AttachmentManager {
         return VideoContent.from(base64Data, "video/" + fileExtension);
     }
 
-    /*
+    /**
      * Returns the content of a PDF file
      *
      * @param filePath The path of the file
@@ -180,7 +180,7 @@ public class AttachmentManager {
         return PdfFileContent.from(base64Data, "application/pdf");
     }
 
-    /*
+    /**
      * Returns the extension of a filename or URL
      *
      * @param filename The filename or URL
@@ -191,7 +191,7 @@ public class AttachmentManager {
         return filename.toString().substring(filename.toString().lastIndexOf('.') + 1).toLowerCase();
     }
 
-    /*
+    /**
      * Returns the content of a file as a base64 string
      *
      * @param filePath The path of the file

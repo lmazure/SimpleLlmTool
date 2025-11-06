@@ -2,17 +2,17 @@ package fr.mazure.simplellmtool.tools;
 
 import java.util.Objects;
 
-/*
+/**
  * ToolParameterValue represents the value of a tool parameter
  */
 public record ToolParameterValue(ToolParameterType type, Object value) {
     public ToolParameterValue {
         Objects.requireNonNull(type, "type cannot be null");
         Objects.requireNonNull(value, "value cannot be null");
-        
+
         validateType(type, value);
     }
-    
+
     public static ToolParameterValue convert(final Object value) {
         return switch(value) {
             case String str -> new ToolParameterValue(ToolParameterType.STRING, str);
@@ -31,24 +31,24 @@ public record ToolParameterValue(ToolParameterType type, Object value) {
             case NUMBER -> value instanceof Double;
             case BOOLEAN -> value instanceof Boolean;
         };
-        
+
         if (!valid) {
             throw new IllegalArgumentException("parameter value type mismatch: expected " + type + ", got " + value.getClass().getName());
         }
     }
-    
+
     public String getString() {
         return (String) this.value;
     }
-    
+
     public Integer getInteger() {
         return (Integer) this.value;
     }
-    
+
     public Double getDouble() {
         return (Double) this.value;
     }
-    
+
     public Boolean getBoolean() {
         return (Boolean) this.value;
     }

@@ -1,7 +1,7 @@
 package fr.mazure.simplellmtool.tools;
 
-/*
- * ToolParameterType represent the type of a tool parmater
+/**
+ * ToolParameterType represents the type of a tool parameter
  */
 public enum ToolParameterType {
     STRING,
