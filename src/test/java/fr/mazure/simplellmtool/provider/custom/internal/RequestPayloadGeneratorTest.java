@@ -93,44 +93,7 @@ class RequestPayloadGeneratorTest {
     @DisplayName("Should generate Google's Gemini payload with multiple messages")
     void testGenerateMultipleMessagesForGoogleGemini() {
         // Given
-        final String template = """
-                {
-                  {{#each messages}}{{#if (isSystem role)}}"system_instruction": {
-                    "parts": [
-                      {
-                        "text": {{convertStringToJsonString content}}
-                      }
-                    ]
-                  },{{/if}}{{/each}}
-                  "contents": [
-                    {{#each messages}}{{#if (isUser role)}}{
-                      "role": "user",
-                      "parts": [
-                        {
-                          "text": {{convertStringToJsonString content}}
-                        }
-                      ]
-                    }{{#unless @last}},
-                    {{/unless}}{{/if}}{{#if (isModel role)}}{
-                      "role": "model",
-                      "parts": [
-                        {
-                          "text": {{convertStringToJsonString content}}
-                        }
-                      ]
-                    }{{#unless @last}},
-                    {{/unless}}{{/if}}{{/each}}
-                  ],
-                  "generationConfig": {
-                    "stopSequences": [
-                      "Title"
-                    ],
-                    "temperature": 1.0,
-                    "topP": 0.8,
-                    "topK": 10
-                  }
-                }
-                """;
+        final String template = buildGeminiTemplate();
 
         final List<MessageRound> messages = Arrays.asList(
             new MessageRound(MessageRound.Role.SYSTEM, "You are a helpful assistant"),
@@ -169,6 +132,7 @@ class RequestPayloadGeneratorTest {
                         {
                           "text": "I don't have access to weather data"
                         }
+                  \s\s\s\s\s\s
                       ]
                     },
                     {
@@ -185,6 +149,7 @@ class RequestPayloadGeneratorTest {
                         {
                           "text": "April fools' day"
                         }
+                  \s\s\s\s\s\s
                       ]
                     },
                     {
@@ -193,6 +158,13 @@ class RequestPayloadGeneratorTest {
                         {
                           "text": "So, tell me a joke!"
                         }
+                      ]
+                    }
+                  ],
+                  "tools": [
+                    {
+                      "function_declarations": [
+                  \s\s\s\s\s\s
                       ]
                     }
                   ],
@@ -214,69 +186,7 @@ class RequestPayloadGeneratorTest {
     @DisplayName("Should generate Google's Gemini payload with multiple tools")
     void testGenerateMultipleToolsForGoogleGemini() throws ToolManagerException {
         // Given
-        final String template = """
-        {
-          {{#each messages}}{{#if (isSystem role)}}"system_instruction": {
-            "parts": [
-              {
-                "text": {{convertStringToJsonString content}}
-              }
-            ]
-          },{{/if}}{{/each}}
-          "contents": [
-            {{#each messages}}{{#if (isUser role)}}{
-              "role": "user",
-              "parts": [
-                {
-                  "text": {{convertStringToJsonString content}}
-                }
-              ]
-            }{{#unless @last}},
-            {{/unless}}{{/if}}{{#if (isModel role)}}{
-              "role": "model",
-              "parts": [
-                {
-                  "text": {{convertStringToJsonString content}}
-                }
-              ]
-            }{{#unless @last}},
-            {{/unless}}{{/if}}{{/each}}
-          ],
-          "tools": [
-            {
-              "function_declarations": [
-                {{#each tools}}{
-                  "name": {{convertStringToJsonString name}},
-                  "description": {{convertStringToJsonString description}},
-                  "parameters": {
-                    "type": "object",
-                    "properties": {
-                      {{#each parameters}}{{convertStringToJsonString name}}: {
-                        "type": {{#if (isStringType type)}}"string"{{/if}}{{#if (isIntegerType type)}}"integer"{{/if}}{{#if (isNumberType type)}}"number"{{/if}}{{#if (isBooleanType type)}}"boolean"{{/if}},
-                        "description": {{convertStringToJsonString description}}
-                      }{{#unless @last}},
-                      {{/unless}}{{/each}}
-                    },
-                    "required": [
-                      {{#each requiredParameters}}{{convertStringToJsonString name}}{{#unless @last}},
-                      {{/unless}}{{/each}}
-                    ]
-                  }
-                }{{#unless @last}},
-                {{/unless}}{{/each}}
-              ]
-            }
-          ],
-          "generationConfig": {
-            "stopSequences": [
-              "Title"
-            ],
-            "temperature": 1.0,
-            "topP": 0.8,
-            "topK": 10
-          }
-        }
-        """;
+        final String template = buildGeminiTemplate();
 
         final List<MessageRound> messages = Arrays.asList(
             new MessageRound(MessageRound.Role.SYSTEM, "You are a helpful assistant"),
@@ -391,94 +301,7 @@ class RequestPayloadGeneratorTest {
     @DisplayName("Should generate Google's Gemini payload with tool call results")
     void testGenerateToolCallResultsForGoogleGemini() throws ToolManagerException {
         // Given
-        final String template = """
-        {
-          {{#each messages}}{{#if (isSystem role)}}"system_instruction": {
-            "parts": [
-              {
-                "text": {{convertStringToJsonString content}}
-              }
-            ]
-          },{{/if}}{{/each}}
-          "contents": [
-            {{#each messages}}{{#if (isUser role)}}{
-              "role": "user",
-              "parts": [
-                {
-                  "text": {{convertStringToJsonString content}}
-                }
-              ]
-            }{{#unless @last}},
-            {{/unless}}{{/if}}{{#if (isModel role)}}{
-              "role": "model",
-              "parts": [
-                {{#if content}}{
-                  "text": {{convertStringToJsonString content}}
-                }{{/if}}
-                {{#each toolCalls}}{
-                "functionCall": {
-                "name": {{convertStringToJsonString toolName}},
-                  "args": {
-                    {{#each toolParameters}}
-                    {{convertStringToJsonString parameterName}}: {{convertToolParameterValueToJsonString parameterValue}}
-                    {{#unless @last}},
-                    {{/unless}}{{/each}}
-                  }
-                }
-                {{#unless @last}},
-                {{/unless}} } {{/each}}
-              ]
-            }{{#unless @last}},
-            {{/unless}}{{/if}}{{#if (isTool role)}}{
-              "role": "function",
-              "parts": [
-                {
-                  "functionResponse": {
-                    "name": {{convertStringToJsonString toolName}},
-                    "response": {
-                      "result": {{convertStringToJsonString content}}
-                    }
-                  }
-                }
-              ]
-            }{{#unless @last}},
-            {{/unless}}{{/if}}{{/each}}
-          ],
-          "tools": [
-            {
-              "function_declarations": [
-                {{#each tools}}{
-                  "name": {{convertStringToJsonString name}},
-                  "description": {{convertStringToJsonString description}},
-                  "parameters": {
-                    "type": "object",
-                    "properties": {
-                      {{#each parameters}}{{convertStringToJsonString name}}: {
-                        "type": {{#if (isStringType type)}}"string"{{/if}}{{#if (isIntegerType type)}}"integer"{{/if}}{{#if (isNumberType type)}}"number"{{/if}}{{#if (isBooleanType type)}}"boolean"{{/if}},
-                        "description": {{convertStringToJsonString description}}
-                      }{{#unless @last}},
-                      {{/unless}}{{/each}}
-                    },
-                    "required": [
-                      {{#each requiredParameters}}{{convertStringToJsonString name}}{{#unless @last}},
-                      {{/unless}}{{/each}}
-                    ]
-                  }
-                }{{#unless @last}},
-                {{/unless}}{{/each}}
-              ]
-            }
-          ],
-          "generationConfig": {
-            "stopSequences": [
-              "Title"
-            ],
-            "temperature": 1.0,
-            "topP": 0.8,
-            "topK": 10
-          }
-        }
-        """;
+        final String template = buildGeminiTemplate();
 
         final List<MessageRound> messages = Arrays.asList(
             new MessageRound(MessageRound.Role.SYSTEM, "You always provide an English anwer, followed by a precise translation in French"),
@@ -654,7 +477,7 @@ class RequestPayloadGeneratorTest {
     @SuppressWarnings("static-method")
     @Test
     @DisplayName("Should handle API key in HTTP headers")
-    void testGenerateApiKet() {
+    void testGenerateApiKey() {
         // Given
         final String template = "Bearer: {{apiKey}}";
 
@@ -773,5 +596,97 @@ class RequestPayloadGeneratorTest {
 
         // Then
         Assertions.assertEquals("", result);
+    }
+
+    private static String buildGeminiTemplate() {
+        final String template = """
+        {
+          {{#each messages}}{{#if (isSystem role)}}"system_instruction": {
+            "parts": [
+              {
+                "text": {{convertStringToJsonString content}}
+              }
+            ]
+          },{{/if}}{{/each}}
+          "contents": [
+            {{#each messages}}{{#if (isUser role)}}{
+              "role": "user",
+              "parts": [
+                {
+                  "text": {{convertStringToJsonString content}}
+                }
+              ]
+            }{{#unless @last}},
+            {{/unless}}{{/if}}{{#if (isModel role)}}{
+              "role": "model",
+              "parts": [
+                {{#if content}}{
+                  "text": {{convertStringToJsonString content}}
+                }{{/if}}
+                {{#each toolCalls}}{
+                "functionCall": {
+                "name": {{convertStringToJsonString toolName}},
+                  "args": {
+                    {{#each toolParameters}}
+                    {{convertStringToJsonString parameterName}}: {{convertToolParameterValueToJsonString parameterValue}}
+                    {{#unless @last}},
+                    {{/unless}}{{/each}}
+                  }
+                }
+                {{#unless @last}},
+                {{/unless}} } {{/each}}
+              ]
+            }{{#unless @last}},
+            {{/unless}}{{/if}}{{#if (isTool role)}}{
+              "role": "function",
+              "parts": [
+                {
+                  "functionResponse": {
+                    "name": {{convertStringToJsonString toolName}},
+                    "response": {
+                      "result": {{convertStringToJsonString content}}
+                    }
+                  }
+                }
+              ]
+            }{{#unless @last}},
+            {{/unless}}{{/if}}{{/each}}
+          ],
+          "tools": [
+            {
+              "function_declarations": [
+                {{#each tools}}{
+                  "name": {{convertStringToJsonString name}},
+                  "description": {{convertStringToJsonString description}},
+                  "parameters": {
+                    "type": "object",
+                    "properties": {
+                      {{#each parameters}}{{convertStringToJsonString name}}: {
+                        "type": {{#if (isStringType type)}}"string"{{/if}}{{#if (isIntegerType type)}}"integer"{{/if}}{{#if (isNumberType type)}}"number"{{/if}}{{#if (isBooleanType type)}}"boolean"{{/if}},
+                        "description": {{convertStringToJsonString description}}
+                      }{{#unless @last}},
+                      {{/unless}}{{/each}}
+                    },
+                    "required": [
+                      {{#each requiredParameters}}{{convertStringToJsonString name}}{{#unless @last}},
+                      {{/unless}}{{/each}}
+                    ]
+                  }
+                }{{#unless @last}},
+                {{/unless}}{{/each}}
+              ]
+            }
+          ],
+          "generationConfig": {
+            "stopSequences": [
+              "Title"
+            ],
+            "temperature": 1.0,
+            "topP": 0.8,
+            "topK": 10
+          }
+        }
+        """;
+      return template;
     }
 }

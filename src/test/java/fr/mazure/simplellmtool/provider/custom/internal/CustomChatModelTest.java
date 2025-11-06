@@ -194,6 +194,63 @@ class CustomChatModelTest {
         Assertions.assertEquals(FinishReason.TOOL_EXECUTION, response.finishReason());
     }
 
+    
+    @SuppressWarnings("static-method")
+    @Test
+    @DisplayName("Can parse GPT-5 final answer")
+    void canParseGPT5FinalAnswer() throws IOException,
+                                          JsonPathExtractorException {
+        // Given
+        final CustomChatModel model = buildGPT5Model();
+        final String answer = """
+            {
+              "id": "chatcmpl-CZ0nIJVeSW8CaVAjGtwgsz6zjluDW",
+              "object": "chat.completion",
+              "created": 1762460568,
+              "model": "gpt-5-nano-2025-08-07",
+              "choices": [
+                {
+                  "index": 0,
+                  "message": {
+                    "role": "assistant",
+                    "content": "English: In Paris, it's 14.1°C with an overcast sky. Feels like 14.2°C. Humidity is 93%.\\n\\nFrançais: À Paris, Île-de-France, France : 14,1°C, ciel couvert. Température ressentie 14,2°C. Humidité 93%.",
+                    "refusal": null,
+                    "annotations": []
+                  },
+                  "finish_reason": "stop"
+                }
+              ],
+              "usage": {
+                "prompt_tokens": 353,
+                "completion_tokens": 718,
+                "total_tokens": 1071,
+                "prompt_tokens_details": {
+                  "cached_tokens": 0,
+                  "audio_tokens": 0
+                },
+                "completion_tokens_details": {
+                  "reasoning_tokens": 640,
+                  "audio_tokens": 0,
+                  "accepted_prediction_tokens": 0,
+                  "rejected_prediction_tokens": 0
+                }
+              },
+              "service_tier": "default",
+              "system_fingerprint": null
+            }
+            """;
+
+        // When
+        final ChatResponse response = model.parseApiResponse(answer);
+
+        // Then
+        Assertions.assertEquals("English: In Paris, it's 14.1°C with an overcast sky. Feels like 14.2°C. Humidity is 93%.\n\nFrançais: À Paris, Île-de-France, France : 14,1°C, ciel couvert. Température ressentie 14,2°C. Humidité 93%.", response.aiMessage().text());
+        Assertions.assertFalse(response.aiMessage().hasToolExecutionRequests());
+        Assertions.assertEquals(353, response.tokenUsage().inputTokenCount());
+        Assertions.assertEquals(718, response.tokenUsage().outputTokenCount());
+        Assertions.assertEquals(FinishReason.STOP, response.finishReason());
+    }
+  
     private static CustomChatModel buildGeminiModel() {
         return CustomChatModel.builder()
                               .baseUrl("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent")
