@@ -15,9 +15,9 @@ class CustomChatModelTest {
 
     @SuppressWarnings("static-method")
     @Test
-    @DisplayName("Can parse Gemini tool calls")
-    void canParseGeminiToolCalls() throws IOException,
-                                          JsonPathExtractorException {
+    @DisplayName("Can parse Gemini tool calls with string parameters")
+    void canParseGeminiToolCallsWithStringParameters() throws IOException,
+                                                              JsonPathExtractorException {
         // Given
         final CustomChatModel model = buildGeminiModel();
         final String answer = """
@@ -76,6 +76,70 @@ class CustomChatModelTest {
 
     @SuppressWarnings("static-method")
     @Test
+    @DisplayName("Can parse Gemini tool calls with float and boolean parameters")
+    void canParseGeminiToolCallsWithFloatAndBooleanParameters() throws IOException,
+                                                                       JsonPathExtractorException {
+        // Given
+        final CustomChatModel model = buildGeminiModel();
+        final String answer = """
+            {
+              "candidates": [
+                {
+                  "content": {
+                    "parts": [
+                      {
+                        "functionCall": {
+                          "name": "set_weather_alert",
+                          "args": {
+                            "enable_temperature_alert": true,
+                            "temperature_threshold_celsius": 25.8,
+                            "precipitation_threshold_mm": 0,
+                            "enable_precipitation_alert": false
+                          }
+                        },
+                        "thoughtSignature": "CtwDAdHtim/AEAL8jUqrU9U9TpDeRDAGzp8RltISaYMFyrgXrWu2CxN3iPSIHn2+u6hkN0OeQjK6x2+JGzKskrFTJCL8oSK5mEgpzhUiSNElLi6mUcUQQeejbpMeqsyZEubPDkIY+gSSoCgLev1CD13x/f4N0QufDi9bmvZYpzG/PBehU9zk0EjDEGcUknItR8upY3kx2z59WuPUOSOb3CXPxPTeFNXgQSVUcoe6APkRlBU3y1VqdA6wer0P7ey262xriFE7+vJaAKjgypTQnyBXR7oz6fgUsUxTNLg5gSW+Ad/KDerxkh5yBGpEWCZSRoZ7puTS2Rtk7K3SHvthgWml0kQ9kj1IAgPxHBi5oxcDOMpMvOr4xkHSNLrZXfj/NQwIJ5AXTls2nCWAyGtHNG4kzvu7GLpbqtLR6vV5iexha6lSRO28GKU9vOwSjKOLKms/XOxXshuSEImByzoNmLLN9E5IblEtx4wMBbT9p9QRj6p16V4Jw/KGE2cJ4dANYR9Z8hZ5FOcaDmDjJB0RkQtOc+uUUyXYI13+7m2QtBL10BNCcU0AbdWN1nsXvhox5M+aoN3UrauGFMLgLDWuLeNAT7JE1BfKIaKmRZenwEc+O1uEUSXkaJMSTVj2uuE="
+                      }
+                    ],
+                    "role": "model"
+                  },
+                  "finishReason": "STOP",
+                  "index": 0,
+                  "finishMessage": "Model generated function call(s)."
+                }
+              ],
+              "usageMetadata": {
+                "promptTokenCount": 185,
+                "candidatesTokenCount": 50,
+                "totalTokenCount": 355,
+                "promptTokensDetails": [
+                  {
+                    "modality": "TEXT",
+                    "tokenCount": 185
+                  }
+                ],
+                "thoughtsTokenCount": 120
+              },
+              "modelVersion": "gemini-2.5-flash",
+              "responseId": "BUIOabnzGuy4nsEPsorR0A8"
+            }
+            """;
+
+        // When
+        final ChatResponse response = model.parseApiResponse(answer);
+
+        // Then
+        Assertions.assertEquals(null, response.aiMessage().text());
+        Assertions.assertTrue(response.aiMessage().hasToolExecutionRequests());
+        Assertions.assertEquals(1, response.aiMessage().toolExecutionRequests().size());
+        Assertions.assertEquals("set_weather_alert", response.aiMessage().toolExecutionRequests().get(0).name());
+        Assertions.assertEquals("{\"enable_temperature_alert\":true,\"temperature_threshold_celsius\":25.8,\"precipitation_threshold_mm\":0,\"enable_precipitation_alert\":false}", response.aiMessage().toolExecutionRequests().get(0).arguments());
+        Assertions.assertEquals(185, response.tokenUsage().inputTokenCount());
+        Assertions.assertEquals(50, response.tokenUsage().outputTokenCount());
+        Assertions.assertEquals(FinishReason.STOP, response.finishReason());
+    }
+
+    @SuppressWarnings("static-method")
+    @Test
     @DisplayName("Can parse Gemini final answer")
     void canParseGeminiFinalAnswer() throws IOException,
                                             JsonPathExtractorException {
@@ -126,9 +190,9 @@ class CustomChatModelTest {
 
     @SuppressWarnings("static-method")
     @Test
-    @DisplayName("Can parse GPT-5 tool calls")
-    void canParseGPT5ToolCalls() throws IOException,
-                                        JsonPathExtractorException {
+    @DisplayName("Can parse GPT-5 tool calls with string parameters")
+    void canParseGPT5ToolCallsWithStringParameters() throws IOException,
+                                                            JsonPathExtractorException {
         // Given
         final CustomChatModel model = buildGPT5Model();
         final String answer = """
@@ -194,6 +258,75 @@ class CustomChatModelTest {
         Assertions.assertEquals(FinishReason.TOOL_EXECUTION, response.finishReason());
     }
 
+    @SuppressWarnings("static-method")
+    @Test
+    @DisplayName("Can parse GPT-5 tool calls with float and boolean parameters")
+    void canParseGPT5ToolCallsWithFloatAndBooleanParameters() throws IOException,
+                                                                     JsonPathExtractorException {
+        // Given
+        final CustomChatModel model = buildGPT5Model();
+        final String answer = """
+            {
+              "id": "chatcmpl-CZMDrHtWB6l8LiC368RjOlYC9txfr",
+              "object": "chat.completion",
+              "created": 1762542939,
+              "model": "gpt-5-nano-2025-08-07",
+              "choices": [
+                {
+                  "index": 0,
+                  "message": {
+                    "role": "assistant",
+                    "content": null,
+                    "tool_calls": [
+                      {
+                        "id": "call_SPSLBVfwiCxmhUwVSoZ4Risc",
+                        "type": "function",
+                        "function": {
+                          "name": "set_weather_alert",
+                          "arguments": "{\\"enable_temperature_alert\\": true, \\"enable_precipitation_alert\\": false, \\"temperature_threshold_celsius\\": 25.8, \\"precipitation_threshold_mm\\": 0}"
+                        }
+                      }
+                    ],
+                    "refusal": null,
+                    "annotations": []
+                  },
+                  "finish_reason": "tool_calls"
+                }
+              ],
+              "usage": {
+                "prompt_tokens": 234,
+                "completion_tokens": 440,
+                "total_tokens": 674,
+                "prompt_tokens_details": {
+                  "cached_tokens": 0,
+                  "audio_tokens": 0
+                },
+                "completion_tokens_details": {
+                  "reasoning_tokens": 384,
+                  "audio_tokens": 0,
+                  "accepted_prediction_tokens": 0,
+                  "rejected_prediction_tokens": 0
+                }
+              },
+              "service_tier": "default",
+              "system_fingerprint": null
+            }
+            """;
+
+        // When
+        final ChatResponse response = model.parseApiResponse(answer);
+
+        // Then
+        Assertions.assertEquals(null, response.aiMessage().text());
+        Assertions.assertTrue(response.aiMessage().hasToolExecutionRequests());
+        Assertions.assertEquals(1, response.aiMessage().toolExecutionRequests().size());
+        Assertions.assertEquals("set_weather_alert", response.aiMessage().toolExecutionRequests().get(0).name());
+        Assertions.assertEquals("call_SPSLBVfwiCxmhUwVSoZ4Risc", response.aiMessage().toolExecutionRequests().get(0).id());
+        Assertions.assertEquals("{\"enable_temperature_alert\":true,\"enable_precipitation_alert\":false,\"temperature_threshold_celsius\":25.8,\"precipitation_threshold_mm\":0}", response.aiMessage().toolExecutionRequests().get(0).arguments());
+        Assertions.assertEquals(234, response.tokenUsage().inputTokenCount());
+        Assertions.assertEquals(440, response.tokenUsage().outputTokenCount());
+        Assertions.assertEquals(FinishReason.TOOL_EXECUTION, response.finishReason());
+    }
     
     @SuppressWarnings("static-method")
     @Test
