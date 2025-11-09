@@ -3,9 +3,9 @@
 Tool to return current weather for a given city
 """
 
+import json
 import sys
 import requests
-import json
 
 def get_coordinates(city_name):
     """
@@ -130,19 +130,52 @@ def get_weather(city_name):
     except json.JSONDecodeError:
         return "Error: Invalid JSON response"
 
+def print_description():
+    print("Returns the current weather for a given city")
+    schema = {
+        "type": "object",
+        "properties": {
+            "city": {
+                "type": "string",
+                "description": "The city for which the weather forecast should be returned, only the city name should be present",
+            }
+        },
+        "required": ["city"],
+    }
+    print(json.dumps(schema, separators=(",", ":")))
+
+def parse_input(argument):
+    try:
+        payload = json.loads(argument)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Invalid JSON input: {exc.msg}") from exc
+
+    if not isinstance(payload, dict):
+        raise ValueError("Input JSON must describe an object")
+
+    if "city" not in payload:
+        raise ValueError("Missing required field 'city'")
+
+    city = payload["city"]
+    if not isinstance(city, str) or not city.strip():
+        raise ValueError("Field 'city' must be a non-empty string")
+
+    return city.strip()
+
 if __name__ == "__main__":
-    # Check command line arguments
-    if len(sys.argv) == 2:
-        if sys.argv[1] == "--description":
-            print("Returns the current weather for a given city\ncity\tstring\trequired\tThe city for which the weather forecast should be returned, only the city name should be present")
-        else:
-            # City name provided
-            city_name = sys.argv[1]
-            weather = get_weather(city_name)
-            print(weather)
-    elif len(sys.argv) == 1:
-        print("Error: City name is required.", file=sys.stderr)
+    if len(sys.argv) == 2 and sys.argv[1] == "--description":
+        print_description()
+        sys.exit(0)
+
+    if len(sys.argv) != 2:
+        print("Expected a single JSON argument", file=sys.stderr)
         sys.exit(1)
-    else:
-        print("Error: Invalid arguments. Usage: get_weather.py <city_name> or get_weather.py --description", file=sys.stderr)
+
+    try:
+        city_name = parse_input(sys.argv[1])
+    except ValueError as error:
+        print(f"Error: {error}", file=sys.stderr)
         sys.exit(1)
+
+    weather = get_weather(city_name)
+    print(weather)

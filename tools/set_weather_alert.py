@@ -3,12 +3,38 @@ import sys
 import json
 
 def print_description():
-    """Print tool description in the required format."""
-    print("Configure weather alerts for a location based on temperature and precipitation thresholds")
-    print("enable_temperature_alert\tboolean\trequired\tWhether to enable temperature-based alerts")
-    print("enable_precipitation_alert\tboolean\trequired\tWhether to enable precipitation-based alerts")
-    print("temperature_threshold_celsius\tnumber\trequired\tTemperature threshold in Celsius (e.g., 35.0 for heat warning)")
-    print("precipitation_threshold_mm\tnumber\trequired\tPrecipitation threshold in millimeters (e.g., 50.0 for flood risk)")
+    """Print tool description with JSON schema."""
+    print(
+        "Configure weather alerts for a location based on temperature and precipitation thresholds"
+    )
+    schema = {
+        "type": "object",
+        "properties": {
+            "enable_temperature_alert": {
+                "type": "boolean",
+                "description": "Whether to enable temperature-based alerts",
+            },
+            "enable_precipitation_alert": {
+                "type": "boolean",
+                "description": "Whether to enable precipitation-based alerts",
+            },
+            "temperature_threshold_celsius": {
+                "type": "number",
+                "description": "Temperature threshold in Celsius (e.g., 35.0 for heat warning)",
+            },
+            "precipitation_threshold_mm": {
+                "type": "number",
+                "description": "Precipitation threshold in millimeters (e.g., 50.0 for flood risk)",
+            },
+        },
+        "required": [
+            "enable_temperature_alert",
+            "enable_precipitation_alert",
+            "temperature_threshold_celsius",
+            "precipitation_threshold_mm",
+        ],
+    }
+    print(json.dumps(schema, separators=(",", ":")))
 
 def parse_boolean(value: str) -> bool:
     """Parse a boolean value from string."""
@@ -66,34 +92,78 @@ def set_weather_alert(
     
     return json.dumps(config)
 
+def parse_input(argument):
+    try:
+        payload = json.loads(argument)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Invalid JSON input: {exc.msg}") from exc
+
+    if not isinstance(payload, dict):
+        raise ValueError("Input JSON must describe an object")
+
+    required_fields = (
+        "enable_temperature_alert",
+        "enable_precipitation_alert",
+        "temperature_threshold_celsius",
+        "precipitation_threshold_mm",
+    )
+
+    missing = [field for field in required_fields if field not in payload]
+    if missing:
+        raise ValueError(f"Missing required field(s): {', '.join(missing)}")
+
+    def coerce_bool(value, field_name):
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            return parse_boolean(value)
+        raise ValueError(f"Field '{field_name}' must be a boolean")
+
+    try:
+        enable_temperature_alert = coerce_bool(payload["enable_temperature_alert"], "enable_temperature_alert")
+        enable_precipitation_alert = coerce_bool(payload["enable_precipitation_alert"], "enable_precipitation_alert")
+    except ValueError as exc:
+        raise ValueError(str(exc)) from exc
+
+    try:
+        temperature_threshold_celsius = float(payload["temperature_threshold_celsius"])
+        precipitation_threshold_mm = float(payload["precipitation_threshold_mm"])
+    except (TypeError, ValueError) as exc:
+        raise ValueError("Threshold fields must be numbers") from exc
+
+    return (
+        enable_temperature_alert,
+        enable_precipitation_alert,
+        temperature_threshold_celsius,
+        precipitation_threshold_mm,
+    )
+
+
 def main():
     # Check for --description flag
     if len(sys.argv) == 2 and sys.argv[1] == "--description":
         print_description()
         sys.exit(0)
-    
-    # Parse command line arguments
+
     try:
-        if len(sys.argv) != 5:
-            raise ValueError("Expected 4 arguments: enable_temperature_alert enable_precipitation_alert temperature_threshold_celsius precipitation_threshold_mm")
-        
-        # Parse parameters from command line
-        enable_temperature_alert = parse_boolean(sys.argv[1])
-        enable_precipitation_alert = parse_boolean(sys.argv[2])
-        temperature_threshold_celsius = float(sys.argv[3])
-        precipitation_threshold_mm = float(sys.argv[4])
-        
-        # Execute tool
+        if len(sys.argv) != 2:
+            raise ValueError("Expected a single JSON argument")
+
+        (
+            enable_temperature_alert,
+            enable_precipitation_alert,
+            temperature_threshold_celsius,
+            precipitation_threshold_mm,
+        ) = parse_input(sys.argv[1])
+
         result = set_weather_alert(
             enable_temperature_alert,
             enable_precipitation_alert,
             temperature_threshold_celsius,
-            precipitation_threshold_mm
+            precipitation_threshold_mm,
         )
-        
+
         print(result)
-        sys.exit(0)
-        
     except Exception as e:
         print(f"Error: {str(e)}", file=sys.stderr)
         sys.exit(1)
