@@ -298,8 +298,8 @@ class RequestPayloadGeneratorTest {
 
     @SuppressWarnings("static-method")
     @Test
-    @DisplayName("Should generate Google's Gemini payload with tool call results")
-    void testGenerateToolCallResultsForGoogleGemini() throws ToolManagerException {
+    @DisplayName("Should generate Google's Gemini payload with tool call results with string input parameters")
+    void testGenerateToolCallResultsWithStringInputParametersForGoogleGemini() throws ToolManagerException {
         // Given
         final String template = buildGeminiTemplate();
 
@@ -402,6 +402,146 @@ class RequestPayloadGeneratorTest {
           }
         }
         """;
+        Assertions.assertEquals(expectedResult, result);
+    }
+
+    @SuppressWarnings("static-method")
+    @Test
+    @DisplayName("Should generate Google's Gemini payload with tool call results with string float and boolean parameters")
+    void testGenerateToolCallResultsWithFloatAndBooleanInputParametersForGoogleGemini() throws ToolManagerException {
+        // Given
+        final String template = buildGeminiTemplate();
+
+        final List<MessageRound> messages = Arrays.asList(
+            new MessageRound(MessageRound.Role.SYSTEM, "You are an assistant helping users to set up weather alerts."),
+            new MessageRound(MessageRound.Role.USER, "Set an alert if temperature reaches 25.8°C"),
+            new MessageRound(MessageRound.Role.MODEL, null, List.of(new MessageRound.ToolCall("set_weather_alert", "0ad6ff0f-7ce8-4fc9-86f1-4db9ea0ac5d6", 
+                                                                    List.of(new MessageRound.ToolParameter("enable_temperature_alert", new ToolParameterValue(ToolParameterType.BOOLEAN, Boolean.TRUE)),
+                                                                            new MessageRound.ToolParameter("temperature_threshold_celsius", new ToolParameterValue(ToolParameterType.NUMBER, Double.valueOf(25.8))),
+                                                                            new MessageRound.ToolParameter("precipitation_threshold_mm", new ToolParameterValue(ToolParameterType.INTEGER, Integer.valueOf(0))), //TODO this should a number, not an INTEGER (and the expected result is wrong)
+                                                                            new MessageRound.ToolParameter("enable_precipitation_alert", new ToolParameterValue(ToolParameterType.BOOLEAN, Boolean.FALSE)))))),
+            new MessageRound(MessageRound.Role.TOOL, "{\"success\": true, \"alerts\": {\"temperature\": {\"enabled\": true, \"threshold_celsius\": 25.8}, \"precipitation\": {\"enabled\": false, \"threshold_mm\": null}}, \"message\": \"Weather alerts configured for: temperature 25.8\u00b0C\"}\n", "set_weather_alert", "0ad6ff0f-7ce8-4fc9-86f1-4db9ea0ac5d6")
+        );
+
+        final ToolManager.Tool setWeatherAlertTool = new ToolManager.Tool("set_weather_alert",
+                                                                          "Configure weather alerts for a location based on temperature and precipitation thresholds",
+                                                                          List.of(new ToolManager.ToolParameter("enable_temperature_alert", "Whether to enable temperature-based alerts", ToolParameterType.BOOLEAN, true),
+                                                                                  new ToolManager.ToolParameter("enable_precipitation_alert", "Whether to enable precipitation-based alerts", ToolParameterType.BOOLEAN, true),
+                                                                                  new ToolManager.ToolParameter("temperature_threshold_celsius", "Temperature threshold in Celsius (e.g., 35.0 for heat warning)", ToolParameterType.NUMBER, true),
+                                                                                  new ToolManager.ToolParameter("precipitation_threshold_mm", "Precipitation threshold in millimeters (e.g., 50.0 for flood risk)", ToolParameterType.NUMBER, true)));
+
+        final List<ToolSpecification> tools = List.of(
+          ToolManager.getSpecification(setWeatherAlertTool)
+        );
+
+        // When
+        final String result = RequestPayloadGenerator.generate(template, messages, "my_model_name", tools, "my-secret-API-key");
+
+        // Then
+        final String expectedResult = """
+            {
+              "system_instruction": {
+                "parts": [
+                  {
+                    "text": "You are an assistant helping users to set up weather alerts."
+                  }
+                ]
+              },
+              "contents": [
+                {
+                  "role": "user",
+                  "parts": [
+                    {
+                      "text": "Set an alert if temperature reaches 25.8°C"
+                    }
+                  ]
+                },
+                {
+                  "role": "model",
+                  "parts": [
+                   \s
+                    {
+                    "functionCall": {
+                    "name": "set_weather_alert",
+                      "args": {
+                       \s
+                        "enable_temperature_alert": true
+                        ,
+                       \s
+                        "temperature_threshold_celsius": 25.8
+                        ,
+                       \s
+                        "precipitation_threshold_mm": 0
+                        ,
+                       \s
+                        "enable_precipitation_alert": false
+                       \s
+                      }
+                    }
+                     }\s
+                  ]
+                },
+                {
+                  "role": "function",
+                  "parts": [
+                    {
+                      "functionResponse": {
+                        "name": "set_weather_alert",
+                        "response": {
+                          "result": "{\\"success\\": true, \\"alerts\\": {\\"temperature\\": {\\"enabled\\": true, \\"threshold_celsius\\": 25.8}, \\"precipitation\\": {\\"enabled\\": false, \\"threshold_mm\\": null}}, \\"message\\": \\"Weather alerts configured for: temperature 25.8\u00b0C\\"}\\n"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ],
+              "tools": [
+                {
+                  "function_declarations": [
+                    {
+                      "name": "set_weather_alert",
+                      "description": "Configure weather alerts for a location based on temperature and precipitation thresholds",
+                      "parameters": {
+                        "type": "object",
+                        "properties": {
+                          "enable_temperature_alert": {
+                            "type": "boolean",
+                            "description": "Whether to enable temperature-based alerts"
+                          },
+                          "enable_precipitation_alert": {
+                            "type": "boolean",
+                            "description": "Whether to enable precipitation-based alerts"
+                          },
+                          "temperature_threshold_celsius": {
+                            "type": "number",
+                            "description": "Temperature threshold in Celsius (e.g., 35.0 for heat warning)"
+                          },
+                          "precipitation_threshold_mm": {
+                            "type": "number",
+                            "description": "Precipitation threshold in millimeters (e.g., 50.0 for flood risk)"
+                          }
+                        },
+                        "required": [
+                          "enable_temperature_alert",
+                          "enable_precipitation_alert",
+                          "temperature_threshold_celsius",
+                          "precipitation_threshold_mm"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ],
+              "generationConfig": {
+                "stopSequences": [
+                  "Title"
+                ],
+                "temperature": 1.0,
+                "topP": 0.8,
+                "topK": 10
+              }
+            }
+            """;
         Assertions.assertEquals(expectedResult, result);
     }
 
@@ -548,8 +688,8 @@ class RequestPayloadGeneratorTest {
 
     @SuppressWarnings("static-method")
     @Test
-    @DisplayName("Should generate GPT5 payload with tool call results")
-    void testGenerateToolCallResultsForGPT5() throws ToolManagerException {
+    @DisplayName("Should generate GPT5 payload with tool call results with string input parameters")
+    void testGenerateToolCallResultsWithStringInputParametersForGPT5() throws ToolManagerException {
         // Given
         final String template = buildGPT5Template();
 
@@ -616,6 +756,101 @@ class RequestPayloadGeneratorTest {
                         }
                       },
                       "required": ["city"]
+                    }
+                  }
+                }
+              ]
+            }
+            """;
+        Assertions.assertEquals(expectedResult, result);
+    }
+
+    @SuppressWarnings("static-method")
+    @Test
+    @DisplayName("Should generate GPT5 payload with tool call results with float and boolean input parameters")
+    void testGenerateToolCallResultsWithFloatAndBooleanInputParametersForGPT5() throws ToolManagerException {
+        // Given
+        final String template = buildGPT5Template();
+
+        final List<MessageRound> messages = Arrays.asList(
+            new MessageRound(MessageRound.Role.SYSTEM, "You are an assistant helping users to set up weather alerts."),
+            new MessageRound(MessageRound.Role.USER, "Set an alert if temperature reaches 25.8°C"),
+            new MessageRound(MessageRound.Role.MODEL, null, List.of(new MessageRound.ToolCall("set_weather_alert", "0ad6ff0f-7ce8-4fc9-86f1-4db9ea0ac5d6", 
+                                                                    List.of(new MessageRound.ToolParameter("enable_temperature_alert", new ToolParameterValue(ToolParameterType.BOOLEAN, Boolean.TRUE)),
+                                                                            new MessageRound.ToolParameter("enable_precipitation_alert", new ToolParameterValue(ToolParameterType.BOOLEAN, Boolean.FALSE)),
+                                                                            new MessageRound.ToolParameter("temperature_threshold_celsius", new ToolParameterValue(ToolParameterType.NUMBER, Double.valueOf(25.8))),
+                                                                            new MessageRound.ToolParameter("precipitation_threshold_mm", new ToolParameterValue(ToolParameterType.INTEGER, Integer.valueOf(0))))))), //TODO this should a number, not an INTEGER (and the expected result is wrong)
+            new MessageRound(MessageRound.Role.TOOL, "{\"success\": true, \"alerts\": {\"temperature\": {\"enabled\": true, \"threshold_celsius\": 25.8}, \"precipitation\": {\"enabled\": false, \"threshold_mm\": null}}, \"message\": \"Weather alerts configured for: temperature 25.8\u00b0C\"}\n", "set_weather_alert", "0ad6ff0f-7ce8-4fc9-86f1-4db9ea0ac5d6")
+        );
+
+        final ToolManager.Tool setWeatherAlertTool = new ToolManager.Tool("set_weather_alert",
+                                                                          "Configure weather alerts for a location based on temperature and precipitation thresholds",
+                                                                          List.of(new ToolManager.ToolParameter("enable_temperature_alert", "Whether to enable temperature-based alerts", ToolParameterType.BOOLEAN, true),
+                                                                                  new ToolManager.ToolParameter("enable_precipitation_alert", "Whether to enable precipitation-based alerts", ToolParameterType.BOOLEAN, true),
+                                                                                  new ToolManager.ToolParameter("temperature_threshold_celsius", "Temperature threshold in Celsius (e.g., 35.0 for heat warning)", ToolParameterType.NUMBER, true),
+                                                                                  new ToolManager.ToolParameter("precipitation_threshold_mm", "Precipitation threshold in millimeters (e.g., 50.0 for flood risk)", ToolParameterType.NUMBER, true)));
+
+        final List<ToolSpecification> tools = List.of(
+          ToolManager.getSpecification(setWeatherAlertTool)
+        );
+
+        // When
+        final String result = RequestPayloadGenerator.generate(template, messages, "gpt-5-nano-2025-08-07", tools, "my-secret-API-key");
+
+        // Then
+        final String expectedResult = """
+            {
+              "model": "gpt-5-nano-2025-08-07",
+              "messages": [
+                {
+                  "role": "system",
+                  "content": "You are an assistant helping users to set up weather alerts."
+                },{
+                  "role": "user",
+                  "content": "Set an alert if temperature reaches 25.8°C"
+                },{
+                  "role": "assistant",
+                  "content": null,
+                  "tool_calls": [
+                    {
+                      "id": "0ad6ff0f-7ce8-4fc9-86f1-4db9ea0ac5d6",
+                      "type": "function",
+                      "function": {
+                        "name": "set_weather_alert",
+                        "arguments": "{ \\"enable_temperature_alert\\": true, \\"enable_precipitation_alert\\": false, \\"temperature_threshold_celsius\\": 25.8, \\"precipitation_threshold_mm\\": 0 }"
+                      }
+                    }
+                  ]
+                },{
+                  "role": "tool",
+                  "content": "{\\"success\\": true, \\"alerts\\": {\\"temperature\\": {\\"enabled\\": true, \\"threshold_celsius\\": 25.8}, \\"precipitation\\": {\\"enabled\\": false, \\"threshold_mm\\": null}}, \\"message\\": \\"Weather alerts configured for: temperature 25.8\u00b0C\\"}\\n",
+                  "tool_call_id": "0ad6ff0f-7ce8-4fc9-86f1-4db9ea0ac5d6"
+                }
+              ],
+              "tools": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "set_weather_alert",
+                    "description": "Configure weather alerts for a location based on temperature and precipitation thresholds",
+                    "parameters": {
+                      "type": "object",
+                      "properties": {
+                        "enable_temperature_alert": {
+                          "type": "boolean",
+                          "description": "Whether to enable temperature-based alerts"
+                        },"enable_precipitation_alert": {
+                          "type": "boolean",
+                          "description": "Whether to enable precipitation-based alerts"
+                        },"temperature_threshold_celsius": {
+                          "type": "number",
+                          "description": "Temperature threshold in Celsius (e.g., 35.0 for heat warning)"
+                        },"precipitation_threshold_mm": {
+                          "type": "number",
+                          "description": "Precipitation threshold in millimeters (e.g., 50.0 for flood risk)"
+                        }
+                      },
+                      "required": ["enable_temperature_alert","enable_precipitation_alert","temperature_threshold_celsius","precipitation_threshold_mm"]
                     }
                   }
                 }

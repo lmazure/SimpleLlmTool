@@ -1,11 +1,8 @@
-- add the unit tests for
-  - java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar     --provider custom     --model-file examples/gemini-2.5-flash@custom.yaml     --tools-dir tools     --system-prompt-string "You always provide an English anwer, followed by a precise translation in French"     --user-prompt-string "What is the weather in Paris?" --log-level info
-  - java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar     --provider custom     --model-file examples/gpt-5-nano\@custom.yaml     --tools-dir tools     --system-prompt-string "You always provide an English anwer, followed by a precise translation in French"     --user-prompt-string "What is the weather in Paris?" --log-level info
-  - java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar     --provider custom     --model-file examples/gpt-5-nano\@custom.yaml     --tools-dir tools     --system-prompt-string "Use the tool to perform computation"     --user-prompt-string "What is 123456789 + 987654321?" --log-level info
-  - java -jar target/SimpleLlmTool-0.0.1-SNAPSHOT-jar-with-dependencies.jar     --provider custom     --model-file examples/gemini-2.5-flash\@custom.yaml     --tools-dir tools     --system-prompt-string "Use the tool to perform computation"     --user-prompt-string "What is 123456789 + 987654321?" --log-level inf
-- test boolean parameters
-- test float parameters
-- add unit tests for all parameter types
+- modify tools so they
+  - use a JSON schema do define input parameter
+  - take as input a JSON payload (which is a string passed on the command line)
+  - print the result as a JSON payload
+- fix bug of the double which is considered as an integer
 - test optional parameters
 
 
