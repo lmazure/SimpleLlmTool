@@ -303,7 +303,12 @@ public class CommandLine {
 
     private static String slurpFile(final Path path)  {
         try {
-            return Files.readString(path);
+            final String content = Files.readString(path);
+            if (content.isBlank()) {
+                System.err.println("Error: Content of " + path + " is blank");
+                System.exit(ExitCode.FILE_ERROR.getCode());
+            }
+            return content;
         }
         catch (final IOException e) {
             System.err.println("Error: Unable to read file: " + path);
